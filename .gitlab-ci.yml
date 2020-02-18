@@ -19,7 +19,7 @@ spec:nightly:
   script:
     - crystal spec
 
-docs:
+pages:
   stage: deploy
   script:
     - crystal docs -o public
