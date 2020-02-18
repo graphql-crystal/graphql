@@ -96,14 +96,14 @@ class MyContext < GraphQL::Context
 end
 
 # Pass it to schema.execute
-context = MyContent.new(Math.PI)
+context = MyContext.new(Math.PI)
 schema.execute(query, variables, operation_name, context)
 
 # Retrieve it in your fields
 @[GraphQL::Object]
 class MyMath
   @[GraphQL::Field]
-  def pi(context : MyContent)
+  def pi(context : MyContext)
     context.pi
   end
 end
