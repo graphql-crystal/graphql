@@ -1,0 +1,7 @@
+name: graphql
+version: 0.1.0
+authors:
+  - Jakob Gillich <jakob@gillich.me>
+license: MIT
+description: |
+  GraphQL server library
