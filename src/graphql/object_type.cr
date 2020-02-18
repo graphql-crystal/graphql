@@ -72,7 +72,13 @@ module GraphQL::ObjectType
         path = field._alias || field.name
 
         case field.name
-        \{% for method in (@type.methods.select { |m| m.annotation(::GraphQL::Field) }) %}
+        \{% methods = @type.methods.select { |m| m.annotation(::GraphQL::Field) } %}
+        \{% for ancestor in @type.ancestors %}
+          \{% for method in ancestor.methods.select { |m| m.annotation(::GraphQL::Field) } %}
+            \{% methods << method %}
+          \{% end %}
+        \{% end %}
+        \{% for method in methods %}
         when \{{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
           case value = \{{method.name.id}}(
             \{% for arg in method.args %}
