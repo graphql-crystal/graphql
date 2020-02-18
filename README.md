@@ -45,7 +45,7 @@ puts schema.document.to_s
 
 Which, among several built-in types, prints our query type:
 
-```
+```graphql
 type Query {
   echo(str: String!): String!
 }
@@ -54,7 +54,7 @@ type Query {
 Now for the integration with your HTTP library or framework. All we need to do is to call
 `schema.execute` with the right arguments. Here is a simple example for Kemal, customize as needed:
 
-```
+```crystal
 post "/graphql" do |env|
   env.response.content_type = "application/json"
 
@@ -68,7 +68,7 @@ end
 
 Now we're ready to query our API:
 
-```
+```bash
 curl \
   -X POST \
   -H "Content-Type: application/json" \
@@ -78,11 +78,11 @@ curl \
 
 This should return:
 
-```
-{"data":{"echo":"Hello GraphQL!"}}
+```json
+{ "data": { "echo": "Hello GraphQL!" } }
 ```
 
-### Using Context
+## Using Context
 
 `context` is a optional argument that your fields can retrieve. It lets fields access global data
 like database connections.
@@ -111,7 +111,7 @@ end
 
 Note that a context instance should only be used once, do not reuse it for multiple executes.
 
-### Defining Objects
+## Defining Objects
 
 Objects are perhaps the most commonly used type in GraphQL. They are implemented as classes. To
 define a object, you need a `GraphQL::Object` annotation and a `GraphQL::ObjectType` include.
@@ -144,7 +144,7 @@ class Bar
 end
 ```
 
-### Defining Query
+## Defining Query
 
 Query is the root type of all queries. It has the same requirements as a object type, but also
 requires a `GraphQL::QueryType` include.
@@ -164,7 +164,7 @@ end
 schema = GraphQL::Schema.new(Query.new)
 ```
 
-### Defining Mutation
+## Defining Mutation
 
 Mutation is the root type for all mutations. It has the same requirements as a object type, but also
 requires a `GraphQL::MutationType` include.
@@ -222,7 +222,7 @@ end
 
 Defining enums is very straightforward, just add a `GraphQL::Enum` annotation.
 
-```
+```crystal
 @[GraphQL::Enum]
 enum IPAddressType
   IPv4
@@ -258,7 +258,7 @@ is not needed in most situations because type names are automatically converted 
 camelCase. However, `item_id` is converted to `itemId`, but you might want to use `itemID`. This is
 where the name argument comes in handy.
 
-```
+```crystal
 @[GraphQL::Object(name: "Sheep")]
 class Wolf
   @[GraphQL::Field(name: "baa")]
@@ -273,7 +273,7 @@ end
 Describes the type. Available through the introspection interface so it's always a good idea to set
 this argument.
 
-```
+```crystal
 @[GraphQL::Object(description: "I'm a sheep, I promise!")]
 class Wolf
 end
@@ -283,7 +283,7 @@ end
 
 The deprecated argument is set to mark a type as deprecated.
 
-```
+```crystal
 class Sheep
   @[GraphQL::Field(deprecated: "This was a bad idea.")]
   def fight_wolf : String

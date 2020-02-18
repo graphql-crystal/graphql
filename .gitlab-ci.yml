@@ -1,0 +1,30 @@
+image: crystallang/crystal:latest
+
+cache:
+  paths:
+    - lib
+
+before_script:
+  - crystal -v
+  - shards
+
+spec:stable:
+  stage: test
+  script:
+    - crystal spec
+
+spec:nightly:
+  image: crystallang/crystal:nightly
+  stage: test
+  script:
+    - crystal spec
+
+docs:
+  stage: deploy
+  script:
+    - crystal docs -o public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

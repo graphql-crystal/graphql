@@ -92,7 +92,7 @@ module GraphQL::Document
                 \{% elsif type < Array %}
                   %type = ::GraphQL::Language::ListType.new(of_type: %type.dup)
                 \{% elsif type != Nil %}
-                  \{% raise "#{object.name}##{arg.name} input value #{type} is not a GraphQL type" %}
+                  \{% raise "#{object.name}##{arg.name} type #{type} is not a GraphQL type" %}
                 \{% end %}
 
                 \{% if type != Nil %}
@@ -146,7 +146,7 @@ module GraphQL::Document
               \{% elsif type < Array %}
                 %type = ::GraphQL::Language::ListType.new(of_type: %type.dup)
               \{% elsif type != Nil %}
-                \{% raise "#{object.name}##{method.name} input value #{type} is not a GraphQL type" %}
+                \{% raise "#{object.name}##{method.name} type #{type} is not a GraphQL type" %}
               \{% end %}
 
               \{% if type != Nil %}

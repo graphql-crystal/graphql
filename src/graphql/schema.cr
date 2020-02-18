@@ -18,7 +18,7 @@ module GraphQL
       end
     end
 
-    def execute(query : String, variables : Hash(String, JSON::Any)?, operation_name : String? = nil, context = Context.new)
+    def execute(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new)
       document = Language.parse(query)
       operations = [] of Language::OperationDefinition
       errors = [] of GraphQL::Error
