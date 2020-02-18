@@ -31,13 +31,13 @@ class Query
 end
 ```
 
-Now you can create a schema object:
+Now we can create a schema object:
 
 ```crystal
 schema = GraphQL::Schema.new(Query.new)
 ```
 
-To verify you we everything correctly, we can print out the schema:
+To verify we did everything correctly, we can print out the schema:
 
 ```crystal
 puts schema.document.to_s
