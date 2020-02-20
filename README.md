@@ -195,8 +195,8 @@ constructor with a `GraphQL::Field` annotation.
 class Where
   include GraphQL::InputObjectType
 
-  @name : String?
-  @id : String?
+  getter name : String?
+  getter id : String?
 
   @[GraphQL::Field]
   def initialize(@name : String?, @id : String?)
