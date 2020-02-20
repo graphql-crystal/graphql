@@ -6,6 +6,24 @@ module GraphQL
     @query : QueryType
     @mutation : MutationType?
 
+    private def to_arg(any : JSON::Any) : Language::ArgumentValue
+      case raw = any.raw
+      when Int64
+        raw.to_i32.as(Language::ArgumentValue)
+      when Hash
+        args = raw.map do |key, value|
+          Language::Argument.new(key, to_arg(value))
+        end
+        Language::InputObject.new(args)
+      when Array
+        raw.map do |value|
+          to_arg(value)
+        end
+      else
+        raw.as(Language::ArgumentValue)
+      end
+    end
+
     def initialize(@query : QueryType, @mutation : MutationType? = nil)
       @document = @query._graphql_document
       if !@mutation.nil?
@@ -38,12 +56,7 @@ module GraphQL
           when Language::VariableIdentifier
             vars = variables
             if !vars.nil? && vars.has_key?(value.name)
-              node.value = case raw = vars[value.name].raw
-                           when Int64
-                             raw.to_i32.as(Language::ArgumentValue)
-                           else
-                             raw.as(Language::ArgumentValue)
-                           end
+              node.value = to_arg(vars[value.name])
             else
               errors << Error.new("missing variable #{value.name}", [] of String | Int32)
             end

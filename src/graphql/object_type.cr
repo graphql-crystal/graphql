@@ -100,6 +100,8 @@ module GraphQL::ObjectType
                   when ::GraphQL::Language::InputObject
                     \{{arg_type.id}}._graphql_new(arg_value)
                     \{% end %}
+                  # when Array
+                    # TODO
                   when \{{arg.restriction.resolve.union_types.find { |t| t != Nil }.id}}
                     arg_value
                   else

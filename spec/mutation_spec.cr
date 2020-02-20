@@ -29,6 +29,52 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
+  it "Takes input object as variable" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : MutationInputObject) {
+          value: nonNull(io: $obj)
+        }
+      ),
+      {"obj" => JSON::Any.new({"value" => JSON::Any.new("123")})} of String => JSON::Any
+    ).should eq (
+      {
+        "data" => {
+          "value" => "123",
+        },
+      }
+    ).to_json
+  end
+
+  it "Takes nested input objects" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : MutationInputObject) {
+          value: nested(io: $obj)
+        }
+      ),
+      JSON.parse({"obj" => {"value" => {"value" => {"value" => nil}}}}.to_json).raw.as(Hash(String, JSON::Any))
+    ).should eq (
+      {
+        "data" => {
+          "value" => 3,
+        },
+      }
+    ).to_json
+  end
+
+  pending "Takes input array as variable" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : [MutationInputObject]) {
+          value: array(io: $obj)
+        }
+      ),
+      JSON.parse({"obj" => [{"value" => "123"}, {"value" => "321"}]}.to_json).raw.as(Hash(String, JSON::Any))
+    ).should eq (
+      {
+        "data" => {"value" => ["123", "321"]},
+      }
+    ).to_json
+  end
+
   it "Returns error when null is passed to non-null" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
       mutation Mutation {

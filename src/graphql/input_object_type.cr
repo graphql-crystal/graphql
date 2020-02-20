@@ -19,9 +19,19 @@ module GraphQL::InputObjectType
               else
                 {% arg_type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
                 {% if arg_type.annotation(::GraphQL::InputObject) %}
-                  {{arg_type.id}}._graphql_new(arg.value.as(::GraphQL::Language::InputObject))
+                  {% if arg.restriction.resolve.nilable? %}
+                    arg.value.nil? ? nil : {{arg_type.id}}._graphql_new(arg.value.as(::GraphQL::Language::InputObject))
+                  {% else %}
+                    {{arg_type.id}}._graphql_new(arg.value.as(::GraphQL::Language::InputObject))
+                  {% end %}
                 {% elsif arg_type < Array %}
-                  arg.value.as(Array(::GraphQL::Language::ArgumentValue)).map {|v| v.as({{arg_type.type_vars.first}}) }
+                  {% if arg_type.type_vars.first.annotation(::GraphQL::InputObject) %}
+                  arg.value.as(Array(::GraphQL::Language::ArgumentValue)).map do |value|
+                    {{arg_type.type_vars.first.id}}._graphql_new(value.as(::GraphQL::Language::InputObject))
+                  end
+                  {% else %}
+                    arg.value.as(Array(::GraphQL::Language::ArgumentValue)).map {|v| v.as({{arg_type.type_vars.first}}) }
+                  {% end %}
                 {% else %}
                   arg.value.as({{arg.restriction.resolve}})
                 {% end %}
