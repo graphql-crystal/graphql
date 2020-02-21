@@ -2,6 +2,7 @@ module GraphQL::InputObjectType
   macro included
     macro finished
       {% verbatim do %}
+      # :nodoc:
       def self._graphql_new(input_object : ::GraphQL::Language::InputObject)
         {% method = @type.methods.find { |m| m.annotation(::GraphQL::Field) } %}
         self.new(
