@@ -13,9 +13,6 @@ module GraphQL::Document
                 \{% raise "#{objects[i].name.id}##{method.name.id} must have a return type" %}
               \{% end %}
               \{% for arg in method.args %}
-                \{% if (arg.restriction.resolve.annotation(::GraphQL::Object) || arg.restriction.resolve.annotation(::GraphQL::InputObject)) && !objects.includes?(arg.restriction.resolve) && !(arg.restriction.resolve < ::GraphQL::Context) %}
-                  \{% objects << arg.restriction.resolve %}
-                \{% end %}
                 \{% for type in arg.restriction.resolve.union_types %}
                   \{% if type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context) %}
                     \{% objects << type.resolve %}

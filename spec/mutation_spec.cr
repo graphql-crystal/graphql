@@ -61,7 +61,7 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  pending "Takes input array as variable" do
+  it "Takes input array as variable" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($obj : [MutationInputObject]) {
           value: array(io: $obj)

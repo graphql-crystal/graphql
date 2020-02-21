@@ -82,27 +82,49 @@ module GraphQL::ObjectType
         when \{{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
           case value = \{{method.name.id}}(
             \{% for arg in method.args %}
+            \{% raise "#{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
+            \{% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
+
             \{{ arg.name }}: begin
               if context.is_a? \{{arg.restriction.id}}
                 context
               elsif arg = field.arguments.find \{|a| a.name == \{{ arg.name.id.stringify.camelcase(lower: true) }}}
                 begin
                   case arg_value = arg.value
-                    \{% raise "#{@type.name}##{method.name} args are missing type restriction" if arg.restriction.is_a? Nop %}
-                    \{% arg_type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
-                    \{% if arg_type < Float %}
+                  \{% if type < Float %}
                   when Int, Float
-                    arg_value.to_f64.as(\{{arg_type.id}})
-                    \{% elsif arg_type < Int %}
+                    arg_value.to_f64.as(\{{type.id}})
+                  \{% elsif type < Int %}
                   when Int
-                    arg_value.as(\{{arg.restriction.resolve.union_types.find { |t| t != Nil }.id}})
-                    \{% elsif arg_type.annotation(::GraphQL::InputObject) %}
+                    arg_value.as(\{{type.id}})
+                  \{% elsif type.annotation(::GraphQL::InputObject) %}
                   when ::GraphQL::Language::InputObject
-                    \{{arg_type.id}}._graphql_new(arg_value)
-                    \{% end %}
-                  # when Array
-                    # TODO
-                  when \{{arg.restriction.resolve.union_types.find { |t| t != Nil }.id}}
+                    \{{type.id}}._graphql_new(arg_value)
+                  \{% elsif type  < Array %}
+                  \{% inner_type = type.type_vars.find { |t| t != Nil }.resolve %}
+                  when Array
+                    arg_value.map do |value|
+                      case value
+                      \{% if inner_type < Float %}
+                      when Int, Float
+                        value.to_f64.as(\{{value.id}})
+                      \{% elsif inner_type < Int %}
+                      when Int
+                        value.as(\{{value.id}})
+                      \{% elsif inner_type.annotation(::GraphQL::InputObject) %}
+                      when ::GraphQL::Language::InputObject
+                        \{{inner_type.id}}._graphql_new(value)
+                      \{% elsif inner_type  < Array %}
+                        \{% raise "#{@type.name}##{method.name} nested arrays are not supported" %}
+                      \{% end %}
+                      when \{{inner_type.id}}
+                        value
+                      else
+                        return [GraphQL::Error.new("wrong type for argument \{{ arg.name.id.camelcase(lower: true) }}", path)]
+                      end
+                    end
+                  \{% end %}
+                  when \{{type.id}}
                     arg_value
                   else
                     return [GraphQL::Error.new("wrong type for argument \{{ arg.name.id.camelcase(lower: true) }}", path)]
