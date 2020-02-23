@@ -84,7 +84,7 @@ module GraphQL::ObjectType
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          case value = {{method.name.id}}(
+          case value = self.{{method.name.id}}(
             {% for arg in method.args %}
             {% raise "#{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
