@@ -1,0 +1,88 @@
+"A Boolean Value"
+scalar Boolean
+
+"A Floating Point Number"
+scalar Float
+
+"An ID"
+scalar ID
+
+"An Integer Number"
+scalar Int
+
+type Query {
+  "Annotations"
+  ann_ks(
+    "arg_with_both description"
+    argWithBothOverride: String!
+    "arg_with_descr description"
+    argWithDescr: String!
+    argWithNameOverride: String!
+    argWithNone: String!
+  ): String!
+  argsWithoutAnnotations(arg1: String!, arg2: String!, arg3: String!): String!
+}
+
+"A String Value"
+scalar String
+
+type __Directive {
+  args: [__InputValue!]!
+  description: String
+  locations: [String!]!
+  name: String!
+}
+
+type __EnumValue {
+  deprecationReason: String
+  description: String
+  isDeprecated: Boolean!
+  name: String!
+}
+
+type __Field {
+  args: [__InputValue!]!
+  deprecationReason: String
+  description: String
+  isDeprecated: Boolean!
+  name: String!
+  type: __Type!
+}
+
+type __InputValue {
+  defaultValue: String
+  description: String
+  name: String!
+  type: __Type!
+}
+
+type __Schema {
+  directives: [__Directive!]!
+  mutationType: __Type
+  queryType: __Type!
+  subscriptionType: __Type
+  types: [__Type!]!
+}
+
+type __Type {
+  description: String
+  enumValues(includeDeprecated: Boolean): [__EnumValue!]
+  fields(includeDeprecated: Boolean): [__Field!]
+  inputFields: [__InputValue!]
+  interfaces: [__Type!]
+  kind: __TypeKind!
+  name: String
+  ofType: __Type
+  possibleTypes: [__Type!]
+}
+
+enum __TypeKind {
+  ENUM
+  INPUT_OBJECT
+  INTERFACE
+  LIST
+  NON_NULL
+  OBJECT
+  SCALAR
+  UNION
+}

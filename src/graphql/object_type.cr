@@ -133,7 +133,7 @@ module GraphQL::ObjectType
                   else
                     return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                   end
-                rescue e : TypeCastError
+                rescue TypeCastError
                   return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                 end
               else

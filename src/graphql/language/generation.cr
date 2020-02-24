@@ -140,15 +140,27 @@ module GraphQL
       end
 
       def self.generate(node : InputValueDefinition, indent : String = "")
-        out = "#{node.name}: #{generate(node.type)}"
+        out = description = generate_description(node, indent: indent)
+        out += "#{indent}#{node.name}: #{generate(node.type)}"
         out += " = #{generate(node.default_value)}" unless node.default_value.nil?
         out += generate_directives(node.directives)
       end
 
       def self.generate(node : FieldDefinition, indent : String = "")
-        out = node.name.dup
+        out = indent + node.name.dup
         unless node.arguments.empty?
-          out += "(" + node.arguments.map { |arg| generate(arg).as(String) }.join(", ") + ")"
+          with_descriptions = !node.arguments.find { |arg| !arg.description.nil? }.nil?
+          out += "("
+          args = node.arguments.map { |arg|
+            if with_descriptions
+              "\n" + generate(arg, indent: indent*2).as(String)
+            else
+              generate(arg).as(String)
+            end
+          }
+          out += with_descriptions ? args.join("") : args.join(", ")
+          out += "\n#{indent}" if with_descriptions
+          out += ")"
         end
         out += ": #{generate(node.type)}"
         out += generate_directives(node.directives)
@@ -266,7 +278,7 @@ module GraphQL
         out = " {\n"
         fields.each.with_index do |field, i|
           out += generate_description(field, indent: "  ", first_in_block: i == 0)
-          out += "  #{generate(field)}\n"
+          out += "#{generate(field, indent: "  ")}\n"
         end
         out += "}"
       end

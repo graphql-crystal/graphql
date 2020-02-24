@@ -292,7 +292,26 @@ class Sheep
 end
 ```
 
+### arguments
+
+A hash that is used to set names and descriptions for field arguments. Note that argument cannot be
+deprecated as of the latest GraphQL spec (June 2018).
+
+```crystal
+class Sheep
+  @[GraphQL::Field(arguments: {weapon: {name: "weaponName", description: "The weapon the sheep should use."}})]
+  def fight_wolf(weapon : String) : String
+    if weapon == "Atomic Bomb"
+      "Sheep killed wolf"
+    else
+      "Wolf ate sheep"
+    end
+  end
+end
+```
+
 ## Field Arguments
 
 Field arguments are automatically resolved. A type with a default value becomes optional. A nilable
 type is also considered a optional type.
+

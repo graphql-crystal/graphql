@@ -107,11 +107,11 @@ module GraphQL::Document
               {% end %}
               {% if !types.empty? %}
                 %input_values << ::GraphQL::Language::InputValueDefinition.new(
-                  name: {{ arg.name.id.stringify.camelcase(lower: true) }},
+                  name: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["name"] || arg.name.id.stringify.camelcase(lower: true) }},
                   type: %type,
                   default_value: nil, # TODO?
                   directives: [] of ::GraphQL::Language::Directive,
-                  description: nil, # "Arg Description",
+                  description: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["description"] || nil }},
                 )
               {% end %}
             {% end %}

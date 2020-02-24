@@ -119,7 +119,9 @@ module StarWars
     include GraphQL::ObjectType
     include GraphQL::QueryType
 
-    @[GraphQL::Field]
+    @[GraphQL::Field(description: "Get hero for episode", arguments: {
+      episode: {description: "The episode"},
+    })]
     def hero(episode : Episode) : Human
       CHARACTERS.first
     end
