@@ -20,6 +20,7 @@ type Query {
     argWithNameOverride: String!
     argWithNone: String!
   ): String!
+  argsDefaultValues(arg1: String = "Default", arg2: Int = 123, arg3: Float = 1.23): String!
   argsWithoutAnnotations(arg1: String!, arg2: String!, arg3: String!): String!
 }
 

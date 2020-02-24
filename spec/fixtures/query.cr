@@ -17,5 +17,10 @@ module QueryFixture
     def args_without_annotations(arg1 : String, arg2 : String, arg3 : String) : String
       ""
     end
+
+    @[GraphQL::Field]
+    def args_default_values(arg1 : String = "Default", arg2 : Int32 = 123, arg3 : Float64 = 1.23) : String
+      ""
+    end
   end
 end

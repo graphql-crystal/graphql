@@ -109,7 +109,7 @@ module GraphQL::Document
                 %input_values << ::GraphQL::Language::InputValueDefinition.new(
                   name: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["name"] || arg.name.id.stringify.camelcase(lower: true) }},
                   type: %type,
-                  default_value: nil, # TODO?
+                  default_value: {{ arg.default_value || nil }},
                   directives: [] of ::GraphQL::Language::Directive,
                   description: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["description"] || nil }},
                 )
