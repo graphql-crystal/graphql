@@ -4,7 +4,7 @@ module GraphQL::Document
       {% verbatim do %}
       # :nodoc:
       def _graphql_document
-        {% raise "#{@type.id} does not have a GraphQL::Object annotation" unless @type.annotation(::GraphQL::Object) %}
+        {% raise "GraphQL: #{@type.id} does not have a GraphQL::Object annotation" unless @type.annotation(::GraphQL::Object) %}
         {% objects = [@type, ::GraphQL::Introspection::Schema] %}
         {% enums = [] of TypeNode %}
 
@@ -12,7 +12,7 @@ module GraphQL::Document
           {% if objects[i] %}
             {% for method in (objects[i].resolve.methods.reject { |m| m.annotation(::GraphQL::Field) == nil }) %}
               {% if method.return_type.is_a?(Nop) && !objects[i].annotation(::GraphQL::InputObject) %}
-                {% raise "#{objects[i].name.id}##{method.name.id} must have a return type" %}
+                {% raise "GraphQL: #{objects[i].name.id}##{method.name.id} must have a return type" %}
               {% end %}
               {% for arg in method.args %}
                 {% for type in arg.restriction.resolve.union_types %}
@@ -49,7 +49,7 @@ module GraphQL::Document
             {% end %}
           {% end %}
         {% end %}
-        {% raise "document object limit reached" unless objects.size < 1000 %}
+        {% raise "GraphQL: document object limit reached" unless objects.size < 1000 %}
 
         %type : ::GraphQL::Language::Type | ::GraphQL::Language::ListType | ::GraphQL::Language::TypeName
         %definitions = [] of ::GraphQL::Language::TypeDefinition
@@ -94,7 +94,7 @@ module GraphQL::Document
                 {% elsif type < Array %}
                   %type = ::GraphQL::Language::ListType.new(of_type: %type.dup)
                 {% elsif type != Nil %}
-                  {% raise "#{object.name}##{arg.name} type #{type} is not a GraphQL type" %}
+                  {% raise "GraphQL: #{object.name}##{arg.name} type #{type} is not a GraphQL type" %}
                 {% end %}
 
                 {% if type != Nil %}
@@ -151,7 +151,7 @@ module GraphQL::Document
               {% elsif type < Array %}
                 %type = ::GraphQL::Language::ListType.new(of_type: %type.dup)
               {% elsif type != Nil %}
-                {% raise "#{object.name}##{method.name} type #{type} is not a GraphQL type" %}
+                {% raise "GraphQL: #{object.name}##{method.name} type #{type} is not a GraphQL type" %}
               {% end %}
 
               {% if type != Nil %}
@@ -194,7 +194,7 @@ module GraphQL::Document
               description: {{ object.annotation(::GraphQL::InputObject)["description"] }},
             )
           {% else %}
-            {% raise "unknown object type ??? #{object.name}" %}
+            {% raise "GraphQL: unknown object type ??? #{object.name}" %}
           {% end %}
         {% end %}
 

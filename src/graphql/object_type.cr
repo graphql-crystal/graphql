@@ -86,7 +86,7 @@ module GraphQL::ObjectType
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
           case value = self.{{method.name.id}}(
             {% for arg in method.args %}
-            {% raise "#{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
+            {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
 
             {{ arg.name }}: begin
@@ -119,7 +119,7 @@ module GraphQL::ObjectType
                       when ::GraphQL::Language::InputObject
                         {{inner_type.id}}._graphql_new(value)
                       {% elsif inner_type < Array %}
-                        {% raise "#{@type.name}##{method.name} nested arrays are not supported" %}
+                        {% raise "GraphQL: #{@type.name}##{method.name} nested arrays are not supported" %}
                       {% end %}
                       when {{inner_type.id}}
                         value
