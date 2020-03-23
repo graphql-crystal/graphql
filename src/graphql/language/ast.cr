@@ -93,7 +93,7 @@ module GraphQL
             super\{% if VALUES.size > 0 %}.merge NamedTuple.new(\{{ VALUES.map { |v| "#{v[0].id}: @#{v[0]}".id }.join(",").id }})\{% end %}
           end
 
-          \{% for tuple in  VISITS %}
+          \{% for tuple in VISITS %}
             \{% key = tuple[0]; elements = tuple[1]%}
             def map_\{{key.id}}(&block : ASTNode -> _)
               visited_ids = [] of UInt64

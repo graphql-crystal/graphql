@@ -6,21 +6,45 @@ module GraphQL
     @query : QueryType
     @mutation : MutationType?
 
-    private def to_arg(any : JSON::Any) : Language::ArgumentValue
+    # convert JSON value to FValue
+    private def to_fvalue(any : JSON::Any) : Language::FValue
       case raw = any.raw
       when Int64
-        raw.to_i32.as(Language::ArgumentValue)
+        raw.to_i32.as(Language::FValue)
       when Hash
         args = raw.map do |key, value|
-          Language::Argument.new(key, to_arg(value))
+          Language::Argument.new(key, to_fvalue(value))
         end
         Language::InputObject.new(args)
       when Array
         raw.map do |value|
-          to_arg(value)
+          to_fvalue(value)
         end
       else
-        raw.as(Language::ArgumentValue)
+        raw.as(Language::FValue)
+      end
+    end
+
+    private def subtitute_variables(node, variables, errors)
+      case node
+      when Language::Argument
+        case value = node.value
+        when Language::VariableIdentifier
+          vars = variables
+          if !vars.nil? && vars.has_key?(value.name)
+            node.value = to_fvalue(vars[value.name])
+          else
+            errors << Error.new("missing variable #{value.name}", [] of String | Int32)
+          end
+        when Array
+          value.each do |val|
+            subtitute_variables(val, variables, errors)
+          end
+        end
+      when Language::InputObject
+        node.arguments.each do |arg|
+          arg = subtitute_variables(arg, variables, errors)
+        end
       end
     end
 
@@ -52,15 +76,7 @@ module GraphQL
         when Language::FragmentDefinition
           context.fragments << node
         when Language::Argument
-          case value = node.value
-          when Language::VariableIdentifier
-            vars = variables
-            if !vars.nil? && vars.has_key?(value.name)
-              node.value = to_arg(vars[value.name])
-            else
-              errors << Error.new("missing variable #{value.name}", [] of String | Int32)
-            end
-          end
+          subtitute_variables(node, variables, errors)
         end
         node
       end

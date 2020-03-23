@@ -75,6 +75,20 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
+  it "Takes variable in object" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($value1 : String, $value2 : String) {
+          value: array(io: [{value: $value1}, {value: $value2}])
+        }
+      ),
+      JSON.parse({"value1" => "123", "value2" => "321"}.to_json).raw.as(Hash(String, JSON::Any))
+    ).should eq (
+      {
+        "data" => {"value" => ["123", "321"]},
+      }
+    ).to_json
+  end
+
   it "Returns error when null is passed to non-null" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
       mutation Mutation {
