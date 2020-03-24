@@ -40,10 +40,14 @@ module GraphQL
           value.each do |val|
             subtitute_variables(val, variables, errors)
           end
+        when Language::InputObject
+          value.arguments.each do |arg|
+            subtitute_variables(arg, variables, errors)
+          end
         end
       when Language::InputObject
         node.arguments.each do |arg|
-          arg = subtitute_variables(arg, variables, errors)
+          subtitute_variables(arg, variables, errors)
         end
       end
     end

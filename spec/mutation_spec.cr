@@ -61,6 +61,22 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
+  it "Takes nested input objects with variable" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : NestedInputObject) {
+          value: nested(io: { value: { value: $obj }})
+        }
+      ),
+      JSON.parse({"obj" => {"value" => nil }}.to_json).raw.as(Hash(String, JSON::Any))
+    ).should eq (
+      {
+        "data" => {
+          "value" => 3,
+        },
+      }
+    ).to_json
+  end
+
   it "Takes input array as variable" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($obj : [MutationInputObject]) {
