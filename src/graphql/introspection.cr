@@ -167,6 +167,8 @@ module GraphQL
           definition.name
         when Language::UnionTypeDefinition
           definition.name
+       else
+          nil
         end
       end
 
@@ -189,6 +191,8 @@ module GraphQL
           nil
         when Language::ListType
           nil
+        when GraphQL::Language::ASTNode
+          raise "ASTNode"
         end
       end
 
@@ -208,6 +212,8 @@ module GraphQL
           }
         when Language::InterfaceTypeDefinition # why can't we put this above?
           definition.fields.map { |f| GraphQL::Introspection::Field.new(@document, f.as(Language::FieldDefinition)) }
+        else
+          nil
         end
       end
 
@@ -217,6 +223,8 @@ module GraphQL
         case definition = @definition
         when Language::ObjectTypeDefinition
           [] of GraphQL::Introspection::Type
+        else
+          nil
         end
       end
 
@@ -226,6 +234,8 @@ module GraphQL
         case definition = @definition
         when Language::InterfaceTypeDefinition, Language::UnionTypeDefinition
           [] of GraphQL::Introspection::Type
+        else
+          nil
         end
       end
 
@@ -241,6 +251,8 @@ module GraphQL
               v.directives.find { |d| d.name == "deprecated" }.nil?
             end
           }.map { |v| EnumValue.new(@document, v) }
+        else
+          nil
         end
       end
 
@@ -250,6 +262,8 @@ module GraphQL
         case definition = @definition
         when Language::InputObjectTypeDefinition
           definition.fields.map { |f| GraphQL::Introspection::InputValue.new(@document, f.as(Language::InputValueDefinition)) }
+        else
+          nil
         end
       end
 
@@ -259,6 +273,8 @@ module GraphQL
         case definition = @definition
         when Language::NonNullType, Language::ListType
           Type.from_ast(@document, definition.of_type)
+        else
+          nil
         end
       end
     end

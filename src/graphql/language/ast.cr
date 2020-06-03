@@ -137,6 +137,8 @@ module GraphQL
                   end
                 end
               \{% end %}
+              else
+                raise "visit case not exhaustive - this should never happen"
             \{% end %}\
             end
             \{% end %}\

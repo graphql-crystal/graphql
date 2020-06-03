@@ -44,11 +44,15 @@ module GraphQL
           value.arguments.each do |arg|
             subtitute_variables(arg, variables, errors)
           end
+        else
+          nil
         end
       when Language::InputObject
         node.arguments.each do |arg|
           subtitute_variables(arg, variables, errors)
         end
+      else
+        nil
       end
     end
 
@@ -81,6 +85,8 @@ module GraphQL
           context.fragments << node
         when Language::Argument
           subtitute_variables(node, variables, errors)
+        else
+          nil
         end
         node
       end

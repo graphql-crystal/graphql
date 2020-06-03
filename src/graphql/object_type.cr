@@ -53,6 +53,8 @@ module GraphQL::ObjectType
             end
           when ::GraphQL::Language::InlineFragment
             errors.concat _graphql_resolve(context, selection.selections, json)
+          when ::GraphQL::Language::ASTNode
+            raise "GraphQL: selection is ASTNode - this should never happen"
           end
         end
         errors

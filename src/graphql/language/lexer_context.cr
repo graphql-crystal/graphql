@@ -145,6 +145,8 @@ class GraphQL::Language::LexerContext
       create_punctuation_token(Token::Kind::PIPE, 1)
     when '}'
       create_punctuation_token(Token::Kind::BRACE_R, 1)
+    else
+      nil
     end
   end
 
