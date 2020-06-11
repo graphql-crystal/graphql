@@ -10,6 +10,20 @@ scalar ID
 "An Integer Number"
 scalar Int
 
+input NestedInputObject {
+  nestedInputObject: NestedInputObject
+  str: String
+  int: Int
+  float: Float
+}
+
+type NestedObject {
+  float: Float
+  int: Int
+  nestedObject: NestedObject
+  str: String
+}
+
 type Query {
   "Annotations"
   ann_ks(
@@ -22,6 +36,7 @@ type Query {
   ): String!
   argsDefaultValues(arg1: String = "Default", arg2: Int = 123, arg3: Float = 1.23): String!
   argsWithoutAnnotations(arg1: String!, arg2: String!, arg3: String!): String!
+  echoNestedInputObject(nestedInputObject: NestedInputObject!): NestedObject!
 }
 
 "A String Value"
