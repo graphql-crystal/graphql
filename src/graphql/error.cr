@@ -2,10 +2,13 @@ require "json"
 
 module GraphQL
   class Error
-    JSON.mapping(
-      message: String,
-      path: Array(String | Int32),
-    )
+    include JSON::Serializable
+
+    @[JSON::Field]
+    property message : String
+
+    @[JSON::Field]
+    property path : Array(String | Int32)
 
     def initialize(@message, path : String)
       @path = [path] of String | Int32
