@@ -5,3 +5,4 @@ authors:
 license: MIT
 description: |
   GraphQL server library
+crystal: ">=0.35.0"
