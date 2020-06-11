@@ -9,40 +9,62 @@ describe GraphQL::Introspection do
   end
 
   it "resolves nested input object with various value types" do
-    GraphQL::Schema.new(QueryFixture::Query.new).execute(%(
-      {
-        echoNestedInputObject(nestedInputObject: {
-          nestedInputObject: {
-            nestedInputObject: {
-              nestedInputObject: {
-                str: "ok"
-              }
+    GraphQL::Schema.new(QueryFixture::Query.new).execute(
+      %(
+        {
+          echoNestedInputObject(nestedInputObject: {
+            object: {
+              object: {
+                object: {
+                  str: "ok",
+                  array: [
+                    {
+                      str: $str,
+                      int: $int,
+                      float: $float,
+                    }
+                  ]
+                }
+              },
+              float: 11.111111
             },
-            float: 11.111111
-          },
-          int: 1,
-          float: 1
-        }) {
-          nestedObject {
-            nestedObject {
-              nestedObject {
-                str
+            int: 1,
+            float: 1
+          }) {
+            object {
+              object {
+                object {
+                  str
+                  array {
+                    str
+                    int
+                    float
+                  }
+                }
               }
+              float
             }
+            int
             float
           }
-          int
-          float
         }
-      }
-    )).should eq (
+      ),
+      {"str" => JSON::Any.new("foo"), "int" => JSON::Any.new(123_i64), "float" => JSON::Any.new(11_i64)} of String => JSON::Any
+    ).should eq (
       {
         "data" => {
           "echoNestedInputObject" => {
-            "nestedObject" => {
-              "nestedObject" => {
-                "nestedObject" => {
-                  "str" => "ok",
+            "object" => {
+              "object" => {
+                "object" => {
+                  "str"   => "ok",
+                  "array" => [
+                    {
+                      "str"   => "foo",
+                      "int"   => 123,
+                      "float" => 11.0,
+                    },
+                  ],
                 },
               },
               "float" => 11.111111,

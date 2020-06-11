@@ -33,14 +33,14 @@ module QueryFixture
   class NestedInputObject
     include GraphQL::InputObjectType
 
-    getter nested_input_object : NestedInputObject?
-
+    getter object : NestedInputObject?
+    getter array : Array(NestedInputObject)?
     getter str : String?
     getter int : Int32?
     getter float : Float64?
 
     @[GraphQL::Field]
-    def initialize(@nested_input_object : NestedInputObject?, @str : String?, @int : Int32?, @float : Float64?)
+    def initialize(@object : NestedInputObject?, @array : Array(NestedInputObject)?, @str : String?, @int : Int32?, @float : Float64?)
     end
   end
 
@@ -48,22 +48,28 @@ module QueryFixture
   class NestedObject
     include GraphQL::ObjectType
 
-    @nested_object : NestedObject?
+    @object : NestedObject?
+    @array : Array(NestedObject)?
     @str : String?
     @int : Int32?
     @float : Float64?
 
-    def initialize(nested_input_object : NestedInputObject)
-      @str = nested_input_object.str
-      @int = nested_input_object.int
-      @float = nested_input_object.float
-      nested_io = nested_input_object.nested_input_object
-      @nested_object = NestedObject.new(nested_io) unless nested_io.nil?
+    def initialize(object : NestedInputObject)
+      @object = NestedObject.new(object.object.not_nil!) unless object.object.nil?
+      @array = object.array.not_nil!.map { |io| NestedObject.new(io).as(NestedObject) }.as(Array(NestedObject) | Nil) unless object.array.nil?
+      @str = object.str
+      @int = object.int
+      @float = object.float
     end
 
     @[GraphQL::Field]
-    def nested_object : NestedObject?
-      @nested_object
+    def object : NestedObject?
+      @object
+    end
+
+    @[GraphQL::Field]
+    def array : Array(NestedObject)?
+      @array
     end
 
     @[GraphQL::Field]

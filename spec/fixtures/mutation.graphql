@@ -78,7 +78,7 @@ enum __TypeKind {
 }
 
 type Mutation {
-  array(io: [MutationInputObject!]!): [String!]!
+  array(floats: [Float!], ints: [Int!], io: [MutationInputObject!], strings: [String!]): [String!]!
   maybeNull(io: MutationInputObject): String
   nested(io: NestedMutationInputObject!): Int!
   nonNull(io: MutationInputObject!): String!

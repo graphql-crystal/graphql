@@ -113,10 +113,10 @@ module GraphQL::ObjectType
                       case value
                       {% if inner_type < Float %}
                       when Int, Float
-                        value.to_f64.as({{value.id}})
+                        value.to_f64.as({{inner_type.id}})
                       {% elsif inner_type < Int %}
                       when Int
-                        value.as({{value.id}})
+                        value.as({{inner_type.id}})
                       {% elsif inner_type.annotation(::GraphQL::InputObject) %}
                       when ::GraphQL::Language::InputObject
                         {{inner_type.id}}._graphql_new(value)

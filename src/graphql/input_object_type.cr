@@ -36,10 +36,10 @@ module GraphQL::InputObjectType
                     case value
                     {% if inner_type < Float %}
                     when Int, Float
-                      value.to_f64.as({{value.id}})
+                      value.to_f64.as({{inner_type.id}})
                     {% elsif inner_type < Int %}
                     when Int
-                      value.as({{value.id}})
+                      value.as({{inner_type.id}})
                     {% elsif inner_type.annotation(::GraphQL::InputObject) %}
                     when ::GraphQL::Language::InputObject
                       {{inner_type.id}}._graphql_new(value)
@@ -50,8 +50,8 @@ module GraphQL::InputObjectType
                       value
                     else
                       raise TypeCastError.new # signals invalid type to resolver
-                    end
-                  end
+                    end.as({{inner_type.id}})
+                  end.as(Array({{inner_type.id}}))
                 {% end %}
                 when {{type.id}}
                   arg_value

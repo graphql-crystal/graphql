@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe GraphQL::MutationType do
-  it "Takes non-null input" do
+  it "takes non-null input" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
       mutation Mutation {
         value: nonNull(io: {value: "123"})
@@ -15,7 +15,7 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Takes null input" do
+  it "takes null input" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
       mutation Mutation {
         value: maybeNull
@@ -29,7 +29,49 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Takes input object as variable" do
+  it "takes array of strings" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : [MutationInputObject]) {
+          value: array(strings: ["one", "two", $three])
+        }
+      ),
+      {"three" => JSON::Any.new("three")} of String => JSON::Any
+    ).should eq (
+      {
+        "data" => {"value" => ["one", "two", "three"]},
+      }
+    ).to_json
+  end
+
+  it "takes array of ints" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : [MutationInputObject]) {
+          value: array(ints: [1, 2, $three])
+        }
+      ),
+      {"three" => JSON::Any.new(3_i64)} of String => JSON::Any
+    ).should eq (
+      {
+        "data" => {"value" => ["1", "2", "3"]},
+      }
+    ).to_json
+  end
+
+  it "takes array of floats" do
+    GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
+        mutation Mutation($obj : [MutationInputObject]) {
+          value: array(floats: [1.0, 2.0, $three])
+        }
+      ),
+      {"three" => JSON::Any.new(3_i64)} of String => JSON::Any
+    ).should eq (
+      {
+        "data" => {"value" => ["1.0", "2.0", "3.0"]},
+      }
+    ).to_json
+  end
+
+  it "takes input object as variable" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($obj : MutationInputObject) {
           value: nonNull(io: $obj)
@@ -45,7 +87,7 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Takes nested input objects" do
+  it "takes nested input objects" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($obj : MutationInputObject) {
           value: nested(io: $obj)
@@ -61,13 +103,13 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Takes nested input objects with variable" do
+  it "takes nested input objects with variable" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($obj : NestedInputObject) {
           value: nested(io: { value: { value: $obj }})
         }
       ),
-      JSON.parse({"obj" => {"value" => nil }}.to_json).raw.as(Hash(String, JSON::Any))
+      JSON.parse({"obj" => {"value" => nil}}.to_json).raw.as(Hash(String, JSON::Any))
     ).should eq (
       {
         "data" => {
@@ -77,7 +119,7 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Takes input array as variable" do
+  it "takes input array as variable" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($obj : [MutationInputObject]) {
           value: array(io: $obj)
@@ -91,7 +133,7 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Takes variable in object" do
+  it "takes variable in object" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
         mutation Mutation($value1 : String, $value2 : String) {
           value: array(io: [{value: $value1}, {value: $value2}])
@@ -105,7 +147,7 @@ describe GraphQL::MutationType do
     ).to_json
   end
 
-  it "Returns error when null is passed to non-null" do
+  it "returns error when null is passed to non-null" do
     GraphQL::Schema.new(StarWars::Query.new, MutationFixture::Mutation.new).execute(%(
       mutation Mutation {
         value: nonNull

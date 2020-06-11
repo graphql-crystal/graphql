@@ -11,16 +11,18 @@ scalar ID
 scalar Int
 
 input NestedInputObject {
-  nestedInputObject: NestedInputObject
+  object: NestedInputObject
+  array: [NestedInputObject!]
   str: String
   int: Int
   float: Float
 }
 
 type NestedObject {
+  array: [NestedObject!]
   float: Float
   int: Int
-  nestedObject: NestedObject
+  object: NestedObject
   str: String
 }
 

@@ -31,14 +31,23 @@ module GraphQL
         case value = node.value
         when Language::VariableIdentifier
           vars = variables
-          if !vars.nil? && vars.has_key?(value.name)
-            node.value = to_fvalue(vars[value.name])
-          else
+          begin
+            node.value = to_fvalue(variables.not_nil![value.name])
+          rescue
             errors << Error.new("missing variable #{value.name}", [] of String | Int32)
           end
         when Array
-          value.each do |val|
-            subtitute_variables(val, variables, errors)
+          value.each_with_index do |val, i|
+            case val
+            when Language::VariableIdentifier
+              begin
+                value[i] = to_fvalue(variables.not_nil![val.name])
+              rescue
+                errors << Error.new("missing variable #{val.name}", [] of String | Int32)
+              end
+            else
+              subtitute_variables(val, variables, errors)
+            end
           end
         when Language::InputObject
           value.arguments.each do |arg|

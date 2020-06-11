@@ -52,8 +52,11 @@ module MutationFixture
     end
 
     @[GraphQL::Field]
-    def array(io : Array(MutationInputObject)) : Array(String)
-      io.map &.value
+    def array(io : Array(MutationInputObject)?, strings : Array(String)?, ints : Array(Int32)?, floats : Array(Float64)?) : Array(String)
+      return io.map &.value unless io.nil?
+      return strings unless strings.nil?
+      return ints.map &.to_s unless ints.nil?
+      floats.not_nil!.map &.to_s
     end
   end
 end
