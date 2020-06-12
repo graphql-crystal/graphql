@@ -27,6 +27,11 @@ module QueryFixture
     def echo_nested_input_object(nested_input_object : NestedInputObject) : NestedObject
       NestedObject.new(nested_input_object)
     end
+
+    @[GraphQL::Field]
+    def default_values(int : Int32 = 1, float : Float64 = 2.0, emptyStr : String = "", str : String = "qwe", bool : Bool = false) : String
+      ""
+    end
   end
 
   @[GraphQL::InputObject]

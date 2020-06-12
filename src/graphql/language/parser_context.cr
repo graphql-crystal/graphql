@@ -748,8 +748,6 @@ class GraphQL::Language::ParserContext
       return parse_name_value(is_constant)
     when Token::Kind::DOLLAR
       return parse_variable if !is_constant
-    else
-      # exception below
     end
 
     raise Exception.new("Unexpected #{@current_token.kind} at #{@current_token.start_position} near #{@source[@current_token.start_position - 15, 30]}")

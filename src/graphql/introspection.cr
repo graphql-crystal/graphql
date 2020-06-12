@@ -167,7 +167,7 @@ module GraphQL
           definition.name
         when Language::UnionTypeDefinition
           definition.name
-       else
+        else
           nil
         end
       end
@@ -352,7 +352,7 @@ module GraphQL
 
       @[GraphQL::Field]
       def default_value : String?
-        "#{@definition.default_value}" unless @definition.default_value.nil?
+        Language::Generation.generate(@definition.default_value) unless @definition.default_value.nil?
       end
     end
 
