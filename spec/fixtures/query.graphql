@@ -38,7 +38,7 @@ type Query {
   ): String!
   argsDefaultValues(arg1: String = "Default", arg2: Int = 123, arg3: Float = 1.23): String!
   argsWithoutAnnotations(arg1: String!, arg2: String!, arg3: String!): String!
-  defaultValues(bool: Boolean, emptyStr: String = "", float: Float = 2.0, int: Int = 1, str: String = "qwe"): String!
+  defaultValues(bool: Boolean = false, emptyStr: String = "", float: Float = 2.0, int: Int = 1, str: String = "qwe"): String!
   echoNestedInputObject(nestedInputObject: NestedInputObject!): NestedObject!
 }
 
@@ -85,8 +85,8 @@ type __Schema {
 
 type __Type {
   description: String
-  enumValues(includeDeprecated: Boolean): [__EnumValue!]
-  fields(includeDeprecated: Boolean): [__Field!]
+  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+  fields(includeDeprecated: Boolean = false): [__Field!]
   inputFields: [__InputValue!]
   interfaces: [__Type!]
   kind: __TypeKind!
