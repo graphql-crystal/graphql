@@ -76,4 +76,22 @@ describe GraphQL::Introspection do
       }
     ).to_json
   end
+
+  it "fails for mutations" do
+    GraphQL::Schema.new(QueryFixture::Query.new).execute(
+      %(
+        mutation {
+          foobar(baz: "123")
+        }
+      )
+    ).should eq (
+      {
+        "errors" => [
+          {"message" => "mutation operations are not supported",
+           "path"    => [] of Nil,
+          },
+        ],
+      }
+    ).to_json
+  end
 end

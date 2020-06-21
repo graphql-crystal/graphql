@@ -124,11 +124,15 @@ module GraphQL
                 errors.concat @query._graphql_resolve(context, operation.selections, json)
               end
             end
-          elsif !operation.nil? && !@mutation.nil? && operation.operation_type == "mutation"
-            json.field "data" do
-              json.object do
-                errors.concat @mutation.not_nil!._graphql_resolve(context, operation.selections, json)
+          elsif !operation.nil? && operation.operation_type == "mutation"
+            if mutation = @mutation
+              json.field "data" do
+                json.object do
+                  errors.concat mutation._graphql_resolve(context, operation.selections, json)
+                end
               end
+            else
+              errors << Error.new("mutation operations are not supported", [] of String | Int32)
             end
           end
           unless errors.empty?
