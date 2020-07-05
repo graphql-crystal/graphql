@@ -8,6 +8,7 @@ jobs:
     container:
       image: crystallang/crystal
     steps:
+      - uses: actions/checkout@v2
       - name: Install dependencies
         run: shards install
       - name: Run tests

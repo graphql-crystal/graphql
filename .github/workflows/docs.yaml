@@ -11,6 +11,9 @@ jobs:
     container:
       image: crystallang/crystal
     steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
       - name: Build documentation
         run: crystal docs
       - name: Deploy to GitHub Pages
