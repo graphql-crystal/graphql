@@ -10,7 +10,7 @@ Add the shard to your `shard.yml`:
 ```yaml
 dependencies:
   graphql:
-    gitlab: everbase/graphql
+    github: graphql-crystal/graphql
 ```
 
 Then run `shards install`.
@@ -314,4 +314,3 @@ end
 
 Field arguments are automatically resolved. A type with a default value becomes optional. A nilable
 type is also considered a optional type.
-
