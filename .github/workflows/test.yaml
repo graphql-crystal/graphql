@@ -1,4 +1,4 @@
-name: Crystal CI
+name: CI
 
 on: [push]
 
@@ -13,5 +13,3 @@ jobs:
         run: shards install
       - name: Run tests
         run: crystal spec
-      - name: Build documentation
-        run: crystal docs

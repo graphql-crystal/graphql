@@ -99,17 +99,17 @@ end
 context = MyContext.new(Math.PI)
 schema.execute(query, variables, operation_name, context)
 
-# Retrieve it in your fields
+# Access it in your fields
 @[GraphQL::Object]
 class MyMath
   @[GraphQL::Field]
-  def pi(context : MyContext)
+  def pi(context : MyContext) : Float64
     context.pi
   end
 end
 ```
 
-Note that a context instance should only be used once, do not reuse it for multiple executes.
+Context instances should only be used once, do not reuse them for multiple executes.
 
 ## Defining Objects
 
