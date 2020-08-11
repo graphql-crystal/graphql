@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal
+      image: crystallang/crystal:latest-alpine
     steps:
       - uses: actions/checkout@v2
         with:
