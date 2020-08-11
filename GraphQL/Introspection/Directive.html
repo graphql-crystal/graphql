@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.34.0">
+<meta name="crystal_docs.project_version" content="master">
+<meta name="crystal_docs.project_name" content="graphql">
+
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="graphql">
+  <title>GraphQL::Introspection::Directive - graphql master</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../../index.html">
+          graphql
+        </a>
+      </h1>
+
+      <span class="project-version">
+        master
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="graphql/GraphQL" data-name="graphql">
+      <a href="../../GraphQL.html">GraphQL</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
+      <a href="../../GraphQL/Context.html">Context</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Document" data-name="graphql::document">
+      <a href="../../GraphQL/Document.html">Document</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Enum" data-name="graphql::enum">
+      <a href="../../GraphQL/Enum.html">Enum</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+      <a href="../../GraphQL/Error.html">Error</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Field" data-name="graphql::field">
+      <a href="../../GraphQL/Field.html">Field</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/InputObject" data-name="graphql::inputobject">
+      <a href="../../GraphQL/InputObject.html">InputObject</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
+      <a href="../../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="graphql/GraphQL/Introspection" data-name="graphql::introspection">
+      <a href="../../GraphQL/Introspection.html">Introspection</a>
+      
+        <ul>
+  
+  <li class=" current" data-id="graphql/GraphQL/Introspection/Directive" data-name="graphql::introspection::directive">
+      <a href="../../GraphQL/Introspection/Directive.html">Directive</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/DirectiveLocation" data-name="graphql::introspection::directivelocation">
+      <a href="../../GraphQL/Introspection/DirectiveLocation.html">DirectiveLocation</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/EnumValue" data-name="graphql::introspection::enumvalue">
+      <a href="../../GraphQL/Introspection/EnumValue.html">EnumValue</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/Field" data-name="graphql::introspection::field">
+      <a href="../../GraphQL/Introspection/Field.html">Field</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/InputValue" data-name="graphql::introspection::inputvalue">
+      <a href="../../GraphQL/Introspection/InputValue.html">InputValue</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/Schema" data-name="graphql::introspection::schema">
+      <a href="../../GraphQL/Introspection/Schema.html">Schema</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/Type" data-name="graphql::introspection::type">
+      <a href="../../GraphQL/Introspection/Type.html">Type</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Introspection/TypeKind" data-name="graphql::introspection::typekind">
+      <a href="../../GraphQL/Introspection/TypeKind.html">TypeKind</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Language" data-name="graphql::language">
+      <a href="../../GraphQL/Language.html">Language</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/AEnum" data-name="graphql::language::aenum">
+      <a href="../../GraphQL/Language/AEnum.html">AEnum</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Argument" data-name="graphql::language::argument">
+      <a href="../../GraphQL/Language/Argument.html">Argument</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/ArgumentValue" data-name="graphql::language::argumentvalue">
+      <a href="../../GraphQL/Language/ArgumentValue.html">ArgumentValue</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/ASTNode" data-name="graphql::language::astnode">
+      <a href="../../GraphQL/Language/ASTNode.html">ASTNode</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Directive" data-name="graphql::language::directive">
+      <a href="../../GraphQL/Language/Directive.html">Directive</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/DirectiveDefinition" data-name="graphql::language::directivedefinition">
+      <a href="../../GraphQL/Language/DirectiveDefinition.html">DirectiveDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Document" data-name="graphql::language::document">
+      <a href="../../GraphQL/Language/Document.html">Document</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/EnumTypeDefinition" data-name="graphql::language::enumtypedefinition">
+      <a href="../../GraphQL/Language/EnumTypeDefinition.html">EnumTypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/EnumValueDefinition" data-name="graphql::language::enumvaluedefinition">
+      <a href="../../GraphQL/Language/EnumValueDefinition.html">EnumValueDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Field" data-name="graphql::language::field">
+      <a href="../../GraphQL/Language/Field.html">Field</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/FieldDefinition" data-name="graphql::language::fielddefinition">
+      <a href="../../GraphQL/Language/FieldDefinition.html">FieldDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/FragmentDefinition" data-name="graphql::language::fragmentdefinition">
+      <a href="../../GraphQL/Language/FragmentDefinition.html">FragmentDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/FragmentSpread" data-name="graphql::language::fragmentspread">
+      <a href="../../GraphQL/Language/FragmentSpread.html">FragmentSpread</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/FValue" data-name="graphql::language::fvalue">
+      <a href="../../GraphQL/Language/FValue.html">FValue</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Generation" data-name="graphql::language::generation">
+      <a href="../../GraphQL/Language/Generation.html">Generation</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/InlineFragment" data-name="graphql::language::inlinefragment">
+      <a href="../../GraphQL/Language/InlineFragment.html">InlineFragment</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/InputObject" data-name="graphql::language::inputobject">
+      <a href="../../GraphQL/Language/InputObject.html">InputObject</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/InputObjectTypeDefinition" data-name="graphql::language::inputobjecttypedefinition">
+      <a href="../../GraphQL/Language/InputObjectTypeDefinition.html">InputObjectTypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/InputValueDefinition" data-name="graphql::language::inputvaluedefinition">
+      <a href="../../GraphQL/Language/InputValueDefinition.html">InputValueDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/InterfaceTypeDefinition" data-name="graphql::language::interfacetypedefinition">
+      <a href="../../GraphQL/Language/InterfaceTypeDefinition.html">InterfaceTypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Lexer" data-name="graphql::language::lexer">
+      <a href="../../GraphQL/Language/Lexer.html">Lexer</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/LexerContext" data-name="graphql::language::lexercontext">
+      <a href="../../GraphQL/Language/LexerContext.html">LexerContext</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/ListType" data-name="graphql::language::listtype">
+      <a href="../../GraphQL/Language/ListType.html">ListType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/NameOnlyNode" data-name="graphql::language::nameonlynode">
+      <a href="../../GraphQL/Language/NameOnlyNode.html">NameOnlyNode</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/NonNullType" data-name="graphql::language::nonnulltype">
+      <a href="../../GraphQL/Language/NonNullType.html">NonNullType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/NullValue" data-name="graphql::language::nullvalue">
+      <a href="../../GraphQL/Language/NullValue.html">NullValue</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/ObjectTypeDefinition" data-name="graphql::language::objecttypedefinition">
+      <a href="../../GraphQL/Language/ObjectTypeDefinition.html">ObjectTypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/OperationDefinition" data-name="graphql::language::operationdefinition">
+      <a href="../../GraphQL/Language/OperationDefinition.html">OperationDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Parser" data-name="graphql::language::parser">
+      <a href="../../GraphQL/Language/Parser.html">Parser</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/ParserContext" data-name="graphql::language::parsercontext">
+      <a href="../../GraphQL/Language/ParserContext.html">ParserContext</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/ScalarTypeDefinition" data-name="graphql::language::scalartypedefinition">
+      <a href="../../GraphQL/Language/ScalarTypeDefinition.html">ScalarTypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/SchemaDefinition" data-name="graphql::language::schemadefinition">
+      <a href="../../GraphQL/Language/SchemaDefinition.html">SchemaDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Selection" data-name="graphql::language::selection">
+      <a href="../../GraphQL/Language/Selection.html">Selection</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Language/Token" data-name="graphql::language::token">
+      <a href="../../GraphQL/Language/Token.html">Token</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Token/Kind" data-name="graphql::language::token::kind">
+      <a href="../../GraphQL/Language/Token/Kind.html">Kind</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/Type" data-name="graphql::language::type">
+      <a href="../../GraphQL/Language/Type.html">Type</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/TypeDefinition" data-name="graphql::language::typedefinition">
+      <a href="../../GraphQL/Language/TypeDefinition.html">TypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/TypeName" data-name="graphql::language::typename">
+      <a href="../../GraphQL/Language/TypeName.html">TypeName</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/UnionTypeDefinition" data-name="graphql::language::uniontypedefinition">
+      <a href="../../GraphQL/Language/UnionTypeDefinition.html">UnionTypeDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/VariableDefinition" data-name="graphql::language::variabledefinition">
+      <a href="../../GraphQL/Language/VariableDefinition.html">VariableDefinition</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/VariableIdentifier" data-name="graphql::language::variableidentifier">
+      <a href="../../GraphQL/Language/VariableIdentifier.html">VariableIdentifier</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Language/WrapperType" data-name="graphql::language::wrappertype">
+      <a href="../../GraphQL/Language/WrapperType.html">WrapperType</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/MutationType" data-name="graphql::mutationtype">
+      <a href="../../GraphQL/MutationType.html">MutationType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Object" data-name="graphql::object">
+      <a href="../../GraphQL/Object.html">Object</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/ObjectType" data-name="graphql::objecttype">
+      <a href="../../GraphQL/ObjectType.html">ObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/QueryType" data-name="graphql::querytype">
+      <a href="../../GraphQL/QueryType.html">QueryType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Schema" data-name="graphql::schema">
+      <a href="../../GraphQL/Schema.html">Schema</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> GraphQL::Introspection::Directive
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Introspection/Directive.html">GraphQL::Introspection::Directive</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../../GraphQL/ObjectType.html">GraphQL::ObjectType</a></li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/graphql-crystal/graphql/blob/191863a8d8381c31a9db562b813272c71894f6a4/src/graphql/introspection.cr#L395" target="_blank">
+        graphql/introspection.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new(document,definition)-class-method" class="signature"><strong>.new</strong>(document, definition)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#args:Array(GraphQL::Introspection::InputValue)-instance-method" class="signature"><strong>#args</strong> : Array(GraphQL::Introspection::InputValue)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#description:String?-instance-method" class="signature"><strong>#description</strong> : String?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#locations:Array(String)-instance-method" class="signature"><strong>#locations</strong> : Array(String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#name:String-instance-method" class="signature"><strong>#name</strong> : String</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(document,definition)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(document, definition)
+
+        <a class="method-permalink" href="#new(document,definition)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/191863a8d8381c31a9db562b813272c71894f6a4/src/graphql/introspection.cr#L401" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="args:Array(GraphQL::Introspection::InputValue)-instance-method">
+      <div class="signature">
+        
+        def <strong>args</strong> : Array(<a href="../../GraphQL/Introspection/InputValue.html">GraphQL::Introspection::InputValue</a>)
+
+        <a class="method-permalink" href="#args:Array(GraphQL::Introspection::InputValue)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/191863a8d8381c31a9db562b813272c71894f6a4/src/graphql/introspection.cr#L420" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="description:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>description</strong> : String?
+
+        <a class="method-permalink" href="#description:String?-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/191863a8d8381c31a9db562b813272c71894f6a4/src/graphql/introspection.cr#L410" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="locations:Array(String)-instance-method">
+      <div class="signature">
+        
+        def <strong>locations</strong> : Array(String)
+
+        <a class="method-permalink" href="#locations:Array(String)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/191863a8d8381c31a9db562b813272c71894f6a4/src/graphql/introspection.cr#L415" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="name:String-instance-method">
+      <div class="signature">
+        
+        def <strong>name</strong> : String
+
+        <a class="method-permalink" href="#name:String-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/191863a8d8381c31a9db562b813272c71894f6a4/src/graphql/introspection.cr#L405" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>
