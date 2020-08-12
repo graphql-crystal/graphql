@@ -3,6 +3,27 @@
 GraphQL server library for Crystal. Code-first, easy to use and optimized for performance.
 Used in production at [Everbase](https://www.everbase.co).
 
+The language implementation is derived from
+[ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal),
+everything else was written from scratch. How they compare:
+
+**graphql-crystal/graphql**
+
+* Under active development
+* Newer, possibly less stable
+* Automatically derives schema from code, preventing bugs and saving time
+* No support for interfaces or subscriptions
+* Should peform faster since the run time code paths are shorter (TBD)
+* But the use of macros may negatively impact compile times
+
+**ziprandom/graphql**
+
+* Little development for years
+* Proven and mostly stable
+* Requires spelling out the schema
+* No compile-time type safety
+* Supports interfaces but not subscriptions
+
 ## Getting Started
 
 Add the shard to your `shard.yml`:
@@ -294,7 +315,7 @@ end
 
 ### arguments
 
-A hash that is used to set names and descriptions for field arguments. Note that argument cannot be
+A hash that is used to set names and descriptions for field arguments. Note that arguments cannot be
 deprecated as of the latest GraphQL spec (June 2018).
 
 ```crystal
