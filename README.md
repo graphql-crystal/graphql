@@ -7,7 +7,7 @@ The language implementation is derived from
 [ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal),
 everything else was written from scratch. How they compare:
 
-**graphql-crystal/graphql**
+graphql-crystal/graphql
 
 * Under active development
 * Newer, possibly less stable
@@ -16,7 +16,7 @@ everything else was written from scratch. How they compare:
 * Should peform faster since the run time code paths are shorter (TBD)
 * But the use of macros may negatively impact compile times
 
-**ziprandom/graphql**
+ziprandom/graphql-crystal
 
 * Little development for years
 * Proven and mostly stable
