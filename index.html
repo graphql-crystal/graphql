@@ -412,6 +412,18 @@
 <p>GraphQL server library for Crystal. Code-first, easy to use and optimized for performance.
 Used in production at <a href="https://www.everbase.co" target="_blank">Everbase</a>.</p>
 
+<p>The language implementation is derived from
+<a href="https://github.com/ziprandom/graphql-crystal" target="_blank">ziprandom/graphql-crystal</a>,
+everything else was written from scratch. How they compare:</p>
+
+<p><strong>graphql-crystal/graphql</strong></p>
+
+<ul><li>Under active development</li><li>Newer, possibly less stable</li><li>Automatically derives schema from code, preventing bugs and saving time</li><li>No support for interfaces or subscriptions</li><li>Should peform faster since the run time code paths are shorter (TBD)</li><li>But the use of macros may negatively impact compile times</li></ul>
+
+<p><strong>ziprandom/graphql</strong></p>
+
+<ul><li>Little development for years</li><li>Proven and mostly stable</li><li>Requires spelling out the schema</li><li>No compile-time type safety</li><li>Supports interfaces but not subscriptions</li></ul>
+
 <h2><a id="getting-started" class="anchor" href="#getting-started">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -726,7 +738,7 @@ this argument.</p>
   </svg>
 </a>arguments</h3>
 
-<p>A hash that is used to set names and descriptions for field arguments. Note that argument cannot be
+<p>A hash that is used to set names and descriptions for field arguments. Note that arguments cannot be
 deprecated as of the latest GraphQL spec (June 2018).</p>
 
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">Sheep</span>
