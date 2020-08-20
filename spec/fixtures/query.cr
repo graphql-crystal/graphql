@@ -83,6 +83,16 @@ module QueryFixture
     end
 
     @[GraphQL::Field]
+    def strReverse : ReverseStringScalar?
+      ReverseStringScalar.new(@str.not_nil!) unless @str.nil?
+    end
+
+    @[GraphQL::Field]
+    def id : GraphQL::ID?
+      GraphQL::ID.new(@str.not_nil!) unless @str.nil?
+    end
+
+    @[GraphQL::Field]
     def int : Int32?
       @int
     end
@@ -90,6 +100,20 @@ module QueryFixture
     @[GraphQL::Field]
     def float : Float64?
       @float
+    end
+  end
+
+  @[GraphQL::Scalar]
+  class ReverseStringScalar
+    include GraphQL::ScalarType
+
+    @value : String
+
+    def initialize(@value)
+    end
+
+    def to_json(builder : JSON::Builder)
+      builder.scalar(@value.reverse)
     end
   end
 end

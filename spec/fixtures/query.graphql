@@ -21,9 +21,11 @@ input NestedInputObject {
 type NestedObject {
   array: [NestedObject!]
   float: Float
+  id: ID
   int: Int
   object: NestedObject
   str: String
+  strReverse: ReverseStringScalar
 }
 
 type Query {
@@ -41,6 +43,8 @@ type Query {
   defaultValues(bool: Boolean = false, emptyStr: String = "", float: Float = 2.0, int: Int = 1, str: String = "qwe"): String!
   echoNestedInputObject(nestedInputObject: NestedInputObject!): NestedObject!
 }
+
+scalar ReverseStringScalar
 
 "A String Value"
 scalar String

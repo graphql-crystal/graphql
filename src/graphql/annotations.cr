@@ -10,4 +10,7 @@ module GraphQL
 
   annotation Enum
   end
+
+  annotation Scalar
+  end
 end

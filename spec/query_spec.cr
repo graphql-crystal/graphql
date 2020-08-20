@@ -39,6 +39,8 @@ describe GraphQL::Introspection do
                     str
                     int
                     float
+                    id
+                    strReverse
                   }
                 }
               }
@@ -60,9 +62,11 @@ describe GraphQL::Introspection do
                   "str"   => "ok",
                   "array" => [
                     {
-                      "str"   => "foo",
-                      "int"   => 123,
-                      "float" => 11.0,
+                      "str"        => "foo",
+                      "int"        => 123,
+                      "float"      => 11.0,
+                      "id"         => "foo",
+                      "strReverse" => "oof",
                     },
                   ],
                 },

@@ -179,7 +179,7 @@ module GraphQL::ObjectType
             end
           when ::Enum
             json.field path, value.to_s
-          when Bool, String, Int32, Int64, Float32, Float64, Nil
+          when Bool, String, Int32, Int64, Float32, Float64, Nil, ::GraphQL::ScalarType
             json.field path, value
           else
             raise "no serialization found for field #{path} on #{_graphql_type}"

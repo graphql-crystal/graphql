@@ -1,6 +1,9 @@
 # GraphQL for Crystal
 
-GraphQL server library for Crystal. Code-first, easy to use and optimized for performance.
+GraphQL server library for Crystal. Code-first, easy to use and optimized for
+performance. It uses macros to allow for type-safe GraphQL APIs in Crystal,
+inspired by [Juniper](https://github.com/graphql-rust/juniper).
+
 Used in production at [Everbase](https://www.everbase.co).
 
 The language implementation is derived from
@@ -12,7 +15,7 @@ graphql-crystal/graphql
 * Under active development
 * Newer, possibly less stable
 * Automatically derives schema from code, preventing bugs and saving time
-* No support for interfaces or subscriptions
+* No support for interfaces or subscriptions at the moment
 * Should peform faster since the run time code paths are shorter (TBD)
 * But the use of macros may negatively impact compile times
 
@@ -26,7 +29,7 @@ ziprandom/graphql-crystal
 
 ## Getting Started
 
-Add the shard to your `shard.yml`:
+Add the shard to our `shard.yml`:
 
 ```yaml
 dependencies:
@@ -36,8 +39,8 @@ dependencies:
 
 Then run `shards install`.
 
-The first step is to define a query object. This is the root type for all queries and it looks like
-this:
+The first step is to define a query object. This is the root type for all
+queries and it looks like this:
 
 ```crystal
 @[GraphQL::Object]
@@ -72,8 +75,9 @@ type Query {
 }
 ```
 
-Now for the integration with your HTTP library or framework. All we need to do is to call
-`schema.execute` with the right arguments. Here is a simple example for Kemal, customize as needed:
+Now for the integration with our HTTP library or framework. All we need to do is
+to call `schema.execute` with the right arguments. Here is a simple example for
+Kemal, customize as needed:
 
 ```crystal
 post "/graphql" do |env|
@@ -103,13 +107,13 @@ This should return:
 { "data": { "echo": "Hello GraphQL!" } }
 ```
 
-## Using Context
+## Context
 
-`context` is a optional argument that your fields can retrieve. It lets fields access global data
-like database connections.
+`context` is a optional argument that our fields can retrieve. It lets fields
+access global data like database connections.
 
 ```crystal
-# Define your own context type
+# Define our own context type
 class MyContext < GraphQL::Context
   @pi : Float64
   def initialize(@pi)
@@ -120,7 +124,7 @@ end
 context = MyContext.new(Math.PI)
 schema.execute(query, variables, operation_name, context)
 
-# Access it in your fields
+# Access it in our fields
 @[GraphQL::Object]
 class MyMath
   @[GraphQL::Field]
@@ -130,13 +134,15 @@ class MyMath
 end
 ```
 
-Context instances should only be used once, do not reuse them for multiple executes.
+Context instances should only be used once, do not reuse them for multiple
+executes.
 
-## Defining Objects
+## Objects
 
-Objects are perhaps the most commonly used type in GraphQL. They are implemented as classes. To
-define a object, you need a `GraphQL::Object` annotation and a `GraphQL::ObjectType` include.
-Fields are methods with a `GraphQL::Field` annotation.
+Objects are perhaps the most commonly used type in GraphQL. They are implemented
+as classes. To define a object, we need a `GraphQL::Object` annotation and a
+`GraphQL::ObjectType` include. Fields are methods with a `GraphQL::Field`
+annotation.
 
 ```crystal
 @[GraphQL::Object]
@@ -149,7 +155,7 @@ class Foo
   end
 
   @[GraphQL::Field]
-  def bar : Bar # in addition to basic types, you can also return other objects
+  def bar : Bar # in addition to basic types, we can also return other objects
     Bar.new
   end
 end
@@ -165,10 +171,10 @@ class Bar
 end
 ```
 
-## Defining Query
+## Query
 
-Query is the root type of all queries. It has the same requirements as a object type, but also
-requires a `GraphQL::QueryType` include.
+Query is the root type of all queries. It has the same requirements as a object
+type, but also requires a `GraphQL::QueryType` include.
 
 ```crystal
 @[GraphQL::Object]
@@ -185,10 +191,10 @@ end
 schema = GraphQL::Schema.new(Query.new)
 ```
 
-## Defining Mutation
+## Mutation
 
-Mutation is the root type for all mutations. It has the same requirements as a object type, but also
-requires a `GraphQL::MutationType` include.
+Mutation is the root type for all mutations. It has the same requirements as a
+object type, but also requires a `GraphQL::MutationType` include.
 
 ```crystal
 @[GraphQL::Object]
@@ -205,11 +211,11 @@ end
 schema = GraphQL::Schema.new(Query.new, Mutation.new)
 ```
 
-## Defining Input Objects
+## Input Objects
 
-Input objects are objects that are used as field arguments. To define a input object, use a
-`GraphQL::InputObject` annotation and a `GraphQL::InputObjectType` include. They must also have a
-constructor with a `GraphQL::Field` annotation.
+Input objects are objects that are used as field arguments. To define a input
+object, use a `GraphQL::InputObject` annotation and a `GraphQL::InputObjectType`
+include. They must also have a constructor with a `GraphQL::Field` annotation.
 
 ```crystal
 @[GraphQL::InputObject]
@@ -239,7 +245,7 @@ class Query
 end
 ```
 
-## Defining Enums
+## Enums
 
 Defining enums is very straightforward, just add a `GraphQL::Enum` annotation.
 
@@ -260,7 +266,33 @@ The following scalar values are supported:
 - String
 - Boolean
 
-Custom scalars are not supported. It's also not possible to use the built-in `ID` scalar type.
+There is also the built-in `ID` type that serializes to a string.
+
+```crystal
+@[GraphQL::Field]
+def id : GraphQL::ID
+  GraphQL::ID.new("my_id_string)
+end
+```
+
+We can also create custom scalars using `GraphQL::Scalar`, `GraphQL::ScalarType`
+and a custom `to_json` implementation.
+
+```crystal
+@[GraphQL::Scalar]
+class ReverseStringScalar
+  include GraphQL::ScalarType
+
+  @value : String
+
+  def initialize(@value)
+  end
+
+  def to_json(builder : JSON::Builder)
+    builder.scalar(@value.reverse)
+  end
+end
+```
 
 ## Interfaces
 
@@ -274,10 +306,13 @@ Subscriptions are not supported.
 
 ### name
 
-You can use the `name` argument to customize the type name of objects, input objects or fields. This
-is not needed in most situations because type names are automatically converted to PascalCase or
-camelCase. However, `item_id` is converted to `itemId`, but you might want to use `itemID`. This is
-where the name argument comes in handy.
+Supported on: `Object`, `InputObject`, `Field`, `Enum`, `Scalar`
+
+We can use the `name` argument to customize the introspection type name of a
+type. This is not needed in most situations because type names are automatically
+converted to PascalCase or camelCase. However, `item_id` is converted to
+`itemId`, but we might want to use `itemID`. For this, we can use the `name`
+argument.
 
 ```crystal
 @[GraphQL::Object(name: "Sheep")]
@@ -291,8 +326,10 @@ end
 
 ### description
 
-Describes the type. Available through the introspection interface so it's always a good idea to set
-this argument.
+Supported on: `Object`, `InputObject`, `Field`, `Enum`, `Scalar`
+
+Describes the type. This is made available through the introspection interface
+so it's always a good idea to set this argument.
 
 ```crystal
 @[GraphQL::Object(description: "I'm a sheep, I promise!")]
@@ -301,6 +338,8 @@ end
 ```
 
 ### deprecated
+
+Supported on: `Field`
 
 The deprecated argument is set to mark a type as deprecated.
 
@@ -315,8 +354,8 @@ end
 
 ### arguments
 
-A hash that is used to set names and descriptions for field arguments. Note that arguments cannot be
-deprecated as of the latest GraphQL spec (June 2018).
+A hash that is used to set names and descriptions for field arguments. Note that
+arguments cannot be deprecated as of the latest GraphQL spec (June 2018).
 
 ```crystal
 class Sheep
@@ -333,5 +372,5 @@ end
 
 ## Field Arguments
 
-Field arguments are automatically resolved. A type with a default value becomes optional. A nilable
-type is also considered a optional type.
+Field arguments are automatically resolved. A type with a default value becomes
+optional. A nilable type is also considered a optional type.
