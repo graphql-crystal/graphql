@@ -1,6 +1,10 @@
-name: CI
+name: Test
 
-on: [push]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 18 * * *'
 
 jobs:
   build:
@@ -8,7 +12,8 @@ jobs:
     container:
       image: crystallang/crystal:latest-alpine
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Install dependencies
         run: shards install
       - name: Run tests
