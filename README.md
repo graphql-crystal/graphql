@@ -1,31 +1,26 @@
-# GraphQL for Crystal
+![Logo](assets/logo.png)
 
-GraphQL server library for Crystal. Code-first, easy to use and optimized for
-performance. It uses macros to allow for type-safe GraphQL APIs in Crystal,
-inspired by [Juniper](https://github.com/graphql-rust/juniper).
+GraphQL server library for Crystal.
+
+* **Boilerplate-free**: Schema is generated at compile time
+* **Type-safe**: Relies on the Crystal compiler for type checking
+* **High performance**: Benchmarks TBD
 
 Used in production at [Everbase](https://www.everbase.co).
 
 The language implementation is derived from
-[ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal),
-everything else was written from scratch. How they compare:
+[ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal), the
+rest was built from the ground up. How they compare:
 
-graphql-crystal/graphql
+|                              | graphql-crystal/graphql                                    | ziprandom/graphql-crystal                            |
+|------------------------------|------------------------------------------------------------|------------------------------------------------------|
+| Type-safe                    | :heavy_check_mark:                                         | :x:                                                  |
+| Automatic schema derivation  | :heavy_check_mark:                                         | :x:                                                  |
+| Actively developed           | :heavy_check_mark:                                         | :warning: (maintained but little active development) |
+| Stable                       | :construction: (Assume lurking bugs and breaking changes)  | :heavy_check_mark:                                   |
+| Supports interfaces          | :x:                                                        | :heavy_check_mark:                                   |
+| Supports subscriptions       | :x:                                                        | :x:                                                  |
 
-* Under active development
-* Newer, possibly less stable
-* Automatically derives schema from code, preventing bugs and saving time
-* No support for interfaces or subscriptions at the moment
-* Should peform faster since the run time code paths are shorter (TBD)
-* But the use of macros may negatively impact compile times
-
-ziprandom/graphql-crystal
-
-* Little development for years
-* Proven and mostly stable
-* Requires spelling out the schema
-* No compile-time type safety
-* Supports interfaces but not subscriptions
 
 ## Getting Started
 
@@ -43,6 +38,8 @@ The first step is to define a query object. This is the root type for all
 queries and it looks like this:
 
 ```crystal
+require "graphql"
+
 @[GraphQL::Object]
 class Query
   include GraphQL::ObjectType
