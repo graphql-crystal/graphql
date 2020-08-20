@@ -418,29 +418,26 @@
 
 
 <div class="main-content">
-<h1><a id="graph-ql-for-crystal" class="anchor" href="#graph-ql-for-crystal">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>GraphQL for Crystal</h1>
+<p><img src="assets/logo.png" alt="Logo"/></p>
 
-<p>GraphQL server library for Crystal. Code-first, easy to use and optimized for
-performance. It uses macros to allow for type-safe GraphQL APIs in Crystal,
-inspired by <a href="https://github.com/graphql-rust/juniper" target="_blank">Juniper</a>.</p>
+<p>GraphQL server library for Crystal.</p>
+
+<ul><li><strong>Boilerplate-free</strong>: Schema is generated at compile time</li><li><strong>Type-safe</strong>: Relies on the Crystal compiler for type checking</li><li><strong>High performance</strong>: Benchmarks TBD</li></ul>
 
 <p>Used in production at <a href="https://www.everbase.co" target="_blank">Everbase</a>.</p>
 
 <p>The language implementation is derived from
-<a href="https://github.com/ziprandom/graphql-crystal" target="_blank">ziprandom/graphql-crystal</a>,
-everything else was written from scratch. How they compare:</p>
+<a href="https://github.com/ziprandom/graphql-crystal" target="_blank">ziprandom/graphql-crystal</a>, the
+rest was built from the ground up. How they compare:</p>
 
-<p>graphql-crystal/graphql</p>
-
-<ul><li>Under active development</li><li>Newer, possibly less stable</li><li>Automatically derives schema from code, preventing bugs and saving time</li><li>No support for interfaces or subscriptions at the moment</li><li>Should peform faster since the run time code paths are shorter (TBD)</li><li>But the use of macros may negatively impact compile times</li></ul>
-
-<p>ziprandom/graphql-crystal</p>
-
-<ul><li>Little development for years</li><li>Proven and mostly stable</li><li>Requires spelling out the schema</li><li>No compile-time type safety</li><li>Supports interfaces but not subscriptions</li></ul>
+<p>|                              | graphql-crystal/graphql                                    | ziprandom/graphql-crystal                            |
+|------------------------------|------------------------------------------------------------|------------------------------------------------------|
+| Type-safe                    | :heavy_check_mark:                                         | :x:                                                  |
+| Automatic schema derivation  | :heavy_check_mark:                                         | :x:                                                  |
+| Actively developed           | :heavy_check_mark:                                         | :warning: (maintained but little active development) |
+| Stable                       | :construction: (Assume lurking bugs and breaking changes)  | :heavy_check_mark:                                   |
+| Supports interfaces          | :x:                                                        | :heavy_check_mark:                                   |
+| Supports subscriptions       | :x:                                                        | :x:                                                  |</p>
 
 <h2><a id="getting-started" class="anchor" href="#getting-started">
   <svg class="octicon-link" aria-hidden="true">
@@ -459,7 +456,9 @@ everything else was written from scratch. How they compare:</p>
 <p>The first step is to define a query object. This is the root type for all
 queries and it looks like this:</p>
 
-<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;graphql&quot;</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">Query</span>
   <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
   <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">QueryType</span>
