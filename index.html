@@ -81,6 +81,11 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/ID" data-name="graphql::id">
+      <a href="GraphQL/ID.html">ID</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/InputObject" data-name="graphql::inputobject">
       <a href="GraphQL/InputObject.html">InputObject</a>
       
@@ -386,6 +391,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Scalar" data-name="graphql::scalar">
+      <a href="GraphQL/Scalar.html">Scalar</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/ScalarType" data-name="graphql::scalartype">
+      <a href="GraphQL/ScalarType.html">ScalarType</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Schema" data-name="graphql::schema">
       <a href="GraphQL/Schema.html">Schema</a>
       
@@ -409,8 +424,11 @@
   </svg>
 </a>GraphQL for Crystal</h1>
 
-<p>GraphQL server library for Crystal. Code-first, easy to use and optimized for performance.
-Used in production at <a href="https://www.everbase.co" target="_blank">Everbase</a>.</p>
+<p>GraphQL server library for Crystal. Code-first, easy to use and optimized for
+performance. It uses macros to allow for type-safe GraphQL APIs in Crystal,
+inspired by <a href="https://github.com/graphql-rust/juniper" target="_blank">Juniper</a>.</p>
+
+<p>Used in production at <a href="https://www.everbase.co" target="_blank">Everbase</a>.</p>
 
 <p>The language implementation is derived from
 <a href="https://github.com/ziprandom/graphql-crystal" target="_blank">ziprandom/graphql-crystal</a>,
@@ -418,7 +436,7 @@ everything else was written from scratch. How they compare:</p>
 
 <p>graphql-crystal/graphql</p>
 
-<ul><li>Under active development</li><li>Newer, possibly less stable</li><li>Automatically derives schema from code, preventing bugs and saving time</li><li>No support for interfaces or subscriptions</li><li>Should peform faster since the run time code paths are shorter (TBD)</li><li>But the use of macros may negatively impact compile times</li></ul>
+<ul><li>Under active development</li><li>Newer, possibly less stable</li><li>Automatically derives schema from code, preventing bugs and saving time</li><li>No support for interfaces or subscriptions at the moment</li><li>Should peform faster since the run time code paths are shorter (TBD)</li><li>But the use of macros may negatively impact compile times</li></ul>
 
 <p>ziprandom/graphql-crystal</p>
 
@@ -430,7 +448,7 @@ everything else was written from scratch. How they compare:</p>
   </svg>
 </a>Getting Started</h2>
 
-<p>Add the shard to your <code>shard.yml</code>:</p>
+<p>Add the shard to our <code>shard.yml</code>:</p>
 
 <pre><code class="language-yaml">dependencies:
   graphql:
@@ -438,8 +456,8 @@ everything else was written from scratch. How they compare:</p>
 
 <p>Then run <code>shards install</code>.</p>
 
-<p>The first step is to define a query object. This is the root type for all queries and it looks like
-this:</p>
+<p>The first step is to define a query object. This is the root type for all
+queries and it looks like this:</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">Query</span>
@@ -466,8 +484,9 @@ this:</p>
   echo(str: String!): String!
 }</code></pre>
 
-<p>Now for the integration with your HTTP library or framework. All we need to do is to call
-<code>schema.execute</code> with the right arguments. Here is a simple example for Kemal, customize as needed:</p>
+<p>Now for the integration with our HTTP library or framework. All we need to do is
+to call <code>schema.execute</code> with the right arguments. Here is a simple example for
+Kemal, customize as needed:</p>
 
 <pre><code class="language-crystal">post <span class="s">&quot;/graphql&quot;</span> <span class="k">do</span> <span class="o">|</span>env<span class="o">|</span>
   env.response.content_type <span class="o">=</span> <span class="s">&quot;application/json&quot;</span>
@@ -491,16 +510,16 @@ this:</p>
 
 <pre><code class="language-json">{ "data": { "echo": "Hello GraphQL!" } }</code></pre>
 
-<h2><a id="using-context" class="anchor" href="#using-context">
+<h2><a id="context" class="anchor" href="#context">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Using Context</h2>
+</a>Context</h2>
 
-<p><code>context</code> is a optional argument that your fields can retrieve. It lets fields access global data
-like database connections.</p>
+<p><code>context</code> is a optional argument that our fields can retrieve. It lets fields
+access global data like database connections.</p>
 
-<pre><code class="language-crystal"><span class="c"># Define your own context type</span>
+<pre><code class="language-crystal"><span class="c"># Define our own context type</span>
 <span class="k">class</span> <span class="t">MyContext</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Context</span>
   @pi : <span class="t">Float64</span>
   <span class="k">def</span> <span class="m">initialize</span>(@pi)
@@ -511,7 +530,7 @@ like database connections.</p>
 context <span class="o">=</span> <span class="t">MyContext</span>.<span class="k">new</span>(<span class="t">Math</span>.<span class="t">PI</span>)
 schema.execute(query, variables, operation_name, context)
 
-<span class="c"># Access it in your fields</span>
+<span class="c"># Access it in our fields</span>
 @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">MyMath</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
@@ -520,17 +539,19 @@ schema.execute(query, variables, operation_name, context)
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 
-<p>Context instances should only be used once, do not reuse them for multiple executes.</p>
+<p>Context instances should only be used once, do not reuse them for multiple
+executes.</p>
 
-<h2><a id="defining-objects" class="anchor" href="#defining-objects">
+<h2><a id="objects" class="anchor" href="#objects">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Defining Objects</h2>
+</a>Objects</h2>
 
-<p>Objects are perhaps the most commonly used type in GraphQL. They are implemented as classes. To
-define a object, you need a <code><a href="GraphQL/Object.html">GraphQL::Object</a></code> annotation and a <code><a href="GraphQL/ObjectType.html">GraphQL::ObjectType</a></code> include.
-Fields are methods with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> annotation.</p>
+<p>Objects are perhaps the most commonly used type in GraphQL. They are implemented
+as classes. To define a object, we need a <code><a href="GraphQL/Object.html">GraphQL::Object</a></code> annotation and a
+<code><a href="GraphQL/ObjectType.html">GraphQL::ObjectType</a></code> include. Fields are methods with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code>
+annotation.</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">Foo</span>
@@ -542,7 +563,7 @@ Fields are methods with a <code><a href="GraphQL/Field.html">GraphQL::Field</a><
   <span class="k">end</span>
 
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
-  <span class="k">def</span> <span class="m">bar</span> : <span class="t">Bar</span> <span class="c"># in addition to basic types, you can also return other objects</span>
+  <span class="k">def</span> <span class="m">bar</span> : <span class="t">Bar</span> <span class="c"># in addition to basic types, we can also return other objects</span>
     <span class="t">Bar</span>.<span class="k">new</span>
   <span class="k">end</span>
 <span class="k">end</span>
@@ -557,14 +578,14 @@ Fields are methods with a <code><a href="GraphQL/Field.html">GraphQL::Field</a><
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 
-<h2><a id="defining-query" class="anchor" href="#defining-query">
+<h2><a id="query" class="anchor" href="#query">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Defining Query</h2>
+</a>Query</h2>
 
-<p>Query is the root type of all queries. It has the same requirements as a object type, but also
-requires a <code><a href="GraphQL/QueryType.html">GraphQL::QueryType</a></code> include.</p>
+<p>Query is the root type of all queries. It has the same requirements as a object
+type, but also requires a <code><a href="GraphQL/QueryType.html">GraphQL::QueryType</a></code> include.</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">Query</span>
@@ -579,14 +600,14 @@ requires a <code><a href="GraphQL/QueryType.html">GraphQL::QueryType</a></code> 
 
 schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.<span class="k">new</span>(<span class="t">Query</span>.<span class="k">new</span>)</code></pre>
 
-<h2><a id="defining-mutation" class="anchor" href="#defining-mutation">
+<h2><a id="mutation" class="anchor" href="#mutation">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Defining Mutation</h2>
+</a>Mutation</h2>
 
-<p>Mutation is the root type for all mutations. It has the same requirements as a object type, but also
-requires a <code><a href="GraphQL/MutationType.html">GraphQL::MutationType</a></code> include.</p>
+<p>Mutation is the root type for all mutations. It has the same requirements as a
+object type, but also requires a <code><a href="GraphQL/MutationType.html">GraphQL::MutationType</a></code> include.</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">Mutation</span>
@@ -601,15 +622,15 @@ requires a <code><a href="GraphQL/MutationType.html">GraphQL::MutationType</a></
 
 schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.<span class="k">new</span>(<span class="t">Query</span>.<span class="k">new</span>, <span class="t">Mutation</span>.<span class="k">new</span>)</code></pre>
 
-<h2><a id="defining-input-objects" class="anchor" href="#defining-input-objects">
+<h2><a id="input-objects" class="anchor" href="#input-objects">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Defining Input Objects</h2>
+</a>Input Objects</h2>
 
-<p>Input objects are objects that are used as field arguments. To define a input object, use a
-<code><a href="GraphQL/InputObject.html">GraphQL::InputObject</a></code> annotation and a <code><a href="GraphQL/InputObjectType.html">GraphQL::InputObjectType</a></code> include. They must also have a
-constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> annotation.</p>
+<p>Input objects are objects that are used as field arguments. To define a input
+object, use a <code><a href="GraphQL/InputObject.html">GraphQL::InputObject</a></code> annotation and a <code><a href="GraphQL/InputObjectType.html">GraphQL::InputObjectType</a></code>
+include. They must also have a constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> annotation.</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">InputObject</span>]
 <span class="k">class</span> <span class="t">Where</span>
@@ -637,11 +658,11 @@ constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> 
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 
-<h2><a id="defining-enums" class="anchor" href="#defining-enums">
+<h2><a id="enums" class="anchor" href="#enums">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Defining Enums</h2>
+</a>Enums</h2>
 
 <p>Defining enums is very straightforward, just add a <code><a href="GraphQL/Enum.html">GraphQL::Enum</a></code> annotation.</p>
 
@@ -661,7 +682,29 @@ constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> 
 
 <ul><li>Int32</li><li>Float64</li><li>String</li><li>Boolean</li></ul>
 
-<p>Custom scalars are not supported. It's also not possible to use the built-in <code>ID</code> scalar type.</p>
+<p>There is also the built-in <code>ID</code> type that serializes to a string.</p>
+
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+<span class="k">def</span> <span class="m">id</span> : <span class="t">GraphQL</span><span class="t">::</span><span class="t">ID</span>
+  <span class="t">GraphQL</span><span class="t">::</span><span class="t">ID</span>.<span class="k">new</span>(<span class="s">&quot;my_id_string)
+end</span></code></pre>
+
+<p>We can also create custom scalars using <code><a href="GraphQL/Scalar.html">GraphQL::Scalar</a></code>, <code><a href="GraphQL/ScalarType.html">GraphQL::ScalarType</a></code>
+and a custom <code>to_json</code> implementation.</p>
+
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>]
+<span class="k">class</span> <span class="t">ReverseStringScalar</span>
+  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ScalarType</span>
+
+  @value : <span class="t">String</span>
+
+  <span class="k">def</span> <span class="m">initialize</span>(@value)
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="m">to_json</span>(builder : <span class="t">JSON</span><span class="t">::</span><span class="t">Builder</span>)
+    builder.scalar(@value.reverse)
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
 
 <h2><a id="interfaces" class="anchor" href="#interfaces">
   <svg class="octicon-link" aria-hidden="true">
@@ -691,10 +734,13 @@ constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> 
   </svg>
 </a>name</h3>
 
-<p>You can use the <code>name</code> argument to customize the type name of objects, input objects or fields. This
-is not needed in most situations because type names are automatically converted to PascalCase or
-camelCase. However, <code>item_id</code> is converted to <code>itemId</code>, but you might want to use <code>itemID</code>. This is
-where the name argument comes in handy.</p>
+<p>Supported on: <code>Object</code>, <code>InputObject</code>, <code>Field</code>, <code>Enum</code>, <code>Scalar</code></p>
+
+<p>We can use the <code>name</code> argument to customize the introspection type name of a
+type. This is not needed in most situations because type names are automatically
+converted to PascalCase or camelCase. However, <code>item_id</code> is converted to
+<code>itemId</code>, but we might want to use <code>itemID</code>. For this, we can use the <code>name</code>
+argument.</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(name: <span class="s">&quot;Sheep&quot;</span>)]
 <span class="k">class</span> <span class="t">Wolf</span>
@@ -710,8 +756,10 @@ where the name argument comes in handy.</p>
   </svg>
 </a>description</h3>
 
-<p>Describes the type. Available through the introspection interface so it's always a good idea to set
-this argument.</p>
+<p>Supported on: <code>Object</code>, <code>InputObject</code>, <code>Field</code>, <code>Enum</code>, <code>Scalar</code></p>
+
+<p>Describes the type. This is made available through the introspection interface
+so it's always a good idea to set this argument.</p>
 
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(description: <span class="s">&quot;I&#39;m a sheep, I promise!&quot;</span>)]
 <span class="k">class</span> <span class="t">Wolf</span>
@@ -722,6 +770,8 @@ this argument.</p>
     <use href="#octicon-link"/>
   </svg>
 </a>deprecated</h3>
+
+<p>Supported on: <code>Field</code></p>
 
 <p>The deprecated argument is set to mark a type as deprecated.</p>
 
@@ -738,8 +788,8 @@ this argument.</p>
   </svg>
 </a>arguments</h3>
 
-<p>A hash that is used to set names and descriptions for field arguments. Note that arguments cannot be
-deprecated as of the latest GraphQL spec (June 2018).</p>
+<p>A hash that is used to set names and descriptions for field arguments. Note that
+arguments cannot be deprecated as of the latest GraphQL spec (June 2018).</p>
 
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">Sheep</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(arguments: {weapon: {name: <span class="s">&quot;weaponName&quot;</span>, description: <span class="s">&quot;The weapon the sheep should use.&quot;</span>}})]
@@ -758,8 +808,8 @@ deprecated as of the latest GraphQL spec (June 2018).</p>
   </svg>
 </a>Field Arguments</h2>
 
-<p>Field arguments are automatically resolved. A type with a default value becomes optional. A nilable
-type is also considered a optional type.</p>
+<p>Field arguments are automatically resolved. A type with a default value becomes
+optional. A nilable type is also considered a optional type.</p>
 </div>
 </body>
 </html>
