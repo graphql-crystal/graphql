@@ -1,4 +1,4 @@
-![Logo](assets/logo.png)
+![Logo](assets/logo.svg)
 
 GraphQL server library for Crystal.
 
@@ -17,7 +17,7 @@ rest was built from the ground up. How they compare:
 | Type-safe                    | :heavy_check_mark:                                         | :x:                                                  |
 | Automatic schema derivation  | :heavy_check_mark:                                         | :x:                                                  |
 | Actively developed           | :heavy_check_mark:                                         | :warning: (maintained but little active development) |
-| Stable                       | :construction: (Assume lurking bugs and breaking changes)  | :heavy_check_mark:                                   |
+| Stable                       | :construction: (assume lurking bugs and breaking changes)  | :heavy_check_mark:                                   |
 | Supports interfaces          | :x:                                                        | :heavy_check_mark:                                   |
 | Supports subscriptions       | :x:                                                        | :x:                                                  |
 
