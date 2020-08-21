@@ -13,7 +13,7 @@ module GraphQL::Document
 
           objects = [@type, ::GraphQL::Introspection::Schema]
           enums = [] of TypeNode
-          scalars = [] of TypeNode
+          scalars = [::GraphQL::Scalars::String, ::GraphQL::Scalars::Boolean, ::GraphQL::Scalars::Float, ::GraphQL::Scalars::Int, ::GraphQL::Scalars::ID] of TypeNode
 
           (0..1000).each do |i|
             if objects[i]
@@ -272,21 +272,6 @@ module GraphQL::Document
             )
           {% end %}
         {% end %}
-
-        %scalars = {
-          {"String", "A String Value"},
-          {"Boolean", "A Boolean Value"},
-          {"Int", "An Integer Number"},
-          {"Float", "A Floating Point Number"},
-          {"ID", "An ID"},
-        }
-        %scalars.each do |%name, %description|
-          %definitions << ::GraphQL::Language::ScalarTypeDefinition.new(
-            name: %name,
-            description: %description,
-            directives: [] of ::GraphQL::Language::Directive
-          )
-        end
 
         ::GraphQL::Language::Document.new(%definitions.sort { |a, b| a.name <=> b.name })
       end

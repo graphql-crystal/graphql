@@ -24,7 +24,7 @@ end
 describe GraphQL::Enum do
   it "Enums generates correct schema" do
     got = GraphQL::Schema.new(TestEnumsAsReturnOptional::Query.new).document.to_s.strip
-    expected = {{ read_file("spec/enums/as_return.graphql") }}.strip
+    expected = {{ read_file("spec/enums/as_return_optional.graphql") }}.strip
     puts "\n====================\n#{got}\n====================" if got != expected
     got.should eq expected
   end

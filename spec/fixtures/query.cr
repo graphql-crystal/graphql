@@ -32,6 +32,11 @@ module QueryFixture
     def default_values(int : Int32 = 1, float : Float64 = 2.0, emptyStr : String = "", str : String = "qwe", bool : Bool = false) : String
       ""
     end
+
+    @[GraphQL::Field]
+    def record(value : String) : RecordResolver
+      RecordResolver.new(value)
+    end
   end
 
   @[GraphQL::InputObject]
@@ -83,13 +88,13 @@ module QueryFixture
     end
 
     @[GraphQL::Field]
-    def strReverse : ReverseStringScalar?
+    def str_reverse : ReverseStringScalar?
       ReverseStringScalar.new(@str.not_nil!) unless @str.nil?
     end
 
     @[GraphQL::Field]
-    def id : GraphQL::ID?
-      GraphQL::ID.new(@str.not_nil!) unless @str.nil?
+    def id : GraphQL::Scalars::ID?
+      GraphQL::Scalars::ID.new(@str.not_nil!) unless @str.nil?
     end
 
     @[GraphQL::Field]
@@ -114,6 +119,16 @@ module QueryFixture
 
     def to_json(builder : JSON::Builder)
       builder.scalar(@value.reverse)
+    end
+  end
+
+  @[GraphQL::Object(description: "RecordResolver description")]
+  record RecordResolver, value : ::String do
+    include GraphQL::ObjectType
+
+    @[GraphQL::Field]
+    def value : String
+      @value
     end
   end
 end

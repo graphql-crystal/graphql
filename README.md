@@ -24,7 +24,7 @@ rest was built from the ground up. How they compare:
 
 ## Getting Started
 
-Add the shard to our `shard.yml`:
+Install the shard by adding the following to our `shard.yml`:
 
 ```yaml
 dependencies:
@@ -167,6 +167,22 @@ class Bar
   end
 end
 ```
+
+We can also use [structs](https://crystal-lang.org/api/latest/Struct.html) to define objects:
+
+```
+# `record` is a built in macro that creates a immutable struct
+@[GraphQL::Object(description: "RecordResolver description")]
+record Baz, value : ::String do
+  include GraphQL::ObjectType
+
+  @[GraphQL::Field]
+  def value : String
+    @value
+  end
+end
+```
+
 
 ## Query
 

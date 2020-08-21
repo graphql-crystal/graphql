@@ -81,6 +81,27 @@ describe GraphQL::Introspection do
     ).to_json
   end
 
+  it "resolves record field" do
+    GraphQL::Schema.new(QueryFixture::Query.new).execute(
+      %(
+        query {
+          record(value: "myvalue") {
+            value
+          }
+        }
+      )
+    ).should eq (
+      {
+        "data" => {
+          "record" => {
+            "value" => "myvalue",
+          },
+        },
+
+      }
+    ).to_json
+  end
+
   it "fails for mutations" do
     GraphQL::Schema.new(QueryFixture::Query.new).execute(
       %(

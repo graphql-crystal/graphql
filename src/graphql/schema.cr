@@ -30,7 +30,6 @@ module GraphQL
       when Language::Argument
         case value = node.value
         when Language::VariableIdentifier
-          vars = variables
           begin
             node.value = to_fvalue(variables.not_nil![value.name])
           rescue
