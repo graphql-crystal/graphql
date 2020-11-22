@@ -106,6 +106,8 @@ module GraphQL::ObjectType
                   {% elsif type.annotation(::GraphQL::Enum) %}
                   when ::GraphQL::Language::AEnum
                     {{type.id}}.parse(arg_value.to_value)
+                  when String
+                    {{type.id}}.parse(arg_value)
                   {% elsif type.annotation(::GraphQL::InputObject) %}
                   when ::GraphQL::Language::InputObject
                     {{type.id}}._graphql_new(arg_value)
@@ -123,6 +125,8 @@ module GraphQL::ObjectType
                       {% elsif inner_type.annotation(::GraphQL::Enum) %}
                       when ::GraphQL::Language::AEnum
                         {{inner_type.id}}.parse(value.to_value)
+                      when String
+                        {{inner_type.id}}.parse(value)
                       {% elsif inner_type.annotation(::GraphQL::InputObject) %}
                       when ::GraphQL::Language::InputObject
                         {{inner_type.id}}._graphql_new(value)
@@ -137,9 +141,9 @@ module GraphQL::ObjectType
                     end
                   {% end %}
                   when {{type.id}}
-                    arg_value
+                    arg_value                    
                   else
-                    return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
+                    return [GraphQL::Error.new("#{arg_value} is wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                   end
                 rescue TypeCastError
                   return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]

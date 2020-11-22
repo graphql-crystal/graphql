@@ -21,6 +21,13 @@ module TestEnumsAsArgumentArray
   end
 end
 
+class GraphqlRequest
+  include JSON::Serializable
+
+  @[JSON::Field(key: "variables")]
+  property variables : Hash(String, JSON::Any)?
+end
+
 describe GraphQL::Enum do
   it "Enums generates correct schema" do
     got = GraphQL::Schema.new(TestEnumsAsArgumentArray::Query.new).document.to_s.strip
@@ -40,6 +47,27 @@ describe GraphQL::Enum do
       {
         "data" => {
           "result" => "JEDI, NEWHOPE",
+        },
+      }
+    ).to_json
+  end
+
+  it "returns the correct value with variable" do
+    request = {"variables" => {"e" => ["EMPIRE","NEWHOPE"]}}.to_json
+
+    graphql_request = GraphqlRequest.from_json(request)
+
+    GraphQL::Schema.new(TestEnumsAsArgumentArray::Query.new).execute(
+      %(
+        query($e: [Episode!]!) {
+          result: episodesToString(episodes: $e)
+        }
+      ),
+      graphql_request.variables
+    ).should eq (
+      {
+        "data" => {
+          "result" => "EMPIRE, NEWHOPE",
         },
       }
     ).to_json
