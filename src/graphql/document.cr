@@ -6,7 +6,7 @@ module GraphQL::Document
       def _graphql_document
         {% raise "GraphQL: #{@type.id} does not have a GraphQL::Object annotation" unless @type.annotation(::GraphQL::Object) %}
         {% objects = [@type, ::GraphQL::Introspection::Schema] %}
-        {% enums = [] of TypeNode %}
+        {% enums = [] of TypeNode %} 
         {% scalars = [] of TypeNode %}
 
         {% for i in (0..1000) %}
@@ -17,8 +17,18 @@ module GraphQL::Document
               {% end %}
               {% for arg in method.args %}
                 {% for type in arg.restriction.resolve.union_types %}
+                  {% if type.resolve < Array %}
+                    {% for inner_type in type.resolve.type_vars %}
+                      {% if inner_type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(inner_type.resolve) %}
+                        {% enums << inner_type.resolve %}
+                      {% end %}
+                    {% end %}
+                  {% end %}
                   {% if type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context) %}
                     {% objects << type.resolve %}
+                  {% end %}
+                  {% if type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(type.resolve) %}
+                    {% enums << type.resolve %}
                   {% end %}
                   {% for inner_type in type.type_vars %}
                     {% if inner_type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(inner_type.resolve) && !(inner_type.resolve < ::GraphQL::Context) %}

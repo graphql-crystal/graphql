@@ -49,7 +49,7 @@ module StarWars
     ),
   ] of Human | Droid
 
-  @[GraphQL::Enum]
+  @[GraphQL::Enum(description: "List of starwars episodes")]
   enum Episode
     IV
     V
@@ -123,7 +123,7 @@ module StarWars
       episode: {description: "The episode"},
     })]
     def hero(episode : Episode) : Human
-      CHARACTERS.first
+      humans.first
     end
 
     @[GraphQL::Field]
