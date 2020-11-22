@@ -1,23 +1,15 @@
 "A Boolean Value"
 scalar Boolean
 
-type Droid {
-  primaryFunction: String!
-}
-
-"List of starwars episodes"
+"List of Starwars episodes"
 enum Episode {
-  IV
-  V
-  VI
+  EMPIRE
+  JEDI
+  NEWHOPE
 }
 
 "A Floating Point Number"
 scalar Float
-
-type Human {
-  homePlanet: String
-}
 
 "An ID"
 scalar ID
@@ -26,15 +18,7 @@ scalar ID
 scalar Int
 
 type Query {
-  droid(id: String!): Droid
-
-  "Get hero for episode"
-  hero(
-    "The episode"
-    episode: Episode!
-  ): Human!
-  human(id: String!): Human
-  humans: [Human!]!
+  episodeToString(episode: Episode): String!
 }
 
 "A String Value"

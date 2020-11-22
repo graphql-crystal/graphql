@@ -103,6 +103,9 @@ module GraphQL::ObjectType
                   {% elsif type < Int %}
                   when Int
                     arg_value.as({{type.id}})
+                  {% elsif type.annotation(::GraphQL::Enum) %}
+                  when ::GraphQL::Language::AEnum
+                    {{type.id}}.parse(arg_value.to_value)
                   {% elsif type.annotation(::GraphQL::InputObject) %}
                   when ::GraphQL::Language::InputObject
                     {{type.id}}._graphql_new(arg_value)
@@ -117,6 +120,9 @@ module GraphQL::ObjectType
                       {% elsif inner_type < Int %}
                       when Int
                         value.as({{inner_type.id}})
+                      {% elsif inner_type.annotation(::GraphQL::Enum) %}
+                      when ::GraphQL::Language::AEnum
+                        {{inner_type.id}}.parse(value.to_value)
                       {% elsif inner_type.annotation(::GraphQL::InputObject) %}
                       when ::GraphQL::Language::InputObject
                         {{inner_type.id}}._graphql_new(value)
