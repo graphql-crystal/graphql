@@ -33,11 +33,9 @@ module GraphQL
     class Document < ASTNode
       values({definitions: Array(OperationDefinition | FragmentDefinition | SchemaDefinition | ObjectTypeDefinition | InputObjectTypeDefinition |
                                  ScalarTypeDefinition | DirectiveDefinition | EnumTypeDefinition | InterfaceTypeDefinition | UnionTypeDefinition)})
-      traverse :definitions
 
-      def map_children(&block : ASTNode -> _)
-        visited_ids = [] of UInt64
-        visit(visited_ids, block)
+      def children
+        [definitions]
       end
 
       def to_s(io : IO)
@@ -66,17 +64,26 @@ module GraphQL
           selections:     Array(Selection),
         }
       )
-      traverse :variables, :directives, :selections
+
+      def children
+        [variables, directives, selections]
+      end
     end
 
     class DirectiveDefinition < ASTNode
       values({name: String, arguments: Array(InputValueDefinition), locations: Array(String), description: String?})
-      traverse :arguments
+
+      def children
+        [arguments]
+      end
     end
 
     class Directive < ASTNode
       values({name: String, arguments: Array(Argument)})
-      traverse :arguments
+
+      def children
+        [arguments]
+      end
     end
 
     alias FValue = String | Int32 | Float64 | Bool | Nil | AEnum | InputObject | Array(FValue) | Hash(String, FValue)
@@ -88,7 +95,10 @@ module GraphQL
 
     class VariableDefinition < ASTNode
       values({name: String, type: Type, default_value: FValue})
-      traverse :type
+
+      def children
+        [type]
+      end
     end
 
     alias ArgumentValue = FValue | InputObject | VariableIdentifier | Array(ArgumentValue)
@@ -109,7 +119,10 @@ module GraphQL
 
     class ScalarTypeDefinition < TypeDefinition
       values({directives: Array(Directive)})
-      traverse :directives
+
+      def children
+        [directives]
+      end
     end
 
     class ObjectTypeDefinition < TypeDefinition
@@ -118,17 +131,26 @@ module GraphQL
          fields:     Array(FieldDefinition),
          directives: Array(Directive)}
       )
-      traverse :fields, :directives
+
+      def children
+        [fields, directives]
+      end
     end
 
     class InputObjectTypeDefinition < TypeDefinition
       values({fields: Array(InputValueDefinition), directives: Array(Directive)})
-      traverse :fields, :directives
+
+      def children
+        [fields, directives]
+      end
     end
 
     class InputValueDefinition < ASTNode
       values({name: String, type: Type, default_value: FValue, directives: Array(Directive), description: String?})
-      traverse :type, :directives
+
+      def children
+        [type, directives]
+      end
     end
 
     # Base class for nodes whose only value is a name (no child nodes or other scalars)
@@ -138,8 +160,11 @@ module GraphQL
 
     # Base class for non-null type names and list type names
     class WrapperType < ASTNode
-      values({of_type: (Type)})
-      traverse :of_type
+      values({of_type: Type})
+
+      def children
+        [of_type]
+      end
     end
 
     # A type name, used for variable definitions
@@ -152,7 +177,10 @@ module GraphQL
 
     class InputObject < ASTNode
       values({arguments: Array(Argument)})
-      traverse :arguments
+
+      def children
+        [arguments]
+      end
 
       # @return [Hash<String, Any>] Recursively turn this input object into a Ruby Hash
       def to_h
@@ -200,7 +228,10 @@ module GraphQL
         directives: Array(Directive),
         selections: Array(Selection),
       })
-      traverse :arguments, :directives, :selections
+
+      def children
+        [arguments, directives, selections]
+      end
     end
 
     class FragmentDefinition < ASTNode
@@ -210,44 +241,68 @@ module GraphQL
         directives: Array(Directive),
         selections: Array(Selection),
       })
-      traverse :type, :directives, :selections
+
+      def children
+        [type, directives, selections]
+      end
     end
 
     class FieldDefinition < ASTNode
       values({name: String, arguments: Array(InputValueDefinition), type: Type, directives: Array(Directive), description: String?})
-      traverse :type, :arguments, :directives
+
+      def children
+        [type, arguments, directives]
+      end
     end
 
     class InterfaceTypeDefinition < TypeDefinition
       values({fields: Array(FieldDefinition), directives: Array(Directive)})
-      traverse :fields, :directives
+
+      def children
+        [fields, directives]
+      end
     end
 
     class UnionTypeDefinition < TypeDefinition
       values({types: Array(TypeName), directives: Array(Directive)})
-      traverse :types, :directives
+
+      def children
+        [types, directives]
+      end
     end
 
     class EnumTypeDefinition < TypeDefinition
       values({fvalues: Array(EnumValueDefinition), directives: Array(Directive)})
-      traverse :directives
+
+      def children
+        [directives]
+      end
     end
 
     # Application of a named fragment in a selection
     class FragmentSpread < ASTNode
       values({name: String, directives: Array(Directive)})
-      traverse :directives
+
+      def children
+        [directives]
+      end
     end
 
     # An unnamed fragment, defined directly in the query with `... {  }`
     class InlineFragment < ASTNode
       values({type: Type?, directives: Array(Directive), selections: Array(Selection)})
-      traverse :type, :directives, :selections
+
+      def children
+        [type, directives, selections]
+      end
     end
 
     class EnumValueDefinition < ASTNode
       values({name: String, directives: Array(Directive), selection: Array(Selection)?, description: String?})
-      traverse :directives
+
+      def children
+        [directives]
+      end
     end
   end
 end
