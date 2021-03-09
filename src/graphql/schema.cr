@@ -86,7 +86,7 @@ module GraphQL
       context.mutation_type = @mutation.nil? ? nil : @mutation.not_nil!._graphql_type
       context.document = @document
 
-      document.map_children do |node|
+      document.visit(->(node : Language::ASTNode) {
         case node
         when Language::OperationDefinition
           operations << node
@@ -97,8 +97,7 @@ module GraphQL
         else
           nil
         end
-        node
-      end
+      })
 
       operation = if !errors.empty?
                     nil

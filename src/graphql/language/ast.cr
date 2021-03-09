@@ -9,53 +9,37 @@ module GraphQL
         def initialize({{args.keys.join(",").id}}, **rest)
           {%
             assignments = args.map do |k, v|
-              if v.id =~ /^Array/
-                type = v.id.gsub(/Array\(/, "").gsub(/\)/, "")
-                "@#{k.id} = #{k.id}.as(Array).map(&.as(#{type})).as(#{v.id})"
+              if v.is_a?(Generic) && v.name.id == "Array"
+                type = v.type_vars.first.id
+                "@#{k.id} = #{k.id}.map(&.as(#{type}))"
               else
                 "@#{k.id} = #{k.id}"
               end
             end
           %}
 
-          {{assignments.size > 0 ? assignments.join("\n").id : "".id}}
+          {{assignments.join("\n").id}}
 
           super(**rest)
         end
       end
 
-      macro traverse(*values)
-        def visit(visited_ids = [] of UInt64, block = Proc(ASTNode, ASTNode?).new {})
-          {% for key in values %}
-            %val = {{key.id}}
-            if %val.is_a?(Array)
-              %result = %val.map! do |v|
-                next v if visited_ids.includes? v.object_id
-                visited_ids << v.object_id
-                res = v.visit(visited_ids, block)
-                res.is_a?(ASTNode) ? res : v
-              end
-            else
-              unless %val == nil || visited_ids.includes? %val.object_id
-                visited_ids << %val.object_id
-                %result = %val.not_nil!.visit(visited_ids, block)
-                self.{{key.id}}=(%result)
-              end
-            end
-          {% end %}
+      def children
+        [] of ASTNode
+      end
 
-          res = block.call(self)
-          res.is_a?(self) ? res : self
+      def visit(block : ASTNode -> _)
+        children.each do |c|
+          case val = c
+          when Array
+            val.each(&.visit(block))
+          when nil
+          else
+            val.visit(block)
+          end
         end
-      end
 
-      def visit(visited_ids = [] of UInt64, block = Proc(ASTNode, ASTNode?).new { })
-        res = block.call(self)
-        res.is_a?(self) ? res : self
-      end
-
-      def ==(other)
-        self.class == other.class
+        block.call(self)
       end
     end # ASTNode
   end
