@@ -48,7 +48,7 @@ class GraphQL::Language::ParserContext
     )
   end
 
-  private def create_field(start, name, f_alias) : Language::Field
+  private def create_field(start : Int32, name : String, f_alias) : Language::Field
     Language::Field.new(
       name: name,
       _alias: f_alias,
@@ -60,7 +60,7 @@ class GraphQL::Language::ParserContext
 
   private def create_graphql_fragment_spread(start)
     Language::FragmentSpread.new(
-      parse_fragment_name,
+      parse_fragment_name.not_nil!,
       parse_directives,
     )
   end
@@ -136,6 +136,10 @@ class GraphQL::Language::ParserContext
     peek(Token::Kind::NAME) ? parse_name : nil
   end
 
+  private def get_name!
+    parse_name.not_nil!
+  end
+
   private def get_type_condition
     type_condition = nil
     if @current_token.value != nil && @current_token.value == "on"
@@ -164,7 +168,7 @@ class GraphQL::Language::ParserContext
     start = @current_token.start_position
 
     Language::Argument.new(
-      name: parse_name,
+      name: get_name!,
       value: expect_colon_and_parse_value_literal(false),
     )
   end
@@ -266,7 +270,7 @@ class GraphQL::Language::ParserContext
     start = @current_token.start_position
     expect(Token::Kind::AT)
     Language::Directive.new(
-      name: parse_name,
+      name: get_name!,
       arguments: parse_arguments,
     )
   end
@@ -277,7 +281,7 @@ class GraphQL::Language::ParserContext
     expect_keyword("directive")
     expect(Token::Kind::AT)
 
-    name = parse_name
+    name = get_name!
     args = parse_argument_defs
 
     expect_keyword("on")
@@ -324,7 +328,7 @@ class GraphQL::Language::ParserContext
     expect_keyword("enum")
 
     Language::EnumTypeDefinition.new(
-      name: parse_name,
+      name: get_name!,
       directives: parse_directives,
       fvalues: many(Token::Kind::BRACE_L, ->{ parse_enum_value_definition }, Token::Kind::BRACE_R),
       description: description,
@@ -333,7 +337,7 @@ class GraphQL::Language::ParserContext
 
   private def parse_enum_value(token)
     advance
-    Language::AEnum.new(name: token.value)
+    Language::AEnum.new(name: token.value.not_nil!)
   end
 
   private def parse_enum_value_definition
@@ -343,7 +347,7 @@ class GraphQL::Language::ParserContext
     start = @current_token.start_position
 
     Language::EnumValueDefinition.new(
-      name: parse_name,
+      name: get_name!,
       directives: parse_directives,
       selection: nil,
       description: description,
@@ -355,7 +359,7 @@ class GraphQL::Language::ParserContext
 
     description = @descriptions.pop?
     start = @current_token.start_position
-    name = parse_name
+    name = get_name!
     args = parse_argument_defs
     expect(Token::Kind::COLON)
 
@@ -370,19 +374,19 @@ class GraphQL::Language::ParserContext
 
   private def parse_field_selection
     start = @current_token.start_position
-    name_or_alias = parse_name
+    name_or_alias = parse_name # FIXME is this never null?
     name = nil
     f_alias = nil
 
     if skip(Token::Kind::COLON)
-      name = parse_name
+      name = get_name!
       f_alias = name_or_alias
     else
       f_alias = nil
       name = name_or_alias
     end
 
-    create_field(start, name, f_alias)
+    create_field(start, name.not_nil!, f_alias)
   end
 
   private def parse_float(is_constant) : Float64?
@@ -445,7 +449,7 @@ class GraphQL::Language::ParserContext
     expect_keyword("input")
 
     Language::InputObjectTypeDefinition.new(
-      name: parse_name,
+      name: get_name!,
       directives: parse_directives(),
       fields: any(Token::Kind::BRACE_L, ->{ parse_input_value_def }, Token::Kind::BRACE_R),
       description: description,
@@ -456,7 +460,7 @@ class GraphQL::Language::ParserContext
     parse_description
     description = @descriptions.pop?
     start = @current_token.start_position
-    name = parse_name
+    name = get_name!
     expect(Token::Kind::COLON)
     Language::InputValueDefinition.new(
       name: name,
@@ -479,7 +483,7 @@ class GraphQL::Language::ParserContext
     expect_keyword("interface")
 
     Language::InterfaceTypeDefinition.new(
-      name: parse_name,
+      name: get_name!,
       directives: parse_directives,
       fields: any(Token::Kind::BRACE_L, ->{ parse_field_definition }, Token::Kind::BRACE_R),
       description: description,
@@ -533,7 +537,7 @@ class GraphQL::Language::ParserContext
 
   private def parse_named_type : Language::TypeName
     start = @current_token.start_position
-    Language::TypeName.new(name: parse_name)
+    Language::TypeName.new(name: get_name!)
   end
 
   private def parse_name_value(is_constant)
@@ -567,7 +571,7 @@ class GraphQL::Language::ParserContext
     description = @descriptions.pop?
     start = @current_token.start_position
     Language::Argument.new(
-      name: parse_name,
+      name: get_name!,
       value: expect_colon_and_parse_value_literal(is_constant)
     )
   end
@@ -590,7 +594,7 @@ class GraphQL::Language::ParserContext
     expect_keyword("type")
 
     Language::ObjectTypeDefinition.new(
-      name: parse_name,
+      name: get_name!,
       description: description,
       interfaces: parse_implements_interfaces,
       directives: parse_directives,
@@ -627,7 +631,7 @@ class GraphQL::Language::ParserContext
     description = @descriptions.pop?
     start = @current_token.start_position
     expect_keyword("scalar")
-    name = parse_name
+    name = get_name!
     directives = parse_directives
 
     Language::ScalarTypeDefinition.new(
@@ -650,7 +654,7 @@ class GraphQL::Language::ParserContext
     end
 
     Language::SchemaDefinition.new(
-      query: definitions["query"]?,
+      query: definitions["query"],
       mutation: definitions["mutation"]?,
       subscription: definitions["subscription"]?
     )
@@ -715,7 +719,7 @@ class GraphQL::Language::ParserContext
     description = @descriptions.pop?
     start = @current_token.start_position
     expect_keyword("union")
-    name = parse_name
+    name = get_name!
     directives = parse_directives
     expect(Token::Kind::EQUALS)
     types = parse_union_members
@@ -761,15 +765,15 @@ class GraphQL::Language::ParserContext
     start = @current_token.start_position
     expect(Token::Kind::DOLLAR)
 
-    Language::VariableIdentifier.new(name: get_name)
+    Language::VariableIdentifier.new(name: get_name!)
   end
 
   private def parse_variable_definition : Language::VariableDefinition
     start = @current_token.start_position
     Language::VariableDefinition.new(
-      name: parse_variable.name,
-      type: advance_through_colon_and_parse_type,
-      default_value: skip_equals_and_parse_value_literal
+      name: parse_variable.name.not_nil!,
+      type: advance_through_colon_and_parse_type.not_nil!,
+      default_value: skip_equals_and_parse_value_literal.as(FValue)
     )
   end
 

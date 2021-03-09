@@ -13,7 +13,7 @@ module GraphQL
                 type = v.id.gsub(/Array\(/, "").gsub(/\)/, "")
                 "@#{k.id} = #{k.id}.as(Array).map(&.as(#{type})).as(#{v.id})"
               else
-                "@#{k.id} = #{k.id}.as(#{v.id})"
+                "@#{k.id} = #{k.id}"
               end
             end
           %}
