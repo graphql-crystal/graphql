@@ -464,7 +464,7 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/nodes.cr#L184" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/91b28b16b6cc643a64f4a96bb9a47db9c44b968a/src/graphql/language/nodes.cr#L217" target="_blank">
         graphql/language/nodes.cr
       </a>
     
@@ -473,143 +473,13 @@
 
 
 
-  
-    <h2>
-      <a id="constant-summary" class="anchor" href="#constant-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-      Constant Summary
-    </h2>
-  
-  <dl>
-    
-      <dt class="entry-const" id="VALUES">
-        <strong>VALUES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Tuple</span>(<span class="t">Symbol</span>, <span class="t">Object</span>.<span class="k">class</span>)</code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>A null value literal.</p>
-      </dd>
-      
-    
-      <dt class="entry-const" id="VISITS">
-        <strong>VISITS</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Tuple</span>(<span class="t">Symbol</span>, <span class="t">Array</span>(<span class="t">Symbol</span>))</code>
-      </dt>
-      
-      <dd class="entry-const-doc">
-        <p>A null value literal.</p>
-      </dd>
-      
-    
-  </dl>
 
 
 
-  <h2>
-    <a id="constructors" class="anchor" href="#constructors">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructors
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#new(**rest)-class-method" class="signature"><strong>.new</strong>(**rest)</a>
-        
-      </li>
-    
-  </ul>
 
 
 
-  <h2>
-    <a id="class-method-summary" class="anchor" href="#class-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Class Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#values-class-method" class="signature"><strong>.values</strong></a>
-        
-      </li>
-    
-  </ul>
 
-
-
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#==(other:GraphQL::Language::NullValue)-instance-method" class="signature"><strong>#==</strong>(other : GraphQL::Language::NullValue)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
-        
-          <div class="summary"><p>Returns a copy of <code>self</code> with all instance variables cloned.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#values-instance-method" class="signature"><strong>#values</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#visit(name,visited_ids=[]ofUInt64,block=Proc(ASTNode,ASTNode%7C::Nil).newdo%0Aend)-instance-method" class="signature"><strong>#visit</strong>(name, visited_ids = <span class="o">[]</span> <span class="k">of</span> <span class="t">UInt64</span>, block = <span class="t">Proc</span>(<span class="t">ASTNode</span>, <span class="t">ASTNode</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>).<span class="k">new</span> <span class="k">do</span>
-<span class="k">end</span>)</a>
-        
-          <div class="summary"><p>Recursively apply the given block to each node that gets visited with the given key which nodes get traverses for a given key can be set on a class via the: <code>traverse :name, :child_1, :child2</code> macro.</p></div>
-        
-      </li>
-    
-  </ul>
-
-
-
-  <h2>
-    <a id="macro-summary" class="anchor" href="#macro-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Macro Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#accessors(name,type,default)-macro" class="signature"><strong>accessors</strong>(name, type, default)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#traverse(name,*values)-macro" class="signature"><strong>traverse</strong>(name, *values)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#values(args)-macro" class="signature"><strong>values</strong>(args)</a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -620,14 +490,14 @@
   <h3>Instance methods inherited from class <code><a href="../../GraphQL/Language/NameOnlyNode.html">GraphQL::Language::NameOnlyNode</a></code></h3>
   
   
-    <a href="../../GraphQL/Language/NameOnlyNode.html#==(other:GraphQL::Language::NameOnlyNode)-instance-method" class="tooltip">
-      <span>==(other : GraphQL::Language::NameOnlyNode)</span>
+    <a href="../../GraphQL/Language/NameOnlyNode.html#==(other:self)-instance-method" class="tooltip">
+      <span>==(other : <span class="k">self</span>)</span>
     ==</a>, 
     
   
-    <a href="../../GraphQL/Language/NameOnlyNode.html#clone-instance-method" class="tooltip">
-      <span>clone</span>
-    clone</a>, 
+    <a href="../../GraphQL/Language/NameOnlyNode.html#hash(hasher)-instance-method" class="tooltip">
+      <span>hash(hasher)</span>
+    hash</a>, 
     
   
     <a href="../../GraphQL/Language/NameOnlyNode.html#name:String-instance-method" class="tooltip">
@@ -637,18 +507,7 @@
   
     <a href="../../GraphQL/Language/NameOnlyNode.html#name=(name:String)-instance-method" class="tooltip">
       <span>name=(name : String)</span>
-    name=</a>, 
-    
-  
-    <a href="../../GraphQL/Language/NameOnlyNode.html#values-instance-method" class="tooltip">
-      <span>values</span>
-    values</a>, 
-    
-  
-    <a href="../../GraphQL/Language/NameOnlyNode.html#visit(name,visited_ids=[]ofUInt64,block=Proc(ASTNode,ASTNode%7C::Nil).newdo%0Aend)-instance-method" class="tooltip">
-      <span>visit(name, visited_ids = <span class="o">[]</span> <span class="k">of</span> <span class="t">UInt64</span>, block = <span class="t">Proc</span>(<span class="t">ASTNode</span>, <span class="t">ASTNode</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>).<span class="k">new</span> <span class="k">do</span>
-<span class="k">end</span>)</span>
-    visit</a>
+    name=</a>
     
   
 
@@ -667,15 +526,6 @@
 
     
 
-  <h3>Class methods inherited from class <code><a href="../../GraphQL/Language/NameOnlyNode.html">GraphQL::Language::NameOnlyNode</a></code></h3>
-  
-  
-    <a href="../../GraphQL/Language/NameOnlyNode.html#values-class-method" class="tooltip">
-      <span>values</span>
-    values</a>
-    
-  
-
 
   
     
@@ -683,19 +533,14 @@
   <h3>Instance methods inherited from class <code><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></code></h3>
   
   
-    <a href="../../GraphQL/Language/ASTNode.html#==(other)-instance-method" class="tooltip">
-      <span>==(other)</span>
-    ==</a>, 
+    <a href="../../GraphQL/Language/ASTNode.html#children-instance-method" class="tooltip">
+      <span>children</span>
+    children</a>, 
     
   
-    <a href="../../GraphQL/Language/ASTNode.html#clone-instance-method" class="tooltip">
-      <span>clone</span>
-    clone</a>, 
-    
-  
-    <a href="../../GraphQL/Language/ASTNode.html#values-instance-method" class="tooltip">
-      <span>values</span>
-    values</a>
+    <a href="../../GraphQL/Language/ASTNode.html#visit(block:ASTNode-%3E_)-instance-method" class="tooltip">
+      <span>visit(block : ASTNode -> _)</span>
+    visit</a>
     
   
 
@@ -704,15 +549,6 @@
 
 
     
-
-  <h3>Class methods inherited from class <code><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></code></h3>
-  
-  
-    <a href="../../GraphQL/Language/ASTNode.html#values-class-method" class="tooltip">
-      <span>values</span>
-    values</a>
-    
-  
 
 
   
@@ -739,202 +575,11 @@
 </div>
 
 
-  <h2>
-    <a id="constructor-detail" class="anchor" href="#constructor-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructor Detail
-  </h2>
-  
-    <div class="entry-detail" id="new(**rest)-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>(**rest)
-
-        <a class="method-permalink" href="#new(**rest)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
 
 
 
-  <h2>
-    <a id="class-method-detail" class="anchor" href="#class-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Class Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="values-class-method">
-      <div class="signature">
-        
-        def self.<strong>values</strong>
-
-        <a class="method-permalink" href="#values-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
 
 
-
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="==(other:GraphQL::Language::NullValue)-instance-method">
-      <div class="signature">
-        
-        def <strong>==</strong>(other : <a href="../../GraphQL/Language/NullValue.html">GraphQL::Language::NullValue</a>)
-
-        <a class="method-permalink" href="#==(other:GraphQL::Language::NullValue)-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="clone-instance-method">
-      <div class="signature">
-        
-        def <strong>clone</strong>
-
-        <a class="method-permalink" href="#clone-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Returns a copy of <code>self</code> with all instance variables cloned.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="values-instance-method">
-      <div class="signature">
-        
-        def <strong>values</strong>
-
-        <a class="method-permalink" href="#values-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="visit(name,visited_ids=[]ofUInt64,block=Proc(ASTNode,ASTNode|::Nil).newdo
-end)-instance-method">
-      <div class="signature">
-        
-        def <strong>visit</strong>(name, visited_ids = <span class="o">[]</span> <span class="k">of</span> <span class="t">UInt64</span>, block = <span class="t">Proc</span>(<span class="t">ASTNode</span>, <span class="t">ASTNode</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>).<span class="k">new</span> <span class="k">do</span>
-<span class="k">end</span>)
-
-        <a class="method-permalink" href="#visit(name,visited_ids=[]ofUInt64,block=Proc(ASTNode,ASTNode%7C::Nil).newdo%0Aend)-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Recursively apply the given block to each
-node that gets visited with the given key
-which nodes get traverses for a given key
-can be set on a class via the:
-<code>traverse :name, :child_1, :child2</code>
-macro. If no children are defined for a
-given traversal path name the block is invoked
-only with self.ode that gets visited with the given key
-which nodes get traverses for a given key
-can be set on a class via the:
-<code>traverse :name, :child_1, :child2</code>
-macro. If no children are defined for a
-given traversal path name the block is invoked
-only with self.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-
-
-
-  <h2>
-    <a id="macro-detail" class="anchor" href="#macro-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Macro Detail
-  </h2>
-  
-    <div class="entry-detail" id="accessors(name,type,default)-macro">
-      <div class="signature">
-        
-        macro <strong>accessors</strong>(name, type, default)
-
-        <a class="method-permalink" href="#accessors(name,type,default)-macro">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="traverse(name,*values)-macro">
-      <div class="signature">
-        
-        macro <strong>traverse</strong>(name, *values)
-
-        <a class="method-permalink" href="#traverse(name,*values)-macro">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="values(args)-macro">
-      <div class="signature">
-        
-        macro <strong>values</strong>(args)
-
-        <a class="method-permalink" href="#values(args)-macro">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
 
 
 </div>

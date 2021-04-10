@@ -501,7 +501,7 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L3" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/91b28b16b6cc643a64f4a96bb9a47db9c44b968a/src/graphql/language/ast.cr#L3" target="_blank">
         graphql/language/ast.cr
       </a>
     
@@ -510,50 +510,9 @@
 
 
 
-  
-    <h2>
-      <a id="constant-summary" class="anchor" href="#constant-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-      Constant Summary
-    </h2>
-  
-  <dl>
-    
-      <dt class="entry-const" id="VALUES">
-        <strong>VALUES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Tuple</span>(<span class="t">Symbol</span>, <span class="t">Object</span>.<span class="k">class</span>)</code>
-      </dt>
-      
-    
-      <dt class="entry-const" id="VISITS">
-        <strong>VISITS</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Tuple</span>(<span class="t">Symbol</span>, <span class="t">Array</span>(<span class="t">Symbol</span>))</code>
-      </dt>
-      
-    
-  </dl>
 
 
 
-
-
-  <h2>
-    <a id="class-method-summary" class="anchor" href="#class-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Class Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#values-class-method" class="signature"><strong>.values</strong></a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -568,21 +527,12 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#==(other)-instance-method" class="signature"><strong>#==</strong>(other)</a>
-        
-          <div class="summary"><p>Returns <code>false</code> (other can only be a <code>Value</code> here).</p></div>
+        <a href="#children-instance-method" class="signature"><strong>#children</strong></a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
-        
-          <div class="summary"><p>Returns a copy of <code>self</code> with all instance variables cloned.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#values-instance-method" class="signature"><strong>#values</strong></a>
+        <a href="#visit(block:ASTNode-%3E_)-instance-method" class="signature"><strong>#visit</strong>(block : ASTNode -> _)</a>
         
       </li>
     
@@ -599,21 +549,6 @@
     Macro Summary
   </h2>
   <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#accessors(name,type,default)-macro" class="signature"><strong>accessors</strong>(name, type, default)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#make_value_methods-macro" class="signature"><strong>make_value_methods</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#traverse(name,*values)-macro" class="signature"><strong>traverse</strong>(name, *values)</a>
-        
-      </li>
     
       <li class="entry-summary">
         <a href="#values(args)-macro" class="signature"><strong>values</strong>(args)</a>
@@ -651,32 +586,6 @@
 
 
 
-  <h2>
-    <a id="class-method-detail" class="anchor" href="#class-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Class Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="values-class-method">
-      <div class="signature">
-        
-        def self.<strong>values</strong>
-
-        <a class="method-permalink" href="#values-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L41" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-
 
 
   <h2>
@@ -688,64 +597,34 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="==(other)-instance-method">
+    <div class="entry-detail" id="children-instance-method">
       <div class="signature">
         
-        def <strong>==</strong>(other)
+        def <strong>children</strong>
 
-        <a class="method-permalink" href="#==(other)-instance-method">#</a>
+        <a class="method-permalink" href="#children-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-            <div class="doc-inherited">
-              Description copied from class Reference
-            </div>
-          
-          <p>Returns <code>false</code> (other can only be a <code>Value</code> here).</p>
-        </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L49" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/91b28b16b6cc643a64f4a96bb9a47db9c44b968a/src/graphql/language/ast.cr#L27" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="clone-instance-method">
+    <div class="entry-detail" id="visit(block:ASTNode->_)-instance-method">
       <div class="signature">
         
-        def <strong>clone</strong>
+        def <strong>visit</strong>(block : <a href="../../GraphQL/Language/ASTNode.html">ASTNode</a> -> _)
 
-        <a class="method-permalink" href="#clone-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Returns a copy of <code>self</code> with all instance variables cloned.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L71" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="values-instance-method">
-      <div class="signature">
-        
-        def <strong>values</strong>
-
-        <a class="method-permalink" href="#values-instance-method">#</a>
+        <a class="method-permalink" href="#visit(block:ASTNode-%3E_)-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L45" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/91b28b16b6cc643a64f4a96bb9a47db9c44b968a/src/graphql/language/ast.cr#L31" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -762,54 +641,6 @@
     Macro Detail
   </h2>
   
-    <div class="entry-detail" id="accessors(name,type,default)-macro">
-      <div class="signature">
-        
-        macro <strong>accessors</strong>(name, type, default)
-
-        <a class="method-permalink" href="#accessors(name,type,default)-macro">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L178" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="make_value_methods-macro">
-      <div class="signature">
-        
-        macro <strong>make_value_methods</strong>
-
-        <a class="method-permalink" href="#make_value_methods-macro">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="traverse(name,*values)-macro">
-      <div class="signature">
-        
-        macro <strong>traverse</strong>(name, *values)
-
-        <a class="method-permalink" href="#traverse(name,*values)-macro">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L178" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
     <div class="entry-detail" id="values(args)-macro">
       <div class="signature">
         
@@ -821,7 +652,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/98f767be936913a08e0e8b61fc12fcec5bc3c8aa/src/graphql/language/ast.cr#L178" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/91b28b16b6cc643a64f4a96bb9a47db9c44b968a/src/graphql/language/ast.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
