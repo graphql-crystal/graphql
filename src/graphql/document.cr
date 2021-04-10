@@ -4,69 +4,87 @@ module GraphQL::Document
       {% verbatim do %}
       # :nodoc:
       def _graphql_document
-        {% raise "GraphQL: #{@type.id} does not have a GraphQL::Object annotation" unless @type.annotation(::GraphQL::Object) %}
-        {% objects = [@type, ::GraphQL::Introspection::Schema] %}
-        {% enums = [] of TypeNode %} 
-        {% scalars = [] of TypeNode %}
+        {%
+          a = 1 # XXX: compiler raises error when if statement first
 
-        {% for i in (0..1000) %}
-          {% if objects[i] %}
-            {% for method in (objects[i].resolve.methods.reject { |m| m.annotation(::GraphQL::Field) == nil }) %}
-              {% if method.return_type.is_a?(Nop) && !objects[i].annotation(::GraphQL::InputObject) %}
-                {% raise "GraphQL: #{objects[i].name.id}##{method.name.id} must have a return type" %}
-              {% end %}
-              {% for arg in method.args %}
-                {% for type in arg.restriction.resolve.union_types %}
-                  {% if type.resolve < Array %}
-                    {% for inner_type in type.resolve.type_vars %}
-                      {% if inner_type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(inner_type.resolve) %}
-                        {% enums << inner_type.resolve %}
-                      {% end %}
-                    {% end %}
-                  {% end %}
-                  {% if type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context) %}
-                    {% objects << type.resolve %}
-                  {% end %}
-                  {% if type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(type.resolve) %}
-                    {% enums << type.resolve %}
-                  {% end %}
-                  {% for inner_type in type.type_vars %}
-                    {% if inner_type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(inner_type.resolve) && !(inner_type.resolve < ::GraphQL::Context) %}
-                      {% objects << inner_type.resolve %}
-                    {% end %}
-                  {% end %}
-                {% end %}
-              {% end %}
-              {% if objects[i].annotation(::GraphQL::Object) %}
-                {% for type in method.return_type.types %}
-                  {% if type.resolve < Array %}
-                    {% for inner_type in type.resolve.type_vars %}
-                      {% if (inner_type.resolve.annotation(::GraphQL::Object) || inner_type.resolve.annotation(::GraphQL::InputObject)) && !objects.includes?(inner_type.resolve) %}
-                        {% objects << inner_type.resolve %}
-                      {% end %}
-                      {% if inner_type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(inner_type.resolve) %}
-                        {% enums << inner_type.resolve %}
-                      {% end %}
-                      {% if inner_type.resolve.annotation(::GraphQL::Scalar) && !scalars.includes?(inner_type.resolve) %}
-                        {% scalars << inner_type.resolve %}
-                      {% end %}
-                    {% end %}
-                  {% end %}
-                  {% if (type.resolve.annotation(::GraphQL::Object) || type.resolve.annotation(::GraphQL::InputObject)) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context) %}
-                    {% objects << type.resolve %}
-                  {% end %}
-                  {% if type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(type.resolve) %}
-                    {% enums << type.resolve %}
-                  {% end %}
-                  {% if type.resolve.annotation(::GraphQL::Scalar) && !scalars.includes?(type.resolve) %}
-                    {% scalars << type.resolve %}
-                  {% end %}
-                {% end %}
-              {% end %}
-            {% end %}
-          {% end %}
-        {% end %}
-        {% raise "GraphQL: document object limit reached" unless objects.size < 1000 %}
+          unless @type.annotation(::GraphQL::Object)
+            raise "GraphQL: #{@type.id} does not have a GraphQL::Object annotation"
+          end
+
+          objects = [@type, ::GraphQL::Introspection::Schema]
+          enums = [] of TypeNode
+          scalars = [] of TypeNode
+
+          (0..1000).each do |i|
+            if objects[i]
+              selected_methods = objects[i].resolve.methods.reject { |m| m.annotation(::GraphQL::Field) == nil }
+              selected_methods.each do |method|
+                if method.return_type.is_a?(Nop) && !objects[i].annotation(::GraphQL::InputObject)
+                  raise "GraphQL: #{objects[i].name.id}##{method.name.id} must have a return type"
+                end
+
+                method.args.each do |arg|
+                  arg.restriction.resolve.union_types.each do |type|
+                    if type.resolve < Array
+                      type.resolve.type_vars.each do |inner_type|
+                        if inner_type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(inner_type.resolve)
+                          enums << inner_type.resolve
+                        end
+                      end
+                    end
+
+                    if type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context)
+                      objects << type.resolve
+                    end
+
+                    if type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(type.resolve)
+                      enums << type.resolve
+                    end
+
+                    type.type_vars.each do |inner_type|
+                      if inner_type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(inner_type.resolve) && !(inner_type.resolve < ::GraphQL::Context)
+                        objects << inner_type.resolve
+                      end
+                    end
+                  end
+                end
+
+                if objects[i].annotation(::GraphQL::Object)
+                  method.return_type.types.each do |type|
+                    if type.resolve < Array
+                      type.resolve.type_vars.each do |inner_type|
+                        if (inner_type.resolve.annotation(::GraphQL::Object) || inner_type.resolve.annotation(::GraphQL::InputObject)) && !objects.includes?(inner_type.resolve)
+                          objects << inner_type.resolve
+                        end
+
+                        if inner_type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(inner_type.resolve)
+                          enums << inner_type.resolve
+                        end
+                        if inner_type.resolve.annotation(::GraphQL::Scalar) && !scalars.includes?(inner_type.resolve)
+                          scalars << inner_type.resolve
+                        end
+                      end
+                    end
+
+                    if (type.resolve.annotation(::GraphQL::Object) || type.resolve.annotation(::GraphQL::InputObject)) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context)
+                      objects << type.resolve
+                    end
+
+                    if type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(type.resolve)
+                      enums << type.resolve
+                    end
+
+                    if type.resolve.annotation(::GraphQL::Scalar) && !scalars.includes?(type.resolve)
+                      scalars << type.resolve
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          raise "GraphQL: document object limit reached" unless objects.size < 1000
+        %}
 
         %type : ::GraphQL::Language::Type | ::GraphQL::Language::ListType | ::GraphQL::Language::TypeName
         %definitions = [] of ::GraphQL::Language::TypeDefinition
@@ -76,21 +94,27 @@ module GraphQL::Document
           {% for method in (object.methods.select { |m| m.annotation(::GraphQL::Field) }) %}
             %input_values = [] of ::GraphQL::Language::InputValueDefinition
             {% for arg in method.args %}
-              {% types = [] of TypeNode %}
-              {% for type in arg.restriction.resolve.union_types %}
-                {% if !(type < ::GraphQL::Context) && type != Nil %}
-                  {% types.unshift(type) %}
-                {% elsif type == Nil %}
-                  {% types.push(type) %}
-                {% end %}
-              {% end %}
-              {% types.push Nil if types.last != Nil && !arg.default_value.is_a?(Nop) %}
-              {% if !types.empty? %}
-                {% for type in types.first.type_vars %}
-                  {% types.unshift type %}
-                {% end %}
-              {% end %}
-              {% types.push Nil if types.last != Nil && !arg.default_value.is_a?(Nop) %}
+              {%
+                types = [] of TypeNode
+
+                arg.restriction.resolve.union_types.each do |type|
+                  if !(type < ::GraphQL::Context) && type != Nil
+                    types.unshift(type)
+                  elsif type == Nil
+                    types.push(type)
+                  end
+                end
+
+                types.push Nil if types.last != Nil && !arg.default_value.is_a?(Nop)
+
+                if !types.empty?
+                  types.first.type_vars.each do |type|
+                    types.unshift type
+                  end
+                end
+
+                types.push Nil if types.last != Nil && !arg.default_value.is_a?(Nop)
+              %}
 
               # we may want some type validation here?
               {% for type in types %}
@@ -133,24 +157,27 @@ module GraphQL::Document
               {% end %}
             {% end %}
 
-            {% types = [] of TypeNode %}
-            {% if !object.annotation(::GraphQL::InputObject) %}
-              {% for type in method.return_type.resolve.union_types %}
-                {% if !(type < ::GraphQL::Context) && type != Nil %}
-                  {% types.unshift(type) %}
-                {% elsif type == Nil %}
-                  {% types.push(type) %}
-                {% end %}
-              {% end %}
-              {% if !types.empty? %}
-                {% for type in types.first.type_vars %}
-                  {% types.unshift type %}
-                {% end %}
-              {% end %}
-            {% end %}
+            {%
+              types = [] of TypeNode
+
+              if !object.annotation(::GraphQL::InputObject)
+                method.return_type.resolve.union_types.each do |type|
+                  if !(type < ::GraphQL::Context) && type != Nil
+                    types.unshift(type)
+                  elsif type == Nil
+                    types.push(type)
+                  end
+                end
+
+                if !types.empty?
+                  types.first.type_vars.each do |type|
+                    types.unshift type
+                  end
+                end
+              end
+            %}
 
             {% for type in types %}
-
               {% if type < ::Object && type.annotation(::GraphQL::Object) %}
                 %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Object)["name"] || type.name.split("::").last }})
               {% elsif type < ::Enum && type.annotation(::GraphQL::Enum) %}
@@ -179,6 +206,7 @@ module GraphQL::Document
                 %type = %type.of_type.dup
               {% end %}
             {% end %}
+
             {% if !types.empty? %}
               %directives = [] of ::GraphQL::Language::Directive
               {% if method.annotation(::GraphQL::Field)["deprecated"] %}
