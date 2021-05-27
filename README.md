@@ -6,8 +6,6 @@ GraphQL server library for Crystal.
 * **Type-safe**: Relies on the Crystal compiler for type checking
 * **High performance**: Benchmarks TBD
 
-Used in production at [Everbase](https://www.everbase.co).
-
 The language implementation is derived from
 [ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal), the
 rest was built from the ground up. How they compare:
