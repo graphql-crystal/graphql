@@ -120,18 +120,26 @@ module GraphQL::Document
               {% for type in types %}
                 {% if type < ::Object && type.annotation(::GraphQL::Object) %}
                   %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Object)["name"] || type.name.split("::").last }})
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type < ::Enum && type.annotation(::GraphQL::Enum) %}
                   %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Enum)["name"] || type.name.split("::").last }})
+                  %dv = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
+                  %default_value = %dv.nil? ? nil : ::GraphQL::Language::AEnum.new(name: %dv.to_s)
                 {% elsif type < ::Object && type.annotation(::GraphQL::InputObject) %}
                   %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::InputObject)["name"] || type.name.split("::").last }})
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type == String %}
                   %type = ::GraphQL::Language::TypeName.new(name: "String")
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type < Int %}
                   %type = ::GraphQL::Language::TypeName.new(name: "Int")
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type < Float %}
                   %type = ::GraphQL::Language::TypeName.new(name: "Float")
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type == Bool %}
                   %type = ::GraphQL::Language::TypeName.new(name: "Boolean")
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type < Array %}
                   %type = ::GraphQL::Language::ListType.new(of_type: %type.dup)
                 {% elsif type != Nil %}
@@ -150,7 +158,7 @@ module GraphQL::Document
                 %input_values << ::GraphQL::Language::InputValueDefinition.new(
                   name: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["name"] || arg.name.id.stringify.camelcase(lower: true) }},
                   type: %type,
-                  default_value: {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }},
+                  default_value: %default_value,
                   directives: [] of ::GraphQL::Language::Directive,
                   description: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["description"] || nil }},
                 )
