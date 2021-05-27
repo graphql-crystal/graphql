@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Schema - graphql master</title>
+  <title>GraphQL::Scalars - graphql master</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -391,7 +391,7 @@
       
     </li>
   
-  <li class="parent " data-id="graphql/GraphQL/Scalars" data-name="graphql::scalars">
+  <li class="parent open current" data-id="graphql/GraphQL/Scalars" data-name="graphql::scalars">
       <a href="../GraphQL/Scalars.html">Scalars</a>
       
         <ul>
@@ -431,7 +431,7 @@
       
     </li>
   
-  <li class=" current" data-id="graphql/GraphQL/Schema" data-name="graphql::schema">
+  <li class=" " data-id="graphql/GraphQL/Schema" data-name="graphql::schema">
       <a href="../GraphQL/Schema.html">Schema</a>
       
     </li>
@@ -450,12 +450,10 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> GraphQL::Schema
+  <span class="kind">module</span> GraphQL::Scalars
 
 </h1>
 
-
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../GraphQL/Schema.html">GraphQL::Schema</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -483,8 +481,8 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/e8d20f5464994d1346a0ea45a3f31b2868145cae/src/graphql/schema.cr#L4" target="_blank">
-        graphql/schema.cr
+      <a href="https://github.com/graphql-crystal/graphql/blob/e8d20f5464994d1346a0ea45a3f31b2868145cae/src/graphql/scalars.cr#L1" target="_blank">
+        graphql/scalars.cr
       </a>
     
     <br/>
@@ -494,48 +492,9 @@
 
 
 
-  <h2>
-    <a id="constructors" class="anchor" href="#constructors">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructors
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#new(query:QueryType,mutation:MutationType?=nil)-class-method" class="signature"><strong>.new</strong>(query : QueryType, mutation : MutationType? = <span class="n">nil</span>)</a>
-        
-      </li>
-    
-  </ul>
 
 
 
-
-
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#document:Language::Document-instance-method" class="signature"><strong>#document</strong> : Language::Document</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#execute(query:String,variables:Hash(String,JSON::Any)?=nil,operation_name:String?=nil,context=Context.new)-instance-method" class="signature"><strong>#execute</strong>(query : String, variables : Hash(String, JSON::Any)? = <span class="n">nil</span>, operation_name : String? = <span class="n">nil</span>, context = <span class="t">Context</span>.<span class="k">new</span>)</a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -543,100 +502,12 @@
 
 <div class="methods-inherited">
   
-    
-
-
-    
-
-
-    
-
-
-  
-    
-
-
-    
-
-
-    
-
-
-  
 </div>
 
 
-  <h2>
-    <a id="constructor-detail" class="anchor" href="#constructor-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructor Detail
-  </h2>
-  
-    <div class="entry-detail" id="new(query:QueryType,mutation:MutationType?=nil)-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>(query : <a href="../GraphQL/QueryType.html">QueryType</a>, mutation : <a href="../GraphQL/MutationType.html">MutationType</a>? = <span class="n">nil</span>)
-
-        <a class="method-permalink" href="#new(query:QueryType,mutation:MutationType?=nil)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/e8d20f5464994d1346a0ea45a3f31b2868145cae/src/graphql/schema.cr#L67" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
 
 
 
-
-
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="document:Language::Document-instance-method">
-      <div class="signature">
-        
-        def <strong>document</strong> : <a href="../GraphQL/Language/Document.html">Language::Document</a>
-
-        <a class="method-permalink" href="#document:Language::Document-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/e8d20f5464994d1346a0ea45a3f31b2868145cae/src/graphql/schema.cr#L5" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="execute(query:String,variables:Hash(String,JSON::Any)?=nil,operation_name:String?=nil,context=Context.new)-instance-method">
-      <div class="signature">
-        
-        def <strong>execute</strong>(query : String, variables : Hash(String, JSON::Any)? = <span class="n">nil</span>, operation_name : String? = <span class="n">nil</span>, context = <span class="t">Context</span>.<span class="k">new</span>)
-
-        <a class="method-permalink" href="#execute(query:String,variables:Hash(String,JSON::Any)?=nil,operation_name:String?=nil,context=Context.new)-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/e8d20f5464994d1346a0ea45a3f31b2868145cae/src/graphql/schema.cr#L79" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
 
 
 

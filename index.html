@@ -81,11 +81,6 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/ID" data-name="graphql::id">
-      <a href="GraphQL/ID.html">ID</a>
-      
-    </li>
-  
   <li class=" " data-id="graphql/GraphQL/InputObject" data-name="graphql::inputobject">
       <a href="GraphQL/InputObject.html">InputObject</a>
       
@@ -396,6 +391,41 @@
       
     </li>
   
+  <li class="parent " data-id="graphql/GraphQL/Scalars" data-name="graphql::scalars">
+      <a href="GraphQL/Scalars.html">Scalars</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Scalars/Boolean" data-name="graphql::scalars::boolean">
+      <a href="GraphQL/Scalars/Boolean.html">Boolean</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Scalars/Float" data-name="graphql::scalars::float">
+      <a href="GraphQL/Scalars/Float.html">Float</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Scalars/ID" data-name="graphql::scalars::id">
+      <a href="GraphQL/Scalars/ID.html">ID</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Scalars/Int" data-name="graphql::scalars::int">
+      <a href="GraphQL/Scalars/Int.html">Int</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Scalars/String" data-name="graphql::scalars::string">
+      <a href="GraphQL/Scalars/String.html">String</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/ScalarType" data-name="graphql::scalartype">
       <a href="GraphQL/ScalarType.html">ScalarType</a>
       
@@ -424,8 +454,6 @@
 
 <ul><li><strong>Boilerplate-free</strong>: Schema is generated at compile time</li><li><strong>Type-safe</strong>: Relies on the Crystal compiler for type checking</li><li><strong>High performance</strong>: Benchmarks TBD</li></ul>
 
-<p>Used in production at <a href="https://www.everbase.co">Everbase</a>.</p>
-
 <p>The language implementation is derived from
 <a href="https://github.com/ziprandom/graphql-crystal">ziprandom/graphql-crystal</a>, the
 rest was built from the ground up. How they compare:</p>
@@ -445,7 +473,7 @@ rest was built from the ground up. How they compare:</p>
   </svg>
 </a>Getting Started</h2>
 
-<p>Add the shard to our <code>shard.yml</code>:</p>
+<p>Install the shard by adding the following to our <code>shard.yml</code>:</p>
 
 <pre><code class="language-yaml">dependencies:
   graphql:
@@ -574,6 +602,19 @@ annotation.</p>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">baz</span> : <span class="t">Float64</span>
     <span class="n">42_f64</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+
+<p>We can also use <a href="https://crystal-lang.org/api/latest/Struct.html">structs</a> to define objects:</p>
+
+<pre><code class="language-crystal"><span class="c"># `record` is a built in macro that creates a immutable struct</span>
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(description: <span class="s">&quot;RecordResolver description&quot;</span>)]
+record <span class="t">Baz</span>, value : <span class="t">::</span><span class="t">String</span> <span class="k">do</span>
+  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
+
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">value</span> : <span class="t">String</span>
+    @value
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 
