@@ -48,4 +48,29 @@ describe StarWars::Query do
       }
     ).to_json
   end
+
+  it "Allows passing an io to render json to it" do
+    result = String.build do |io|
+      GraphQL::Schema.new(StarWars::Query.new).execute(
+        io,
+        %(
+            {
+              luke: human(id: "1000") {
+                name
+              }
+            }
+        )
+      )
+    end
+
+    result.should eq (
+      {
+        "data" => {
+          "luke" => {
+            "name" => "Luke Skywalker",
+          },
+        },
+      }
+    ).to_json
+  end
 end

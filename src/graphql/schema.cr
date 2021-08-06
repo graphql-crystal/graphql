@@ -76,7 +76,13 @@ module GraphQL
       end
     end
 
-    def execute(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new)
+    def execute(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new): String
+      String.build do |io|
+        execute(io, query, variables, operation_name, context)
+      end
+    end
+
+    def execute(io : IO, query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new): Nil
       document = Language.parse(query)
       operations = [] of Language::OperationDefinition
       errors = [] of GraphQL::Error
@@ -114,7 +120,7 @@ module GraphQL
                     end
                   end
 
-      JSON.build do |json|
+      JSON.build(io) do |json|
         json.object do
           if !operation.nil? && operation.operation_type == "query"
             json.field "data" do
