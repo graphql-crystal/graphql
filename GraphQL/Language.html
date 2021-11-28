@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.0.0">
+<meta name="generator" content="Crystal Docs 1.1.1">
 <meta name="crystal_docs.project_version" content="master">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -481,35 +481,35 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language.cr#L6" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language.cr#L6" target="_blank">
         graphql/language.cr
       </a>
     
     <br/>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/ast.cr#L2" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/ast.cr#L2" target="_blank">
         graphql/language/ast.cr
       </a>
     
     <br/>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/generation.cr#L4" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/generation.cr#L4" target="_blank">
         graphql/language/generation.cr
       </a>
     
     <br/>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L5" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L5" target="_blank">
         graphql/language/nodes.cr
       </a>
     
     <br/>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/token.cr#L1" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/token.cr#L1" target="_blank">
         graphql/language/token.cr
       </a>
     
@@ -533,39 +533,39 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#parse(query_string,options=NamedTuple.new):GraphQL::Language::Document-class-method" class="signature"><strong>.parse</strong>(query_string, options = <span class="t">NamedTuple</span>.<span class="k">new</span>) : GraphQL::Language::Document</a>
+        <a href="#parse%28query_string%2Coptions%3DNamedTuple.new%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method" class="signature"><strong>.parse</strong>(query_string, options = <span class="t">NamedTuple</span>.<span class="k">new</span>) : GraphQL::Language::Document</a>
         
           <div class="summary"><p>Parse a query string and return the Document</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#to_argumentvalue(value:Array):ArgumentValue-class-method" class="signature"><strong>.to_argumentvalue</strong>(value : Array) : ArgumentValue</a>
+        <a href="#to_argumentvalue%28value%3AArray%29%3AArgumentValue-class-method" class="signature"><strong>.to_argumentvalue</strong>(value : Array) : ArgumentValue</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#to_argumentvalue(v:NullValue):Nil-class-method" class="signature"><strong>.to_argumentvalue</strong>(v : NullValue) : Nil</a>
+        <a href="#to_argumentvalue%28v%3ANullValue%29%3ANil-class-method" class="signature"><strong>.to_argumentvalue</strong>(v : NullValue) : Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#to_argumentvalue(value)-class-method" class="signature"><strong>.to_argumentvalue</strong>(value)</a>
+        <a href="#to_argumentvalue%28value%29-class-method" class="signature"><strong>.to_argumentvalue</strong>(value)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#to_fvalue(value:Array):FValue-class-method" class="signature"><strong>.to_fvalue</strong>(value : Array) : FValue</a>
+        <a href="#to_fvalue%28value%3AArray%29%3AFValue-class-method" class="signature"><strong>.to_fvalue</strong>(value : Array) : FValue</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#to_fvalue(v:NullValue):Nil-class-method" class="signature"><strong>.to_fvalue</strong>(v : NullValue) : Nil</a>
+        <a href="#to_fvalue%28v%3ANullValue%29%3ANil-class-method" class="signature"><strong>.to_fvalue</strong>(v : NullValue) : Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#to_fvalue(value)-class-method" class="signature"><strong>.to_fvalue</strong>(value)</a>
+        <a href="#to_fvalue%28value%29-class-method" class="signature"><strong>.to_fvalue</strong>(value)</a>
         
       </li>
     
@@ -586,7 +586,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#define_array_cast(type)-macro" class="signature"><strong>define_array_cast</strong>(type)</a>
+        <a href="#define_array_cast%28type%29-macro" class="signature"><strong>define_array_cast</strong>(type)</a>
         
       </li>
     
@@ -615,7 +615,7 @@
         
         def self.<strong>parse</strong>(query_string, options = <span class="t">NamedTuple</span>.<span class="k">new</span>) : <a href="../GraphQL/Language/Document.html">GraphQL::Language::Document</a>
 
-        <a class="method-permalink" href="#parse(query_string,options=NamedTuple.new):GraphQL::Language::Document-class-method">#</a>
+        <a class="method-permalink" href="#parse%28query_string%2Coptions%3DNamedTuple.new%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method">#</a>
       </div>
       
         <div class="doc">
@@ -626,7 +626,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language.cr#L8" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language.cr#L8" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -636,13 +636,13 @@
         
         def self.<strong>to_argumentvalue</strong>(value : Array) : <a href="../GraphQL/Language/ArgumentValue.html">ArgumentValue</a>
 
-        <a class="method-permalink" href="#to_argumentvalue(value:Array):ArgumentValue-class-method">#</a>
+        <a class="method-permalink" href="#to_argumentvalue%28value%3AArray%29%3AArgumentValue-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -652,13 +652,13 @@
         
         def self.<strong>to_argumentvalue</strong>(v : <a href="../GraphQL/Language/NullValue.html">NullValue</a>) : Nil
 
-        <a class="method-permalink" href="#to_argumentvalue(v:NullValue):Nil-class-method">#</a>
+        <a class="method-permalink" href="#to_argumentvalue%28v%3ANullValue%29%3ANil-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -668,13 +668,13 @@
         
         def self.<strong>to_argumentvalue</strong>(value)
 
-        <a class="method-permalink" href="#to_argumentvalue(value)-class-method">#</a>
+        <a class="method-permalink" href="#to_argumentvalue%28value%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -684,13 +684,13 @@
         
         def self.<strong>to_fvalue</strong>(value : Array) : <a href="../GraphQL/Language/FValue.html">FValue</a>
 
-        <a class="method-permalink" href="#to_fvalue(value:Array):FValue-class-method">#</a>
+        <a class="method-permalink" href="#to_fvalue%28value%3AArray%29%3AFValue-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L91" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L91" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -700,13 +700,13 @@
         
         def self.<strong>to_fvalue</strong>(v : <a href="../GraphQL/Language/NullValue.html">NullValue</a>) : Nil
 
-        <a class="method-permalink" href="#to_fvalue(v:NullValue):Nil-class-method">#</a>
+        <a class="method-permalink" href="#to_fvalue%28v%3ANullValue%29%3ANil-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L106" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -716,13 +716,13 @@
         
         def self.<strong>to_fvalue</strong>(value)
 
-        <a class="method-permalink" href="#to_fvalue(value)-class-method">#</a>
+        <a class="method-permalink" href="#to_fvalue%28value%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L91" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L91" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -746,13 +746,13 @@
         
         macro <strong>define_array_cast</strong>(type)
 
-        <a class="method-permalink" href="#define_array_cast(type)-macro">#</a>
+        <a class="method-permalink" href="#define_array_cast%28type%29-macro">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/67d67ff6b58f76cf48ba5c365971b3388cb40617/src/graphql/language/nodes.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/ddc724d87de979fb15df8aa0d5ea04b5997ea419/src/graphql/language/nodes.cr#L6" target="_blank">View source</a>]
         
       </div>
     </div>
