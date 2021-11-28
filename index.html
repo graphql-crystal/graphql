@@ -56,6 +56,31 @@
       
         <ul>
   
+  <li class=" " data-id="graphql/GraphQL/BaseInputObject" data-name="graphql::baseinputobject">
+      <a href="GraphQL/BaseInputObject.html">BaseInputObject</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/BaseMutation" data-name="graphql::basemutation">
+      <a href="GraphQL/BaseMutation.html">BaseMutation</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/BaseObject" data-name="graphql::baseobject">
+      <a href="GraphQL/BaseObject.html">BaseObject</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/BaseQuery" data-name="graphql::basequery">
+      <a href="GraphQL/BaseQuery.html">BaseQuery</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/BaseScalar" data-name="graphql::basescalar">
+      <a href="GraphQL/BaseScalar.html">BaseScalar</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="GraphQL/Context.html">Context</a>
       
@@ -481,10 +506,7 @@ queries and it looks like this:</p>
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;graphql&quot;</span>
 
 @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Query</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">QueryType</span>
-
+<span class="k">class</span> <span class="t">Query</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseQuery</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">echo</span>(str : <span class="t">String</span>) : <span class="t">String</span>
     str
@@ -538,7 +560,7 @@ schema.execute(query, variables, operation_name, context)
 
 <span class="c"># Access it in our fields</span>
 @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">MyMath</span>
+<span class="k">class</span> <span class="t">MyMath</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseObject</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">pi</span>(context : <span class="t">MyContext</span>) : <span class="t">Float64</span>
     context.pi
@@ -552,13 +574,10 @@ executes.</p>
   </svg>
 </a>Objects</h2>
 <p>Objects are perhaps the most commonly used type in GraphQL. They are implemented
-as classes. To define a object, we need a <code><a href="GraphQL/Object.html">GraphQL::Object</a></code> annotation and a
-<code><a href="GraphQL/ObjectType.html">GraphQL::ObjectType</a></code> include. Fields are methods with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code>
-annotation.</p>
+as classes. To define a object, we need a <code><a href="GraphQL/Object.html">GraphQL::Object</a></code> annotation and to inherit
+<code><a href="GraphQL/BaseObject.html">GraphQL::BaseObject</a></code>. Fields are methods with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> annotation.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Foo</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-
+<span class="k">class</span> <span class="t">Foo</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseObject</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">hello</span>(first_name : <span class="t">String</span>, last_name : <span class="t">String</span>) : <span class="t">String</span> <span class="c"># explicit types are mandatory</span>
     <span class="s">&quot;Hello </span><span class="i">#{</span>first_name<span class="i">}</span><span class="s"> </span><span class="i">#{</span>last_name<span class="i">}</span><span class="s">&quot;</span>
@@ -571,23 +590,10 @@ annotation.</p>
 <span class="k">end</span>
 
 @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Bar</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-
+<span class="k">class</span> <span class="t">Bar</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseObject</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">baz</span> : <span class="t">Float64</span>
     <span class="n">42_f64</span>
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-<p>We can also use <a href="https://crystal-lang.org/api/latest/Struct.html">structs</a> to define objects:</p>
-<pre><code class="language-crystal"><span class="c"># `record` is a built in macro that creates a immutable struct</span>
-@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(description: <span class="s">&quot;RecordResolver description&quot;</span>)]
-record <span class="t">Baz</span>, value : <span class="t">::</span><span class="t">String</span> <span class="k">do</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-
-  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
-  <span class="k">def</span> <span class="m">value</span> : <span class="t">String</span>
-    @value
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 <h2><a id="query" class="anchor" href="#query">
@@ -595,13 +601,9 @@ record <span class="t">Baz</span>, value : <span class="t">::</span><span class=
     <use href="#octicon-link"/>
   </svg>
 </a>Query</h2>
-<p>Query is the root type of all queries. It has the same requirements as a object
-type, but also requires a <code><a href="GraphQL/QueryType.html">GraphQL::QueryType</a></code> include.</p>
+<p>Query is the root type of all queries.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Query</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">QueryType</span>
-
+<span class="k">class</span> <span class="t">Query</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseQuery</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">echo</span>(str : <span class="t">String</span>) : <span class="t">String</span>
     str
@@ -614,13 +616,9 @@ schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::
     <use href="#octicon-link"/>
   </svg>
 </a>Mutation</h2>
-<p>Mutation is the root type for all mutations. It has the same requirements as a
-object type, but also requires a <code><a href="GraphQL/MutationType.html">GraphQL::MutationType</a></code> include.</p>
+<p>Mutation is the root type for all mutations.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Mutation</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">MutationType</span>
-
+<span class="k">class</span> <span class="t">Mutation</span> <span class="o">&lt;</span> <span class="t">BaseMutation</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">echo</span>(str : <span class="t">String</span>) : <span class="t">String</span>
     str
@@ -634,31 +632,15 @@ schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::
   </svg>
 </a>Input Objects</h2>
 <p>Input objects are objects that are used as field arguments. To define a input
-object, use a <code><a href="GraphQL/InputObject.html">GraphQL::InputObject</a></code> annotation and a <code><a href="GraphQL/InputObjectType.html">GraphQL::InputObjectType</a></code>
-include. They must also have a constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> annotation.</p>
+object, use a <code><a href="GraphQL/InputObject.html">GraphQL::InputObject</a></code> annotation and inherit <code><a href="GraphQL/BaseInputObject.html">GraphQL::BaseInputObject</a></code>.
+It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> annotation.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">InputObject</span>]
-<span class="k">class</span> <span class="t">Where</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">InputObjectType</span>
-
-  getter name : <span class="t">String</span>?
-  getter id : <span class="t">String</span>?
+<span class="k">class</span> <span class="t">User</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseInputObject</span>
+  getter first_name : <span class="t">String</span>?
+  getter last_name : <span class="t">String</span>?
 
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
-  <span class="k">def</span> <span class="m">initialize</span>(@name : <span class="t">String</span>?, @id : <span class="t">String</span>?)
-  <span class="k">end</span>
-<span class="k">end</span>
-
-@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Query</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ObjectType</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">QueryType</span>
-
-  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
-  <span class="k">def</span> <span class="m">items</span>(where : <span class="t">Where</span>) : <span class="t">Item</span>
-    query <span class="o">=</span> <span class="s">&quot;SELECT * FROM foo&quot;</span>
-    query += <span class="s">&quot;WHERE name = </span><span class="i">#{</span>where.name<span class="i">}</span><span class="s">&quot;</span> <span class="k">unless</span> where.name.<span class="k">nil?</span>
-    query += <span class="s">&quot;WHERE id = </span><span class="i">#{</span>where.id<span class="i">}</span><span class="s">&quot;</span> <span class="k">unless</span> where.id.<span class="k">nil?</span>
-    db_query(query)
+  <span class="k">def</span> <span class="m">initialize</span>(@first_name : <span class="t">String</span>?, @last_name : <span class="t">String</span>?)
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 <h2><a id="enums" class="anchor" href="#enums">
@@ -689,12 +671,9 @@ include. They must also have a constructor with a <code><a href="GraphQL/Field.h
 def id : GraphQL::ID
   GraphQL::ID.new("my_id_string)
 end</code></pre>
-<p>We can also create custom scalars using <code><a href="GraphQL/Scalar.html">GraphQL::Scalar</a></code>, <code><a href="GraphQL/ScalarType.html">GraphQL::ScalarType</a></code>
-and a custom <code>to_json</code> implementation.</p>
+<p>We can also create custom scalars by writing a custom <code>to_json</code> implementation.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>]
-<span class="k">class</span> <span class="t">ReverseStringScalar</span>
-  <span class="k">include</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">ScalarType</span>
-
+<span class="k">class</span> <span class="t">ReverseStringScalar</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseScalar</span>
   @value : <span class="t">String</span>
 
   <span class="k">def</span> <span class="m">initialize</span>(@value)
