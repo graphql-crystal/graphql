@@ -77,3 +77,11 @@ module GraphQL::InputObjectType
     end
   end
 end
+
+module GraphQL
+  abstract class BaseInputObject
+    macro inherited
+      include GraphQL::InputObjectType
+    end
+  end
+end

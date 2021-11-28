@@ -141,7 +141,7 @@ module GraphQL::ObjectType
                     end
                   {% end %}
                   when {{type.id}}
-                    arg_value                    
+                    arg_value
                   else
                     return [GraphQL::Error.new("#{arg_value} is wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                   end
@@ -214,6 +214,14 @@ module GraphQL::ObjectType
         errors
       end
       {% end %}
+    end
+  end
+end
+
+module GraphQL
+  abstract class BaseObject
+    macro inherited
+      include GraphQL::ObjectType
     end
   end
 end

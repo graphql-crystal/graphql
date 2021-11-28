@@ -5,3 +5,12 @@ module GraphQL::QueryType
     end
   end
 end
+
+module GraphQL
+  abstract class BaseQuery
+    macro inherited
+      include GraphQL::ObjectType
+      include GraphQL::QueryType
+    end
+  end
+end

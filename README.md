@@ -39,10 +39,7 @@ queries and it looks like this:
 require "graphql"
 
 @[GraphQL::Object]
-class Query
-  include GraphQL::ObjectType
-  include GraphQL::QueryType
-
+class Query < GraphQL::BaseQuery
   @[GraphQL::Field]
   def echo(str : String) : String
     str
@@ -121,7 +118,7 @@ schema.execute(query, variables, operation_name, context)
 
 # Access it in our fields
 @[GraphQL::Object]
-class MyMath
+class MyMath < GraphQL::BaseObject
   @[GraphQL::Field]
   def pi(context : MyContext) : Float64
     context.pi
@@ -135,15 +132,12 @@ executes.
 ## Objects
 
 Objects are perhaps the most commonly used type in GraphQL. They are implemented
-as classes. To define a object, we need a `GraphQL::Object` annotation and a
-`GraphQL::ObjectType` include. Fields are methods with a `GraphQL::Field`
-annotation.
+as classes. To define a object, we need a `GraphQL::Object` annotation and to inherit
+`GraphQL::BaseObject`. Fields are methods with a `GraphQL::Field` annotation.
 
 ```crystal
 @[GraphQL::Object]
-class Foo
-  include GraphQL::ObjectType
-
+class Foo < GraphQL::BaseObject
   @[GraphQL::Field]
   def hello(first_name : String, last_name : String) : String # explicit types are mandatory
     "Hello #{first_name} #{last_name}"
@@ -156,9 +150,7 @@ class Foo
 end
 
 @[GraphQL::Object]
-class Bar
-  include GraphQL::ObjectType
-
+class Bar < GraphQL::BaseObject
   @[GraphQL::Field]
   def baz : Float64
     42_f64
@@ -166,33 +158,14 @@ class Bar
 end
 ```
 
-We can also use [structs](https://crystal-lang.org/api/latest/Struct.html) to define objects:
-
-```
-# `record` is a built in macro that creates a immutable struct
-@[GraphQL::Object(description: "RecordResolver description")]
-record Baz, value : ::String do
-  include GraphQL::ObjectType
-
-  @[GraphQL::Field]
-  def value : String
-    @value
-  end
-end
-```
-
 
 ## Query
 
-Query is the root type of all queries. It has the same requirements as a object
-type, but also requires a `GraphQL::QueryType` include.
+Query is the root type of all queries.
 
 ```crystal
 @[GraphQL::Object]
-class Query
-  include GraphQL::ObjectType
-  include GraphQL::QueryType
-
+class Query < GraphQL::BaseQuery
   @[GraphQL::Field]
   def echo(str : String) : String
     str
@@ -204,15 +177,11 @@ schema = GraphQL::Schema.new(Query.new)
 
 ## Mutation
 
-Mutation is the root type for all mutations. It has the same requirements as a
-object type, but also requires a `GraphQL::MutationType` include.
+Mutation is the root type for all mutations.
 
 ```crystal
 @[GraphQL::Object]
-class Mutation
-  include GraphQL::ObjectType
-  include GraphQL::MutationType
-
+class Mutation < BaseMutation
   @[GraphQL::Field]
   def echo(str : String) : String
     str
@@ -225,33 +194,17 @@ schema = GraphQL::Schema.new(Query.new, Mutation.new)
 ## Input Objects
 
 Input objects are objects that are used as field arguments. To define a input
-object, use a `GraphQL::InputObject` annotation and a `GraphQL::InputObjectType`
-include. They must also have a constructor with a `GraphQL::Field` annotation.
+object, use a `GraphQL::InputObject` annotation and inherit `GraphQL::BaseInputObject`.
+It must define a constructor with a `GraphQL::Field` annotation.
 
 ```crystal
 @[GraphQL::InputObject]
-class Where
-  include GraphQL::InputObjectType
-
-  getter name : String?
-  getter id : String?
+class User < GraphQL::BaseInputObject
+  getter first_name : String?
+  getter last_name : String?
 
   @[GraphQL::Field]
-  def initialize(@name : String?, @id : String?)
-  end
-end
-
-@[GraphQL::Object]
-class Query
-  include GraphQL::ObjectType
-  include GraphQL::QueryType
-
-  @[GraphQL::Field]
-  def items(where : Where) : Item
-    query = "SELECT * FROM foo"
-    query += "WHERE name = #{where.name}" unless where.name.nil?
-    query += "WHERE id = #{where.id}" unless where.id.nil?
-    db_query(query)
+  def initialize(@first_name : String?, @last_name : String?)
   end
 end
 ```
@@ -286,14 +239,11 @@ def id : GraphQL::ID
 end
 ```
 
-We can also create custom scalars using `GraphQL::Scalar`, `GraphQL::ScalarType`
-and a custom `to_json` implementation.
+We can also create custom scalars by writing a custom `to_json` implementation.
 
 ```crystal
 @[GraphQL::Scalar]
-class ReverseStringScalar
-  include GraphQL::ScalarType
-
+class ReverseStringScalar < GraphQL::BaseScalar
   @value : String
 
   def initialize(@value)

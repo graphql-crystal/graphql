@@ -5,3 +5,12 @@ module GraphQL::MutationType
     end
   end
 end
+
+module GraphQL
+  abstract class BaseMutation
+    macro inherited
+      include GraphQL::ObjectType
+      include GraphQL::MutationType
+    end
+  end
+end
