@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.1.1">
+<meta name="generator" content="Crystal Docs 1.2.2">
 <meta name="crystal_docs.project_version" content="master">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -669,7 +669,7 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
 <p>There is also the built-in <code>ID</code> type that serializes to a string.</p>
 <pre><code class="language-crystal">@[GraphQL::Field]
 def id : GraphQL::ID
-  GraphQL::ID.new("my_id_string)
+  GraphQL::ID.new(&quot;my_id_string)
 end</code></pre>
 <p>We can also create custom scalars by writing a custom <code>to_json</code> implementation.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>]
