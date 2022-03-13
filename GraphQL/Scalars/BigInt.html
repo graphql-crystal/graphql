@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::Directive - graphql master</title>
+  <title>GraphQL::Scalars::BigInt - graphql master</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -166,7 +166,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="graphql/GraphQL/Language" data-name="graphql::language">
+  <li class="parent " data-id="graphql/GraphQL/Language" data-name="graphql::language">
       <a href="../../GraphQL/Language.html">Language</a>
       
         <ul>
@@ -191,7 +191,7 @@
       
     </li>
   
-  <li class=" current" data-id="graphql/GraphQL/Language/Directive" data-name="graphql::language::directive">
+  <li class=" " data-id="graphql/GraphQL/Language/Directive" data-name="graphql::language::directive">
       <a href="../../GraphQL/Language/Directive.html">Directive</a>
       
     </li>
@@ -416,12 +416,12 @@
       
     </li>
   
-  <li class="parent " data-id="graphql/GraphQL/Scalars" data-name="graphql::scalars">
+  <li class="parent open current" data-id="graphql/GraphQL/Scalars" data-name="graphql::scalars">
       <a href="../../GraphQL/Scalars.html">Scalars</a>
       
         <ul>
   
-  <li class=" " data-id="graphql/GraphQL/Scalars/BigInt" data-name="graphql::scalars::bigint">
+  <li class=" current" data-id="graphql/GraphQL/Scalars/BigInt" data-name="graphql::scalars::bigint">
       <a href="../../GraphQL/Scalars/BigInt.html">BigInt</a>
       
     </li>
@@ -480,12 +480,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> GraphQL::Language::Directive
+  <span class="kind">struct</span> GraphQL::Scalars::BigInt
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Language/Directive.html">GraphQL::Language::Directive</a></li><li class="superclass"><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Scalars/BigInt.html">GraphQL::Scalars::BigInt</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
@@ -493,6 +493,20 @@
 
 
 
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../../GraphQL/ScalarType.html">GraphQL::ScalarType</a></li>
+    
+  </ul>
 
 
 
@@ -513,8 +527,8 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/language/nodes.cr#L81" target="_blank">
-        graphql/language/nodes.cr
+      <a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/scalars.cr#L75" target="_blank">
+        graphql/scalars.cr
       </a>
     
     <br/>
@@ -535,13 +549,30 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28name%2Carguments%2C%2A%2Arest%29-class-method" class="signature"><strong>.new</strong>(name, arguments, **rest)</a>
+        <a href="#new%28value%3A%3A%3ABigInt%29-class-method" class="signature"><strong>.new</strong>(value : ::BigInt)</a>
         
       </li>
     
   </ul>
 
 
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#from_json%28string_or_io%29-class-method" class="signature"><strong>.from_json</strong>(string_or_io)</a>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -556,41 +587,22 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#%3D%3D%28other%3Aself%29-instance-method" class="signature"><strong>#==</strong>(other : <span class="k">self</span>)</a>
-        
-          <div class="summary"><p>Returns <code>true</code> if this reference is the same as <em>other</em>.</p></div>
+        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#arguments%3AArray%28Argument%29-instance-method" class="signature"><strong>#arguments</strong> : Array(Argument)</a>
+        <a href="#copy_with%28value_value%3D%40value%29-instance-method" class="signature"><strong>#copy_with</strong>(value _value = @value)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#arguments%3D%28arguments%3AArray%28Argument%29%29-instance-method" class="signature"><strong>#arguments=</strong>(arguments : Array(Argument))</a>
+        <a href="#to_json%28builder%29-instance-method" class="signature"><strong>#to_json</strong>(builder)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#children-instance-method" class="signature"><strong>#children</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#hash%28hasher%29-instance-method" class="signature"><strong>#hash</strong>(hasher)</a>
-        
-          <div class="summary"><p>See <code>Object#hash(hasher)</code></p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#name%3AString-instance-method" class="signature"><strong>#name</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#name%3D%28name%3AString%29-instance-method" class="signature"><strong>#name=</strong>(name : String)</a>
+        <a href="#value%3A%3A%3ABigInt-instance-method" class="signature"><strong>#value</strong> : ::BigInt</a>
         
       </li>
     
@@ -604,19 +616,24 @@
   
     
 
-  <h3>Instance methods inherited from class <code><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></code></h3>
+  <h3>Instance methods inherited from module <code><a href="../../GraphQL/ScalarType.html">GraphQL::ScalarType</a></code></h3>
   
   
-    <a href="../../GraphQL/Language/ASTNode.html#children-instance-method" class="tooltip">
-      <span>children</span>
-    children</a>, 
+    <a href="../../GraphQL/ScalarType.html#to_json%28builder%3AJSON%3A%3ABuilder%29-instance-method" class="tooltip">
+      <span>to_json(builder : JSON::Builder)</span>
+    to_json</a>
     
   
-    <a href="../../GraphQL/Language/ASTNode.html#visit%28block%3AASTNode-%3E_%29-instance-method" class="tooltip">
-      <span>visit(block : ASTNode -> _)</span>
-    visit</a>
+
+
     
+
+
+    
+
+
   
+    
 
 
     
@@ -658,24 +675,50 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(name,arguments,**rest)-class-method">
+    <div class="entry-detail" id="new(value:::BigInt)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(name, arguments, **rest)
+        def self.<strong>new</strong>(value : ::BigInt)
 
-        <a class="method-permalink" href="#new%28name%2Carguments%2C%2A%2Arest%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28value%3A%3A%3ABigInt%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/language/nodes.cr#L82" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/scalars.cr#L77" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="from_json(string_or_io)-class-method">
+      <div class="signature">
+        
+        def self.<strong>from_json</strong>(string_or_io)
+
+        <a class="method-permalink" href="#from_json%28string_or_io%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/scalars.cr#L81" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
 
 
 
@@ -688,116 +731,60 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="==(other:self)-instance-method">
+    <div class="entry-detail" id="clone-instance-method">
       <div class="signature">
         
-        def <strong>==</strong>(other : <span class="k">self</span>)
+        def <strong>clone</strong>
 
-        <a class="method-permalink" href="#%3D%3D%28other%3Aself%29-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-            <div class="doc-inherited">
-              Description copied from class Reference
-            </div>
-          
-          <p>Returns <code>true</code> if this reference is the same as <em>other</em>. Invokes <code>same?</code>.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="arguments:Array(Argument)-instance-method">
-      <div class="signature">
-        
-        def <strong>arguments</strong> : Array(<a href="../../GraphQL/Language/Argument.html">Argument</a>)
-
-        <a class="method-permalink" href="#arguments%3AArray%28Argument%29-instance-method">#</a>
+        <a class="method-permalink" href="#clone-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
+          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/scalars.cr#L75" target="_blank">View source</a>]
+        
       </div>
     </div>
   
-    <div class="entry-detail" id="arguments=(arguments:Array(Argument))-instance-method">
+    <div class="entry-detail" id="copy_with(value_value=@value)-instance-method">
       <div class="signature">
         
-        def <strong>arguments=</strong>(arguments : Array(<a href="../../GraphQL/Language/Argument.html">Argument</a>))
+        def <strong>copy_with</strong>(value _value = @value)
 
-        <a class="method-permalink" href="#arguments%3D%28arguments%3AArray%28Argument%29%29-instance-method">#</a>
+        <a class="method-permalink" href="#copy_with%28value_value%3D%40value%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
+          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/scalars.cr#L75" target="_blank">View source</a>]
+        
       </div>
     </div>
   
-    <div class="entry-detail" id="children-instance-method">
+    <div class="entry-detail" id="to_json(builder)-instance-method">
       <div class="signature">
         
-        def <strong>children</strong>
+        def <strong>to_json</strong>(builder)
 
-        <a class="method-permalink" href="#children-instance-method">#</a>
+        <a class="method-permalink" href="#to_json%28builder%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/language/nodes.cr#L84" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/103269e18841e188a691d53a9669eef5aedc9d34/src/graphql/scalars.cr#L85" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="hash(hasher)-instance-method">
+    <div class="entry-detail" id="value:::BigInt-instance-method">
       <div class="signature">
         
-        def <strong>hash</strong>(hasher)
+        def <strong>value</strong> : ::BigInt
 
-        <a class="method-permalink" href="#hash%28hasher%29-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-            <div class="doc-inherited">
-              Description copied from class Reference
-            </div>
-          
-          <p>See <code>Object#hash(hasher)</code></p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="name:String-instance-method">
-      <div class="signature">
-        
-        def <strong>name</strong> : String
-
-        <a class="method-permalink" href="#name%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="name=(name:String)-instance-method">
-      <div class="signature">
-        
-        def <strong>name=</strong>(name : String)
-
-        <a class="method-permalink" href="#name%3D%28name%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#value%3A%3A%3ABigInt-instance-method">#</a>
       </div>
       
       <br/>

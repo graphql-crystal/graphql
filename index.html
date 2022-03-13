@@ -421,6 +421,11 @@
       
         <ul>
   
+  <li class=" " data-id="graphql/GraphQL/Scalars/BigInt" data-name="graphql::scalars::bigint">
+      <a href="GraphQL/Scalars/BigInt.html">BigInt</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Scalars/Boolean" data-name="graphql::scalars::boolean">
       <a href="GraphQL/Scalars/Boolean.html">Boolean</a>
       
@@ -487,7 +492,7 @@ rest was built from the ground up. How they compare:</p>
 |------------------------------|------------------------------------------------------------|------------------------------------------------------|
 | Type-safe                    | :heavy_check_mark:                                         | :x:                                                  |
 | Automatic schema derivation  | :heavy_check_mark:                                         | :x:                                                  |
-| Actively developed           | :heavy_check_mark:                                         | :warning: (maintained but little active development) |
+| Actively developed           | :heavy_check_mark:                                         | :x:                                                  |
 | Stable                       | :construction: (assume lurking bugs and breaking changes)  | :heavy_check_mark:                                   |
 | Supports interfaces          | :x:                                                        | :heavy_check_mark:                                   |
 | Supports subscriptions       | :x:                                                        | :x:                                                  |</p>
@@ -618,7 +623,7 @@ schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::
 </a>Mutation</h2>
 <p>Mutation is the root type for all mutations.</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
-<span class="k">class</span> <span class="t">Mutation</span> <span class="o">&lt;</span> <span class="t">BaseMutation</span>
+<span class="k">class</span> <span class="t">Mutation</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseMutation</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">echo</span>(str : <span class="t">String</span>) : <span class="t">String</span>
     str
@@ -667,16 +672,20 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
 <li>Boolean</li>
 </ul>
 <p>There is also the built-in <code>ID</code> type that serializes to a string.</p>
-<pre><code class="language-crystal">@[GraphQL::Field]
-def id : GraphQL::ID
-  GraphQL::ID.new(&quot;my_id_string)
-end</code></pre>
-<p>We can also create custom scalars by writing a custom <code>to_json</code> implementation.</p>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+<span class="k">def</span> <span class="m">id</span> : <span class="t">GraphQL</span><span class="t">::</span><span class="t">ID</span>
+  <span class="t">GraphQL</span><span class="t">::</span><span class="t">ID</span>.<span class="k">new</span>(<span class="s">&quot;my_id_string&quot;</span>)
+<span class="k">end</span></code></pre>
+<p>We can also create custom scalars:</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>]
 <span class="k">class</span> <span class="t">ReverseStringScalar</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseScalar</span>
   @value : <span class="t">String</span>
 
   <span class="k">def</span> <span class="m">initialize</span>(@value)
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="m">self</span>.from_json(string_or_io)
+    <span class="k">self</span>.<span class="k">new</span>(<span class="t">String</span>.from_json(string_or_io))
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="m">to_json</span>(builder : <span class="t">JSON</span><span class="t">::</span><span class="t">Builder</span>)
