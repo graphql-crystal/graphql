@@ -523,7 +523,7 @@ queries and it looks like this:</p>
 <pre><code class="language-crystal">puts schema.document.to_s</code></pre>
 <p>Which, among several built-in types, prints our query type:</p>
 <pre><code class="language-graphql">type Query {
-  echo(str: String!): String!
+  hello(name: String!): String!
 }</code></pre>
 <p>Now for the integration with our HTTP library or framework. All we need to do is
 to call <code>schema.execute</code> with the right arguments. Here is a simple example for
@@ -541,12 +541,12 @@ Kemal, customize as needed:</p>
 <pre><code class="language-bash">curl \
   -X POST \
   -H &quot;Content-Type: application/json&quot; \
-  --data '{ &quot;query&quot;: &quot;{ echo(str: \&quot;Hello GraphQL!\&quot;) }&quot; }' \
+  --data '{ &quot;query&quot;: &quot;{ hello(name: \&quot;John Doe\&quot;) }&quot; }' \
   http://0.0.0.0:3000/graphql</code></pre>
 <p>This should return:</p>
-<pre><code class="language-json">{ &quot;data&quot;: { &quot;echo&quot;: &quot;Hello GraphQL!&quot; } }</code></pre>
-<p>To easily develop your API, we recommend using <a href="https://github.com/graphql/graphiql">GraphiQL</a>.
-A project template combining Kemal and GraphiQL can be found at <code>examples/graphiql</code>.</p>
+<pre><code class="language-json">{ &quot;data&quot;: { &quot;echo&quot;: &quot;Hello, John Doe!&quot; } }</code></pre>
+<p>For easier development, we recommend using <a href="https://github.com/graphql/graphiql">GraphiQL</a>.
+A starter template combining Kemal and GraphiQL can be found at <code>examples/graphiql</code>.</p>
 <h2><a id="context" class="anchor" href="#context">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
