@@ -1,4 +1,6 @@
 require "./language"
+require "./query_type"
+require "./scalar_type"
 
 module GraphQL::ObjectType
   macro included
@@ -13,54 +15,43 @@ module GraphQL::ObjectType
       def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
         errors = [] of ::GraphQL::Error
         selections.each do |selection|
+          case selection
+          when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread, ::GraphQL::Language::InlineFragment
+            if skip = selection.directives.find { |d| d.name == "skip" }
+              if arg = skip.arguments.find { |a| a.name == "if" }
+                next if arg.value.as(Bool)
+              end
+            end
+            if inc = selection.directives.find { |d| d.name == "include" }
+              if arg = inc.arguments.find { |a| a.name == "if" }
+                next if !arg.value.as(Bool)
+              end
+            end
 
-          if selection.is_a?(::GraphQL::Language::Field) || selection.is_a?(::GraphQL::Language::FragmentSpread)
-            if skip = selection.directives.find {|d| d.name == "skip"}
-              if arg = skip.arguments.find {|a| a.name == "if"}
-                next if arg.value.as(Bool)
+            case selection
+            when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
+              begin
+                errors.concat _graphql_resolve(context, selection, json)
+              rescue e
+                if !e.message.nil?
+                  errors << ::GraphQL::Error.new(
+                    e.message.not_nil!,
+                    selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
+                  )
+                end
               end
-            end
-            if inc = selection.directives.find {|d| d.name == "include"}
-              if arg = inc.arguments.find {|a| a.name == "if"}
-                next if !arg.value.as(Bool)
-              end
-            end
-          # TODO we should be able to combine this with the if above??
-          elsif selection.is_a?(::GraphQL::Language::InlineFragment)
-            if skip = selection.directives.find {|d| d.name == "skip"}
-              if arg = skip.arguments.find {|a| a.name == "if"}
-                next if arg.value.as(Bool)
-              end
-            end
-            if inc = selection.directives.find {|d| d.name == "include"}
-              if arg = inc.arguments.find {|a| a.name == "if"}
-                next if !arg.value.as(Bool)
-              end
+            when ::GraphQL::Language::InlineFragment
+              errors.concat _graphql_resolve(context, selection.selections, json)
             end
           else
-            raise "failed to resolve selection #{selection}"
-          end
-
-          case selection
-          when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
-            begin
-              errors.concat _graphql_resolve(context, selection, json)
-            rescue e
-              if !e.message.nil?
-                errors << ::GraphQL::Error.new(
-                  e.message.not_nil!,
-                  selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
-                )
-              end
-            end
-          when ::GraphQL::Language::InlineFragment
-            errors.concat _graphql_resolve(context, selection.selections, json)
-          when ::GraphQL::Language::ASTNode
-            raise "GraphQL: selection is ASTNode - this should never happen"
+            # this never happens, only required due to Selection being turned into ASTNode
+            # https://crystal-lang.org/reference/1.3/syntax_and_semantics/virtual_and_abstract_types.html
+            raise "invalid selection type"
           end
         end
         errors
       end
+
 
       # :nodoc:
       def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread, json : JSON::Builder) : Array(::GraphQL::Error)

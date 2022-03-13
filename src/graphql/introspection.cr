@@ -1,4 +1,5 @@
 require "./object_type"
+require "./annotations"
 
 module GraphQL
   module Introspection
