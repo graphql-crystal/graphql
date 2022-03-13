@@ -28,20 +28,21 @@ module GraphQL::ObjectType
               end
             end
 
-            case selection
-            when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
-              begin
-                errors.concat _graphql_resolve(context, selection, json)
-              rescue e
-                if !e.message.nil?
-                  errors << ::GraphQL::Error.new(
-                    e.message.not_nil!,
-                    selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
-                  )
-                end
+          case selection
+          when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
+            begin
+              errors.concat _graphql_resolve(context, selection, json)
+            rescue e
+              message = context.handle_exception(e)
+              if !message.nil?
+                errors << ::GraphQL::Error.new(
+                  message.not_nil!,
+                  selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
+                )
               end
-            when ::GraphQL::Language::InlineFragment
-              errors.concat _graphql_resolve(context, selection.selections, json)
+            end
+          when ::GraphQL::Language::InlineFragment
+            errors.concat _graphql_resolve(context, selection.selections, json)
             end
           else
             # this never happens, only required due to Selection being turned into ASTNode
