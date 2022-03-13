@@ -81,9 +81,6 @@ module GraphQL::ObjectType
 
         case field.name
         {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
-        {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
-            {% methods << var %}
-          {% end %}
         {% for ancestor in @type.ancestors %}
           {% for method in ancestor.methods.select(&.annotation(::GraphQL::Field)) %}
             {% methods << method %}

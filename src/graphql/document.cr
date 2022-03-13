@@ -16,8 +16,8 @@ module GraphQL::Document
 
           (0..1000).each do |i|
             if objects[i]
-              selected_methods = objects[i].resolve.methods.reject { |m| m.annotation(::GraphQL::Field) == nil }
-              selected_methods.each do |method|
+              fields = objects[i].resolve.methods.select(&.annotation(::GraphQL::Field))
+              fields.each do |method|
                 if method.return_type.is_a?(Nop) && !objects[i].annotation(::GraphQL::InputObject)
                   raise "GraphQL: #{objects[i].name.id}##{method.name.id} must have a return type"
                 end
