@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="Crystal Docs 1.2.2">
-<meta name="crystal_docs.project_version" content="master">
+<meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -13,7 +13,7 @@
 <script type="text/javascript" src="js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>graphql master</title>
+  <title>graphql main</title>
   <script type="text/javascript">
   CrystalDocs.base_path = "";
   </script>
@@ -39,7 +39,7 @@
       </h1>
 
       <span class="project-version">
-        master
+        main
       </span>
     </div>
   </div>
@@ -513,8 +513,8 @@ queries and it looks like this:</p>
 @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
 <span class="k">class</span> <span class="t">Query</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseQuery</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
-  <span class="k">def</span> <span class="m">echo</span>(str : <span class="t">String</span>) : <span class="t">String</span>
-    str
+  <span class="k">def</span> <span class="m">hello</span>(name : <span class="t">String</span>) : <span class="t">String</span>
+    <span class="s">&quot;Hello, </span><span class="i">#{</span>name<span class="i">}</span><span class="s">!&quot;</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 <p>Now we can create a schema object:</p>
@@ -545,6 +545,8 @@ Kemal, customize as needed:</p>
   http://0.0.0.0:3000/graphql</code></pre>
 <p>This should return:</p>
 <pre><code class="language-json">{ &quot;data&quot;: { &quot;echo&quot;: &quot;Hello GraphQL!&quot; } }</code></pre>
+<p>To easily develop your API, we recommend using <a href="https://github.com/graphql/graphiql">GraphiQL</a>.
+A project template combining Kemal and GraphiQL can be found at <code>examples/graphiql</code>.</p>
 <h2><a id="context" class="anchor" href="#context">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
