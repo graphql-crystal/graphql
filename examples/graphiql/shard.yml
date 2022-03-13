@@ -1,0 +1,8 @@
+name: graphql-example-graphiql
+version: 1.0.0
+license: MIT
+dependencies:
+  kemal:
+    github: kemalcr/kemal
+  graphql:
+    github: graphql-crystal/graphql

@@ -7,8 +7,8 @@ class Query
   include GraphQL::QueryType
 
   @[GraphQL::Field]
-  def echo(str : String) : String
-    str
+  def hello(name : String) : String
+    "Hello, #{name}!"
   end
 end
 
@@ -22,6 +22,10 @@ post "/graphql" do |env|
   operation_name = env.params.json["operationName"]?.as(String?)
 
   schema.execute(query, variables, operation_name)
+end
+
+get "/" do
+  render "index.html"
 end
 
 Kemal.run

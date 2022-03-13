@@ -41,8 +41,8 @@ require "graphql"
 @[GraphQL::Object]
 class Query < GraphQL::BaseQuery
   @[GraphQL::Field]
-  def echo(str : String) : String
-    str
+  def hello(name : String) : String
+    "Hello, #{name}!"
   end
 end
 ```
@@ -98,6 +98,9 @@ This should return:
 ```json
 { "data": { "echo": "Hello GraphQL!" } }
 ```
+
+To easily develop your API, we recommend using [GraphiQL](https://github.com/graphql/graphiql).
+A project template combining Kemal and GraphiQL can be found at `examples/graphiql`.
 
 ## Context
 
