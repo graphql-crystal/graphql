@@ -1,10 +1,18 @@
+require "big"
+require "./annotations"
+require "./scalar_type"
+
 module GraphQL::Scalars
   # Descriptions were taken from Graphql.js
-  # https://github.com/graphql/graphql-js/blob/master/src/type/scalars.js
+  # https://github.com/graphql/graphql-js/blob/main/src/type/scalars.ts
 
   @[Scalar(description: "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.")]
   record String, value : ::String do
     include GraphQL::ScalarType
+
+    def self.from_json(string_or_io)
+      self.new(::String.from_json(string_or_io))
+    end
 
     def to_json(builder)
       builder.scalar(@value)
@@ -15,6 +23,10 @@ module GraphQL::Scalars
   record Boolean, value : ::Bool do
     include GraphQL::ScalarType
 
+    def self.from_json(string_or_io)
+      self.new(::Bool.from_json(string_or_io))
+    end
+
     def to_json(builder)
       builder.scalar(@value)
     end
@@ -23,6 +35,10 @@ module GraphQL::Scalars
   @[Scalar(description: "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.")]
   record Int, value : ::Int32 do
     include GraphQL::ScalarType
+
+    def self.from_json(string_or_io)
+      self.new(::Int32.from_json(string_or_io))
+    end
 
     def to_json(builder)
       builder.scalar(@value)
@@ -33,6 +49,10 @@ module GraphQL::Scalars
   record Float, value : ::Float64 do
     include GraphQL::ScalarType
 
+    def self.from_json(string_or_io)
+      self.new(::Float64.from_json(string_or_io))
+    end
+
     def to_json(builder)
       builder.scalar(@value)
     end
@@ -42,8 +62,28 @@ module GraphQL::Scalars
   record ID, value : ::String do
     include GraphQL::ScalarType
 
+    def self.from_json(string_or_io)
+      self.new(::String.from_json(string_or_io))
+    end
+
     def to_json(builder)
       builder.scalar(@value)
+    end
+  end
+
+  @[Scalar]
+  record BigInt, value : ::BigInt do
+    include GraphQL::ScalarType
+
+    def initialize(@value : ::BigInt)
+    end
+
+    def self.from_json(string_or_io)
+      self.new(::BigInt.new(::String.from_json(string_or_io)))
+    end
+
+    def to_json(builder)
+      builder.scalar(@value.to_s)
     end
   end
 end

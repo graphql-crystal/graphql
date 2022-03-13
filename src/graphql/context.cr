@@ -1,3 +1,5 @@
+require "./language"
+
 module GraphQL
   class Context
     property max_complexity : Int32?

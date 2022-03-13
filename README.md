@@ -14,7 +14,7 @@ rest was built from the ground up. How they compare:
 |------------------------------|------------------------------------------------------------|------------------------------------------------------|
 | Type-safe                    | :heavy_check_mark:                                         | :x:                                                  |
 | Automatic schema derivation  | :heavy_check_mark:                                         | :x:                                                  |
-| Actively developed           | :heavy_check_mark:                                         | :warning: (maintained but little active development) |
+| Actively developed           | :heavy_check_mark:                                         | :x:                                                  |
 | Stable                       | :construction: (assume lurking bugs and breaking changes)  | :heavy_check_mark:                                   |
 | Supports interfaces          | :x:                                                        | :heavy_check_mark:                                   |
 | Supports subscriptions       | :x:                                                        | :x:                                                  |
@@ -181,7 +181,7 @@ Mutation is the root type for all mutations.
 
 ```crystal
 @[GraphQL::Object]
-class Mutation < BaseMutation
+class Mutation < GraphQL::BaseMutation
   @[GraphQL::Field]
   def echo(str : String) : String
     str
@@ -235,11 +235,11 @@ There is also the built-in `ID` type that serializes to a string.
 ```crystal
 @[GraphQL::Field]
 def id : GraphQL::ID
-  GraphQL::ID.new("my_id_string)
+  GraphQL::ID.new("my_id_string")
 end
 ```
 
-We can also create custom scalars by writing a custom `to_json` implementation.
+We can also create custom scalars:
 
 ```crystal
 @[GraphQL::Scalar]
@@ -247,6 +247,10 @@ class ReverseStringScalar < GraphQL::BaseScalar
   @value : String
 
   def initialize(@value)
+  end
+
+  def self.from_json(string_or_io)
+    self.new(String.from_json(string_or_io))
   end
 
   def to_json(builder : JSON::Builder)

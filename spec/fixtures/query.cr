@@ -1,3 +1,5 @@
+require "../../src/graphql"
+
 module QueryFixture
   @[GraphQL::Object]
   class Query

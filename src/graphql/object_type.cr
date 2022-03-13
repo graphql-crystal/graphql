@@ -1,3 +1,5 @@
+require "./language"
+
 module GraphQL::ObjectType
   macro included
     macro finished
@@ -78,9 +80,12 @@ module GraphQL::ObjectType
         path = field._alias || field.name
 
         case field.name
-        {% methods = @type.methods.select { |m| m.annotation(::GraphQL::Field) } %}
+        {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
+        {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
+            {% methods << var %}
+          {% end %}
         {% for ancestor in @type.ancestors %}
-          {% for method in ancestor.methods.select { |m| m.annotation(::GraphQL::Field) } %}
+          {% for method in ancestor.methods.select(&.annotation(::GraphQL::Field)) %}
             {% methods << method %}
           {% end %}
         {% end %}
@@ -97,12 +102,11 @@ module GraphQL::ObjectType
               elsif arg = field.arguments.find {|a| a.name == {{ arg.name.id.stringify.camelcase(lower: true) }}}
                 begin
                   case arg_value = arg.value
-                  {% if type < Float %}
-                  when Int, Float
+                  when {{type.id}}
+                    arg_value
+                  {% if type == Float64 %}
+                  when Int32
                     arg_value.to_f64.as({{type.id}})
-                  {% elsif type < Int %}
-                  when Int
-                    arg_value.as({{type.id}})
                   {% elsif type.annotation(::GraphQL::Enum) %}
                   when ::GraphQL::Language::AEnum
                     {{type.id}}.parse(arg_value.to_value)
@@ -111,17 +115,19 @@ module GraphQL::ObjectType
                   {% elsif type.annotation(::GraphQL::InputObject) %}
                   when ::GraphQL::Language::InputObject
                     {{type.id}}._graphql_new(arg_value)
+                  {% elsif type < ::GraphQL::ScalarType %}
+                  when String, Int32, Float64
+                    {{type.id}}.from_json(arg_value.to_json)
                   {% elsif type < Array %}
                   {% inner_type = type.type_vars.find { |t| t != Nil }.resolve %}
                   when Array
                     arg_value.map do |value|
                       case value
-                      {% if inner_type < Float %}
-                      when Int, Float
+                      when {{inner_type.id}}
+                        value
+                      {% if inner_type == Float64 %}
+                      when Int32
                         value.to_f64.as({{inner_type.id}})
-                      {% elsif inner_type < Int %}
-                      when Int
-                        value.as({{inner_type.id}})
                       {% elsif inner_type.annotation(::GraphQL::Enum) %}
                       when ::GraphQL::Language::AEnum
                         {{inner_type.id}}.parse(value.to_value)
@@ -130,18 +136,17 @@ module GraphQL::ObjectType
                       {% elsif inner_type.annotation(::GraphQL::InputObject) %}
                       when ::GraphQL::Language::InputObject
                         {{inner_type.id}}._graphql_new(value)
+                      {% elsif type < ::GraphQL::ScalarType %}
+                      when String, Int32, Float64
+                        {{type.id}}.from_json(arg_value.to_json)
                       {% elsif inner_type < Array %}
                         {% raise "GraphQL: #{@type.name}##{method.name} nested arrays are not supported" %}
                       {% end %}
-                      when {{inner_type.id}}
-                        value
                       else
                         return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                       end
                     end
                   {% end %}
-                  when {{type.id}}
-                    arg_value
                   else
                     return [GraphQL::Error.new("#{arg_value} is wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                   end

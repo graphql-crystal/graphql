@@ -4,7 +4,7 @@ module GraphQL::InputObjectType
       {% verbatim do %}
       # :nodoc:
       def self._graphql_new(input_object : ::GraphQL::Language::InputObject)
-        {% method = @type.methods.find { |m| m.annotation(::GraphQL::Field) } %}
+        {% method = @type.methods.find(&.annotation(::GraphQL::Field)) %}
         self.new(
           {% for arg in method.args %}
             {{arg.name}}: begin

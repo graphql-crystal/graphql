@@ -1,3 +1,5 @@
+require "../../src/graphql"
+
 module MutationFixture
   @[GraphQL::InputObject]
   class MutationInputObject

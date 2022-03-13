@@ -5,12 +5,11 @@ module GraphQL::Document
       # :nodoc:
       def _graphql_document
         {%
-          a = 1 # XXX: compiler raises error when if statement first
-
           unless @type.annotation(::GraphQL::Object)
             raise "GraphQL: #{@type.id} does not have a GraphQL::Object annotation"
           end
-
+        %}
+        {%
           objects = [@type, ::GraphQL::Introspection::Schema]
           enums = [] of TypeNode
           scalars = [::GraphQL::Scalars::String, ::GraphQL::Scalars::Boolean, ::GraphQL::Scalars::Float, ::GraphQL::Scalars::Int, ::GraphQL::Scalars::ID] of TypeNode
@@ -39,6 +38,10 @@ module GraphQL::Document
 
                     if type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(type.resolve)
                       enums << type.resolve
+                    end
+
+                    if type.resolve.annotation(::GraphQL::Scalar) && !scalars.includes?(type.resolve)
+                      scalars << type.resolve
                     end
 
                     type.type_vars.each do |inner_type|
@@ -91,7 +94,7 @@ module GraphQL::Document
 
         {% for object in objects %}
           %fields = [] of ::GraphQL::Language::FieldDefinition
-          {% for method in (object.methods.select { |m| m.annotation(::GraphQL::Field) }) %}
+          {% for method in object.methods.select(&.annotation(::GraphQL::Field)) %}
             %input_values = [] of ::GraphQL::Language::InputValueDefinition
             {% for arg in method.args %}
               {%
@@ -128,10 +131,13 @@ module GraphQL::Document
                 {% elsif type < ::Object && type.annotation(::GraphQL::InputObject) %}
                   %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::InputObject)["name"] || type.name.split("::").last }})
                   %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
+                {% elsif type < ::Object && type.annotation(::GraphQL::Scalar) %}
+                  %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Scalar)["name"] || type.name.split("::").last }})
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type == String %}
                   %type = ::GraphQL::Language::TypeName.new(name: "String")
                   %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type < Int %}
+                {% elsif type == Int32 %}
                   %type = ::GraphQL::Language::TypeName.new(name: "Int")
                   %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type < Float %}
@@ -193,10 +199,10 @@ module GraphQL::Document
               {% elsif type < ::Object && type.annotation(::GraphQL::InputObject) %}
                 %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::InputObject)["name"] || type.name.split("::").last }})
               {% elsif type < ::Object && type.annotation(::GraphQL::Scalar) %}
-                  %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Scalar)["name"] || type.name.split("::").last }})
+                %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Scalar)["name"] || type.name.split("::").last }})
               {% elsif type == String %}
                 %type = ::GraphQL::Language::TypeName.new(name: "String")
-              {% elsif type < Int %}
+              {% elsif type == Int32 %}
                 %type = ::GraphQL::Language::TypeName.new(name: "Int")
               {% elsif type < Float %}
                 %type = ::GraphQL::Language::TypeName.new(name: "Float")
@@ -272,13 +278,11 @@ module GraphQL::Document
         {% end %}
 
         {% for scalar in scalars %}
-          {% if !scalar.annotation(::GraphQL::Scalar)["_ignore"] %}
-            %definitions << ::GraphQL::Language::ScalarTypeDefinition.new(
-              name: {{ scalar.annotation(::GraphQL::Scalar)["name"] || scalar.name.split("::").last }},
-              description: {{ scalar.annotation(::GraphQL::Scalar)["description"] }},
-              directives: [] of ::GraphQL::Language::Directive
-            )
-          {% end %}
+          %definitions << ::GraphQL::Language::ScalarTypeDefinition.new(
+            name: {{ scalar.annotation(::GraphQL::Scalar)["name"] || scalar.name.split("::").last }},
+            description: {{ scalar.annotation(::GraphQL::Scalar)["description"] }},
+            directives: [] of ::GraphQL::Language::Directive
+          )
         {% end %}
 
         ::GraphQL::Language::Document.new(%definitions.sort { |a, b| a.name <=> b.name })
