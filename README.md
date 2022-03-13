@@ -63,7 +63,7 @@ Which, among several built-in types, prints our query type:
 
 ```graphql
 type Query {
-  echo(str: String!): String!
+  hello(name: String!): String!
 }
 ```
 
@@ -89,18 +89,18 @@ Now we're ready to query our API:
 curl \
   -X POST \
   -H "Content-Type: application/json" \
-  --data '{ "query": "{ echo(str: \"Hello GraphQL!\") }" }' \
+  --data '{ "query": "{ hello(name: \"John Doe\") }" }' \
   http://0.0.0.0:3000/graphql
 ```
 
 This should return:
 
 ```json
-{ "data": { "echo": "Hello GraphQL!" } }
+{ "data": { "echo": "Hello, John Doe!" } }
 ```
 
-To easily develop your API, we recommend using [GraphiQL](https://github.com/graphql/graphiql).
-A project template combining Kemal and GraphiQL can be found at `examples/graphiql`.
+For easier development, we recommend using [GraphiQL](https://github.com/graphql/graphiql).
+A starter template combining Kemal and GraphiQL can be found at `examples/graphiql`.
 
 ## Context
 
