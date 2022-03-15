@@ -1,5 +1,6 @@
-require "./object_type"
 require "./annotations"
+require "./object_type"
+require "./query_type"
 
 module GraphQL
   module Introspection
@@ -28,10 +29,13 @@ module GraphQL
 
       @[GraphQL::Field]
       def mutation_type : GraphQL::Introspection::Type?
-        return nil if @mutation_type.nil?
-        Type.new @document, @document.definitions.find { |d|
-          d.is_a?(Language::TypeDefinition) && d.name == @mutation_type.not_nil!
-        }.not_nil!.as(Language::TypeDefinition)
+        if mt = @mutation_type
+          Type.new @document, @document.definitions.find { |d|
+            d.is_a?(Language::TypeDefinition) && d.name == mt
+          }.not_nil!.as(Language::TypeDefinition)
+        else
+          nil
+        end
       end
 
       @[GraphQL::Field]

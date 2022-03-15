@@ -1,5 +1,4 @@
 require "./language"
-require "./query_type"
 require "./scalar_type"
 
 module GraphQL::ObjectType
@@ -33,10 +32,9 @@ module GraphQL::ObjectType
             begin
               errors.concat _graphql_resolve(context, selection, json)
             rescue e
-              message = context.handle_exception(e)
-              if !message.nil?
+              if message = context.handle_exception(e)
                 errors << ::GraphQL::Error.new(
-                  message.not_nil!,
+                  message,
                   selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
                 )
               end
