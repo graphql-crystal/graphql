@@ -101,6 +101,11 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Exception" data-name="graphql::exception">
+      <a href="../GraphQL/Exception.html">Exception</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Field" data-name="graphql::field">
       <a href="../GraphQL/Field.html">Field</a>
       
@@ -406,6 +411,11 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/ParserError" data-name="graphql::parsererror">
+      <a href="../GraphQL/ParserError.html">ParserError</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/QueryType" data-name="graphql::querytype">
       <a href="../GraphQL/QueryType.html">QueryType</a>
       
@@ -466,6 +476,11 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
+      <a href="../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
 </ul>
 
       
@@ -513,7 +528,7 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L4" target="_blank">
+      <a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L4" target="_blank">
         graphql/context.cr
       </a>
     
@@ -523,23 +538,6 @@
 
 
 
-
-  <h2>
-    <a id="constructors" class="anchor" href="#constructors">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructors
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#new%28max_complexity%3Dnil%29-class-method" class="signature"><strong>.new</strong>(max_complexity = <span class="n">nil</span>)</a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -582,6 +580,13 @@
     
       <li class="entry-summary">
         <a href="#fragments%3D%28fragments%3AArray%28Language%3A%3AFragmentDefinition%29%29-instance-method" class="signature"><strong>#fragments=</strong>(fragments : Array(Language::FragmentDefinition))</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#handle_exception%28ex%3A%3A%3AException%29%3AString%3F-instance-method" class="signature"><strong>#handle_exception</strong>(ex : ::Exception) : String?</a>
+        
+          <div class="summary"><p>Return string message to be added to errors object or throw to bubble up</p></div>
         
       </li>
     
@@ -646,32 +651,6 @@
 </div>
 
 
-  <h2>
-    <a id="constructor-detail" class="anchor" href="#constructor-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Constructor Detail
-  </h2>
-  
-    <div class="entry-detail" id="new(max_complexity=nil)-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>(max_complexity = <span class="n">nil</span>)
-
-        <a class="method-permalink" href="#new%28max_complexity%3Dnil%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L12" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-
 
 
 
@@ -696,7 +675,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L6" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -712,7 +691,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L6" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -728,7 +707,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -744,7 +723,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -760,7 +739,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L7" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -776,7 +755,28 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L7" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="handle_exception(ex:::Exception):String?-instance-method">
+      <div class="signature">
+        
+        def <strong>handle_exception</strong>(ex : ::Exception) : String?
+
+        <a class="method-permalink" href="#handle_exception%28ex%3A%3A%3AException%29%3AString%3F-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Return string message to be added to errors object or throw to bubble up</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -792,7 +792,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L5" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -808,7 +808,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L5" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -824,7 +824,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L9" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L9" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -840,7 +840,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L9" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L9" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -856,7 +856,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L8" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L8" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -872,7 +872,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/bc6e3d01724fd013d7b8906387669cf59bb53119/src/graphql/context.cr#L8" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/context.cr#L8" target="_blank">View source</a>]
         
       </div>
     </div>

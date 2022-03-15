@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::ScalarType - graphql main</title>
+  <title>GraphQL::Exception - graphql main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -101,7 +101,7 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Exception" data-name="graphql::exception">
+  <li class=" current" data-id="graphql/GraphQL/Exception" data-name="graphql::exception">
       <a href="../GraphQL/Exception.html">Exception</a>
       
     </li>
@@ -466,7 +466,7 @@
       
     </li>
   
-  <li class=" current" data-id="graphql/GraphQL/ScalarType" data-name="graphql::scalartype">
+  <li class=" " data-id="graphql/GraphQL/ScalarType" data-name="graphql::scalartype">
       <a href="../GraphQL/ScalarType.html">ScalarType</a>
       
     </li>
@@ -495,12 +495,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">module</span> GraphQL::ScalarType
+  <span class="kind">abstract class</span> GraphQL::Exception
 
 </h1>
 
 
-
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../GraphQL/Exception.html">GraphQL::Exception</a></li><li class="superclass">Exception</li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -514,28 +514,22 @@
 
 
   <h2>
-    <a id="direct-including-types" class="anchor" href="#direct-including-types">
+    <a id="direct-known-subclasses" class="anchor" href="#direct-known-subclasses">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Direct including types
+    Direct Known Subclasses
   </h2>
   <ul class="other-types-list">
     
-      <li class="other-type"><a href="../GraphQL/Scalars/BigInt.html">GraphQL::Scalars::BigInt</a></li>
+      <li class="other-type"><a href="../GraphQL/ParserError.html">GraphQL::ParserError</a></li>
     
-      <li class="other-type"><a href="../GraphQL/Scalars/Boolean.html">GraphQL::Scalars::Boolean</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/Float.html">GraphQL::Scalars::Float</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/ID.html">GraphQL::Scalars::ID</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/Int.html">GraphQL::Scalars::Int</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/String.html">GraphQL::Scalars::String</a></li>
+      <li class="other-type"><a href="../GraphQL/TypeError.html">GraphQL::TypeError</a></li>
     
   </ul>
+
+
 
 
 
@@ -550,8 +544,8 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/scalar_type.cr#L1" target="_blank">
-        graphql/scalar_type.cr
+      <a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/error.cr#L26" target="_blank">
+        graphql/error.cr
       </a>
     
     <br/>
@@ -565,28 +559,41 @@
 
 
 
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#to_json%28builder%3AJSON%3A%3ABuilder%29-instance-method" class="signature"><strong>#to_json</strong>(builder : JSON::Builder)</a>
-        
-      </li>
-    
-  </ul>
-
 
 
 
 
 <div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
   
 </div>
 
@@ -594,32 +601,6 @@
 
 
 
-
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="to_json(builder:JSON::Builder)-instance-method">
-      <div class="signature">
-        abstract 
-        def <strong>to_json</strong>(builder : JSON::Builder)
-
-        <a class="method-permalink" href="#to_json%28builder%3AJSON%3A%3ABuilder%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/graphql-crystal/graphql/blob/16941ad9364e3204972deb31f688f7a327be1444/src/graphql/scalar_type.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
 
 
 
