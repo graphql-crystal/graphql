@@ -1,38 +1,8 @@
 require "./language"
 require "./scalar_type"
+require "./internal/convert_value"
 
 module GraphQL::ObjectType
-  macro convert_value(t, value, name)
-    {% type = t.resolve %}
-    case %value = {{value}}
-    when {{type}}
-      %value
-    {% if type == Float64 %}
-    when Int32
-      %value.to_f64.as({{type}})
-    {% elsif type.resolve.annotation(::GraphQL::Enum) %}
-    when ::GraphQL::Language::AEnum
-      {{type}}.parse(%value.to_value)
-    when String
-      {{type}}.parse(%value)
-    {% elsif type.annotation(::GraphQL::InputObject) %}
-    when ::GraphQL::Language::InputObject
-      {{type}}._graphql_new(%value.as(::GraphQL::Language::InputObject))
-    {% elsif type < ::GraphQL::ScalarType %}
-    when String, Int32, Float64
-      {{type}}.from_json(%value.to_json)
-    {% elsif type < Array %}
-    when Array
-      {% inner_type = type.type_vars.find { |t| t != Nil } %}
-      %value.map do |%v|
-        ::GraphQL::ObjectType.convert_value {{ inner_type }}, %v, name
-      end
-    {% end %}
-    else
-      raise ::GraphQL::TypeError.new("bad type for argument {{ name }}")
-    end.as({{type}})
-  end
-
   macro included
     macro finished
       {% verbatim do %}
@@ -117,7 +87,7 @@ module GraphQL::ObjectType
               if context.is_a? {{arg.restriction.id}}
                 context
               elsif fa = field.arguments.find {|a| a.name == {{ arg.name.id.stringify.camelcase(lower: true) }}}
-                convert_value {{ type }}, fa.value, {{ arg.name.id.camelcase(lower: true) }}
+                GraphQL::Internal.convert_value {{ type }}, fa.value, {{ arg.name.id.camelcase(lower: true) }}
               else
                 {% if !arg.default_value.is_a?(Nop) %}
                   {{ arg.default_value }}.as({{arg.restriction.id}})

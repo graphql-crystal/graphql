@@ -1,3 +1,5 @@
+require "./internal/convert_value"
+
 module GraphQL::InputObjectType
   macro included
     macro finished
@@ -18,7 +20,7 @@ module GraphQL::InputObjectType
                   raise ::GraphQL::TypeError.new("missing required input value {{ arg.name.camelcase(lower: true) }}")
                 {% end %}
               else
-                ::GraphQL::ObjectType.convert_value {{ arg.restriction.resolve.union_types.find { |t| t != Nil } }}, fa.value, {{ arg.name.camelcase(lower: true) }}
+                ::GraphQL::Internal.convert_value {{ arg.restriction.resolve.union_types.find { |t| t != Nil } }}, fa.value, {{ arg.name.camelcase(lower: true) }}
               end
             end,
           {% end %}
