@@ -44,10 +44,10 @@ module MutationFixture
       current = io
       loop do
         i += 1
-        if current.value.nil?
-          break
+        if value = current.value
+          current = value
         else
-          current = current.value.not_nil!
+          break
         end
       end
       i

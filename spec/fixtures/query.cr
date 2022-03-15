@@ -91,12 +91,16 @@ module QueryFixture
 
     @[GraphQL::Field]
     def str_reverse : ReverseStringScalar?
-      ReverseStringScalar.new(@str.not_nil!) unless @str.nil?
+      if str = @str
+        ReverseStringScalar.new(str)
+      end
     end
 
     @[GraphQL::Field]
     def id : GraphQL::Scalars::ID?
-      GraphQL::Scalars::ID.new(@str.not_nil!) unless @str.nil?
+      if str = @str
+        GraphQL::Scalars::ID.new(str)
+      end
     end
 
     @[GraphQL::Field]

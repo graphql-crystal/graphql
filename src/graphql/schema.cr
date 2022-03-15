@@ -68,8 +68,8 @@ module GraphQL
 
     def initialize(@query : QueryType, @mutation : MutationType? = nil)
       @document = @query._graphql_document
-      if !@mutation.nil?
-        @mutation.not_nil!._graphql_document.definitions.each do |definition|
+      if mutation = @mutation
+        mutation._graphql_document.definitions.each do |definition|
           next unless definition.is_a?(Language::TypeDefinition)
           unless @document.definitions.find { |d| d.is_a?(Language::TypeDefinition) && d.name == definition.name }
             @document.definitions << definition
