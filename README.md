@@ -14,7 +14,7 @@ rest was built from the ground up. How they compare:
 | --------------------------- | ----------------------- | ------------------------- |
 | Type-safe                   | :heavy_check_mark:      | :x:                       |
 | Automatic schema derivation | :heavy_check_mark:      | :x:                       |
-| Actively developed          | :heavy_check_mark:      | :heavy_check_mark:        |
+| Actively developed          | :heavy_check_mark:      | :x:                       |
 | Stable                      | :heavy_check_mark:      | :heavy_check_mark:        |
 | Supports interfaces         | :x:                     | :heavy_check_mark:        |
 | Supports subscriptions      | :x:                     | :x:                       |
