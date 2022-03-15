@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::ScalarType - graphql main</title>
+  <title>GraphQL::Internal - graphql main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -121,7 +121,7 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Internal" data-name="graphql::internal">
+  <li class=" current" data-id="graphql/GraphQL/Internal" data-name="graphql::internal">
       <a href="../GraphQL/Internal.html">Internal</a>
       
     </li>
@@ -471,7 +471,7 @@
       
     </li>
   
-  <li class=" current" data-id="graphql/GraphQL/ScalarType" data-name="graphql::scalartype">
+  <li class=" " data-id="graphql/GraphQL/ScalarType" data-name="graphql::scalartype">
       <a href="../GraphQL/ScalarType.html">ScalarType</a>
       
     </li>
@@ -500,7 +500,7 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">module</span> GraphQL::ScalarType
+  <span class="kind">module</span> GraphQL::Internal
 
 </h1>
 
@@ -518,30 +518,6 @@
 
 
 
-  <h2>
-    <a id="direct-including-types" class="anchor" href="#direct-including-types">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Direct including types
-  </h2>
-  <ul class="other-types-list">
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/BigInt.html">GraphQL::Scalars::BigInt</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/Boolean.html">GraphQL::Scalars::Boolean</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/Float.html">GraphQL::Scalars::Float</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/ID.html">GraphQL::Scalars::ID</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/Int.html">GraphQL::Scalars::Int</a></li>
-    
-      <li class="other-type"><a href="../GraphQL/Scalars/String.html">GraphQL::Scalars::String</a></li>
-    
-  </ul>
-
 
 
 
@@ -555,8 +531,8 @@
   </h2>
   
     
-      <a href="https://github.com/graphql-crystal/graphql/blob/a7beddf075f2ee1b4f14a0858c56bddad28493ff/src/graphql/scalar_type.cr#L1" target="_blank">
-        graphql/scalar_type.cr
+      <a href="https://github.com/graphql-crystal/graphql/blob/a7beddf075f2ee1b4f14a0858c56bddad28493ff/src/graphql/internal/convert_value.cr#L1" target="_blank">
+        graphql/internal/convert_value.cr
       </a>
     
     <br/>
@@ -570,24 +546,24 @@
 
 
 
+
+
   <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+    <a id="macro-summary" class="anchor" href="#macro-summary">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Instance Method Summary
+    Macro Summary
   </h2>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#to_json%28builder%3AJSON%3A%3ABuilder%29-instance-method" class="signature"><strong>#to_json</strong>(builder : JSON::Builder)</a>
+        <a href="#convert_value%28t%2Cvalue%2Cname%29-macro" class="signature"><strong>convert_value</strong>(t, value, name)</a>
         
       </li>
     
   </ul>
-
-
 
 
 
@@ -600,33 +576,33 @@
 
 
 
+
+
   <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+    <a id="macro-detail" class="anchor" href="#macro-detail">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Instance Method Detail
+    Macro Detail
   </h2>
   
-    <div class="entry-detail" id="to_json(builder:JSON::Builder)-instance-method">
+    <div class="entry-detail" id="convert_value(t,value,name)-macro">
       <div class="signature">
-        abstract 
-        def <strong>to_json</strong>(builder : JSON::Builder)
+        
+        macro <strong>convert_value</strong>(t, value, name)
 
-        <a class="method-permalink" href="#to_json%28builder%3AJSON%3A%3ABuilder%29-instance-method">#</a>
+        <a class="method-permalink" href="#convert_value%28t%2Cvalue%2Cname%29-macro">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/graphql-crystal/graphql/blob/a7beddf075f2ee1b4f14a0858c56bddad28493ff/src/graphql/scalar_type.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/graphql-crystal/graphql/blob/a7beddf075f2ee1b4f14a0858c56bddad28493ff/src/graphql/internal/convert_value.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-
-
 
 
 </div>
