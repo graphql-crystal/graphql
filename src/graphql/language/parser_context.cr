@@ -16,7 +16,7 @@ class GraphQL::Language::ParserContext
   end
 
   def dispose
-    raise Exception.new("ParserContext has {descriptions.Count} not applied comments.") if (descriptions.Count > 0)
+    raise ParserError.new("ParserContext has {descriptions.Count} not applied descriptions.") if (descriptions.Count > 0)
   end
 
   private def advance
@@ -99,7 +99,7 @@ class GraphQL::Language::ParserContext
     if (@current_token.kind == kind)
       advance
     else
-      raise Exception.new("Expected #{Token.get_token_kind_description(kind)}, found #{@current_token.kind} #{@current_token.value}")
+      raise ParserError.new("Expected #{Token.get_token_kind_description(kind)}, found #{@current_token.kind} #{@current_token.value}")
     end
   end
 
@@ -115,7 +115,7 @@ class GraphQL::Language::ParserContext
       return
     end
 
-    raise Exception.new("Expected \"#{keyword}\", found Name \"#{token.value}\"")
+    raise ParserError.new("Expected \"#{keyword}\", found Name \"#{token.value}\"")
   end
 
   private def expect_on_keyword_and_parse_named_type
@@ -209,7 +209,7 @@ class GraphQL::Language::ParserContext
       end
     end
 
-    raise Exception.new("Unexpected #{@current_token.kind} '#{@current_token.value}' at #{@current_token.start_position},#{@current_token.end_position}")
+    raise ParserError.new("Unexpected #{@current_token.kind} '#{@current_token.value}' at #{@current_token.start_position},#{@current_token.end_position}")
   end
 
   private def parse_definitions_if_not_eof
@@ -420,7 +420,7 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_fragment_name
-    # raise Exception.new("Unexpected #{@current_token.kind}") if @current_token.value == "on"
+    # raise ParserError.new("Unexpected #{@current_token.kind}") if @current_token.value == "on"
 
     if @current_token.value == "on"
       return nil
@@ -552,7 +552,7 @@ class GraphQL::Language::ParserContext
       end
     end
 
-    raise Exception.new("Unexpected #{@current_token}")
+    raise ParserError.new("Unexpected #{@current_token}")
   end
 
   private def parse_object(is_constant)
@@ -754,7 +754,7 @@ class GraphQL::Language::ParserContext
       return parse_variable if !is_constant
     end
 
-    raise Exception.new("Unexpected #{@current_token.kind} at #{@current_token.start_position} near #{@source[@current_token.start_position - 15, 30]}")
+    raise ParserError.new("Unexpected #{@current_token.kind} at #{@current_token.start_position} near #{@source[@current_token.start_position - 15, 30]}")
   end
 
   private def parse_value_value : Language::ArgumentValue

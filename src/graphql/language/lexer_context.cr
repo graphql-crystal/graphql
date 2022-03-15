@@ -24,7 +24,7 @@ class GraphQL::Language::LexerContext
     return read_number() if code.number? || code == '-'
     return read_string() if code == '"'
 
-    raise Exception.new("Unexpected character '#{code}' at #{@current_index} near #{@source[@current_index - 15, 30]}")
+    raise ParserError.new("Unexpected character '#{code}' at #{@current_index} near #{@source[@current_index - 15, 30]}")
   end
 
   def only_hex_in_string(test)
@@ -53,7 +53,7 @@ class GraphQL::Language::LexerContext
     code = @source[start]
     code = self.next_code if code == '-'
     next_code_char = code == '0' ? self.next_code : read_digits_from_own_source(code)
-    raise Exception.new("Invalid number, unexpected digit after #{code}: #{next_code_char}") if (next_code_char.ord >= 48 && next_code_char.ord <= 57)
+    raise ParserError.new("Invalid number, unexpected digit after #{code}: #{next_code_char}") if (next_code_char.ord >= 48 && next_code_char.ord <= 57)
 
     code = next_code_char
     if code == '.'
@@ -109,12 +109,12 @@ class GraphQL::Language::LexerContext
     when 'u'
       value + get_unicode_char
     else
-      raise Exception.new("Invalid character escape sequence: \\#{code}.")
+      raise ParserError.new("Invalid character escape sequence: \\#{code}.")
     end
   end
 
   private def check_for_invalid_characters(code)
-    raise Exception.new("Invalid character within String: #{code}.") if code.ord < 0x0020 && code.ord != 0x0009
+    raise ParserError.new("Invalid character within String: #{code}.") if code.ord < 0x0020 && code.ord != 0x0009
   end
 
   private def check_for_punctuation_tokens(code)
@@ -158,7 +158,7 @@ class GraphQL::Language::LexerContext
   end
 
   private def check_string_termination(code)
-    raise Exception.new("Unterminated string.") if code != '"'
+    raise ParserError.new("Unterminated string.") if code != '"'
   end
 
   private def create_eof_token : Token
@@ -200,13 +200,13 @@ class GraphQL::Language::LexerContext
   private def get_unicode_char
     if @current_index + 5 > @source.size
       truncated_expression = @source[@current_index, @source.size]
-      raise Exception.new("Invalid character escape sequence at EOF: \\#{truncated_expression}.")
+      raise ParserError.new("Invalid character escape sequence at EOF: \\#{truncated_expression}.")
     end
 
     expression = @source[@current_index, 5]
 
     if !only_hex_in_string(expression[1, expression.size])
-      raise Exception.new("Invalid character escape sequence: \\#{expression}.")
+      raise ParserError.new("Invalid character escape sequence: \\#{expression}.")
     end
 
     s = next_code.bytes << 12 | next_code.bytes << 8 | next_code.bytes << 4 | next_code.bytes
@@ -266,7 +266,7 @@ class GraphQL::Language::LexerContext
     code = first_code
 
     if !code.number?
-      raise Exception.new("Invalid number, expected digit but got: #{resolve_char_name(code)}")
+      raise ParserError.new("Invalid number, expected digit but got: #{resolve_char_name(code)}")
     end
 
     loop do
@@ -305,7 +305,7 @@ class GraphQL::Language::LexerContext
   private def validate_character_code(code)
     i32_code = code.ord
     if (i32_code < 0x0020) && (i32_code != 0x0009) && (i32_code != 0x000A) && (i32_code != 0x000D)
-      raise Exception.new("Invalid character \"\\u#{code}\".")
+      raise ParserError.new("Invalid character \"\\u#{code}\".")
     end
   end
 

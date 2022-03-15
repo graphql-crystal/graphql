@@ -22,4 +22,13 @@ module GraphQL
       self
     end
   end
+
+  abstract class Exception < ::Exception
+  end
+
+  class TypeError < Exception
+  end
+
+  class ParserError < Exception
+  end
 end

@@ -237,7 +237,7 @@ module GraphQL
       end
 
       def self.generate(node, indent : String = "")
-        raise "TypeError (please define it :) )"
+        raise "fallback - should never happen"
         ""
       end
 
