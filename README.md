@@ -2,23 +2,22 @@
 
 GraphQL server library for Crystal.
 
-* **Boilerplate-free**: Schema is generated at compile time
-* **Type-safe**: Relies on the Crystal compiler for type checking
-* **High performance**: Benchmarks TBD
+- **Boilerplate-free**: Schema is generated at compile time
+- **Type-safe**: Relies on the Crystal compiler for type checking
+- **High performance**: Benchmarks TBD
 
 The language implementation is derived from
 [ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal), the
 rest was built from the ground up. How they compare:
 
-|                              | graphql-crystal/graphql                                    | ziprandom/graphql-crystal                            |
-|------------------------------|------------------------------------------------------------|------------------------------------------------------|
-| Type-safe                    | :heavy_check_mark:                                         | :x:                                                  |
-| Automatic schema derivation  | :heavy_check_mark:                                         | :x:                                                  |
-| Actively developed           | :heavy_check_mark:                                         | :x:                                                  |
-| Stable                       | :heavy_check_mark:  |
-| Supports interfaces          | :x:                                                        | :heavy_check_mark:                                   |
-| Supports subscriptions       | :x:                                                        | :x:                                                  |
-
+|                             | graphql-crystal/graphql | ziprandom/graphql-crystal |
+| --------------------------- | ----------------------- | ------------------------- |
+| Type-safe                   | :heavy_check_mark:      | :x:                       |
+| Automatic schema derivation | :heavy_check_mark:      | :x:                       |
+| Actively developed          | :heavy_check_mark:      | :heavy_check_mark:        |
+| Stable                      | :heavy_check_mark:      | :heavy_check_mark:        |
+| Supports interfaces         | :x:                     | :heavy_check_mark:        |
+| Supports subscriptions      | :x:                     | :x:                       |
 
 ## Getting Started
 
@@ -160,7 +159,6 @@ class Bar < GraphQL::BaseObject
   end
 end
 ```
-
 
 ## Query
 
