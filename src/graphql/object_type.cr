@@ -27,25 +27,25 @@ module GraphQL::ObjectType
               end
             end
 
-          case selection
-          when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
-            begin
-              errors.concat _graphql_resolve(context, selection, json)
-            rescue e
-              if message = context.handle_exception(e)
-                errors << ::GraphQL::Error.new(
-                  message,
-                  selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
-                )
+            case selection
+            when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
+              begin
+                errors.concat _graphql_resolve(context, selection, json)
+              rescue e
+                if message = context.handle_exception(e)
+                  errors << ::GraphQL::Error.new(
+                    message,
+                    selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
+                  )
+                end
               end
-            end
-          when ::GraphQL::Language::InlineFragment
-            errors.concat _graphql_resolve(context, selection.selections, json)
+            when ::GraphQL::Language::InlineFragment
+              errors.concat _graphql_resolve(context, selection.selections, json)
             end
           else
             # this never happens, only required due to Selection being turned into ASTNode
             # https://crystal-lang.org/reference/1.3/syntax_and_semantics/virtual_and_abstract_types.html
-            raise "invalid selection type"
+            raise ::GraphQL::TypeError.new("invalid selection type")
           end
         end
         errors
@@ -87,58 +87,54 @@ module GraphQL::ObjectType
               if context.is_a? {{arg.restriction.id}}
                 context
               elsif arg = field.arguments.find {|a| a.name == {{ arg.name.id.stringify.camelcase(lower: true) }}}
-                begin
-                  case arg_value = arg.value
-                  when {{type.id}}
-                    arg_value
-                  {% if type == Float64 %}
-                  when Int32
-                    arg_value.to_f64.as({{type.id}})
-                  {% elsif type.annotation(::GraphQL::Enum) %}
-                  when ::GraphQL::Language::AEnum
-                    {{type.id}}.parse(arg_value.to_value)
-                  when String
-                    {{type.id}}.parse(arg_value)
-                  {% elsif type.annotation(::GraphQL::InputObject) %}
-                  when ::GraphQL::Language::InputObject
-                    {{type.id}}._graphql_new(arg_value)
-                  {% elsif type < ::GraphQL::ScalarType %}
-                  when String, Int32, Float64
-                    {{type.id}}.from_json(arg_value.to_json)
-                  {% elsif type < Array %}
-                  {% inner_type = type.type_vars.find { |t| t != Nil }.resolve %}
-                  when Array
-                    arg_value.map do |value|
-                      case value
-                      when {{inner_type.id}}
-                        value
-                      {% if inner_type == Float64 %}
-                      when Int32
-                        value.to_f64.as({{inner_type.id}})
-                      {% elsif inner_type.annotation(::GraphQL::Enum) %}
-                      when ::GraphQL::Language::AEnum
-                        {{inner_type.id}}.parse(value.to_value)
-                      when String
-                        {{inner_type.id}}.parse(value)
-                      {% elsif inner_type.annotation(::GraphQL::InputObject) %}
-                      when ::GraphQL::Language::InputObject
-                        {{inner_type.id}}._graphql_new(value)
-                      {% elsif type < ::GraphQL::ScalarType %}
-                      when String, Int32, Float64
-                        {{type.id}}.from_json(arg_value.to_json)
-                      {% elsif inner_type < Array %}
-                        {% raise "GraphQL: #{@type.name}##{method.name} nested arrays are not supported" %}
-                      {% end %}
-                      else
-                        return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
-                      end
+                case arg_value = arg.value
+                when {{type.id}}
+                  arg_value
+                {% if type == Float64 %}
+                when Int32
+                  arg_value.to_f64.as({{type.id}})
+                {% elsif type.annotation(::GraphQL::Enum) %}
+                when ::GraphQL::Language::AEnum
+                  {{type.id}}.parse(arg_value.to_value)
+                when String
+                  {{type.id}}.parse(arg_value)
+                {% elsif type.annotation(::GraphQL::InputObject) %}
+                when ::GraphQL::Language::InputObject
+                  {{type.id}}._graphql_new(arg_value)
+                {% elsif type < ::GraphQL::ScalarType %}
+                when String, Int32, Float64
+                  {{type.id}}.from_json(arg_value.to_json)
+                {% elsif type < Array %}
+                {% inner_type = type.type_vars.find { |t| t != Nil }.resolve %}
+                when Array
+                  arg_value.map do |value|
+                    case value
+                    when {{inner_type.id}}
+                      value
+                    {% if inner_type == Float64 %}
+                    when Int32
+                      value.to_f64.as({{inner_type.id}})
+                    {% elsif inner_type.annotation(::GraphQL::Enum) %}
+                    when ::GraphQL::Language::AEnum
+                      {{inner_type.id}}.parse(value.to_value)
+                    when String
+                      {{inner_type.id}}.parse(value)
+                    {% elsif inner_type.annotation(::GraphQL::InputObject) %}
+                    when ::GraphQL::Language::InputObject
+                      {{inner_type.id}}._graphql_new(value)
+                    {% elsif type < ::GraphQL::ScalarType %}
+                    when String, Int32, Float64
+                      {{type.id}}.from_json(arg_value.to_json)
+                    {% elsif inner_type < Array %}
+                      {% raise "GraphQL: #{@type.name}##{method.name} nested arrays are not supported" %}
+                    {% end %}
+                    else
+                      raise ::GraphQL::TypeError.new("bad type for argument {{ arg.name.id.camelcase(lower: true) }}")
                     end
-                  {% end %}
-                  else
-                    return [GraphQL::Error.new("#{arg_value} is wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
                   end
-                rescue TypeCastError
-                  return [GraphQL::Error.new("wrong type for argument {{ arg.name.id.camelcase(lower: true) }}", path)]
+                {% end %}
+                else
+                  raise ::GraphQL::TypeError.new("bad type for argument {{ arg.name.id.camelcase(lower: true) }}")
                 end
               else
                 {% if !arg.default_value.is_a?(Nop) %}
@@ -146,7 +142,7 @@ module GraphQL::ObjectType
                 {% elsif arg.restriction.resolve.nilable? %}
                   nil
                 {% else %}
-                  return [GraphQL::Error.new("missing required argument {{ arg.name.id.camelcase(lower: true) }}", path)]
+                  raise ::GraphQL::TypeError.new("missing required argument {{ arg.name.id.camelcase(lower: true) }}")
                 {% end %}
               end
             end,
@@ -181,10 +177,10 @@ module GraphQL::ObjectType
             end
           when ::Enum
             json.field path, value.to_s
-          when Bool, String, Int32, Int64, Float32, Float64, Nil, ::GraphQL::ScalarType
+          when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
             json.field path, value
           else
-            raise "no serialization found for field #{path} on #{_graphql_type}"
+            raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
           end
         {% end %}
         when "__typename"
@@ -201,7 +197,7 @@ module GraphQL::ObjectType
           end
         {% end %}
         else
-          errors << ::GraphQL::Error.new("field is not defined", path)
+          raise ::GraphQL::TypeError.new("field is not defined")
         end
         errors
       end

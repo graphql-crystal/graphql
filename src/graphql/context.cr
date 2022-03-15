@@ -10,7 +10,7 @@ module GraphQL
     property document : Language::Document?
 
     # Return string message to be added to errors object or throw to bubble up
-    def handle_exception(ex : Exception) : String?
+    def handle_exception(ex : ::Exception) : String?
       ex.message
     end
   end

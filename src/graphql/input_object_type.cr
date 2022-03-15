@@ -15,7 +15,7 @@ module GraphQL::InputObjectType
                 {% elsif arg.restriction.resolve.nilable? %}
                   nil
                 {% else %}
-                  raise "GraphQL: missing required input value {{ arg.name.camelcase(lower: true) }}"
+                  raise ::GraphQL::TypeError.new("missing required input value {{ arg.name.camelcase(lower: true) }}")
                 {% end %}
               else
                 {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
@@ -59,14 +59,14 @@ module GraphQL::InputObjectType
                     when {{inner_type}}
                       value
                     else
-                      raise TypeCastError.new # signals invalid type to resolver
+                      raise ::GraphQL::TypeError.new("bad type for {{ arg.name.camelcase(lower: true) }}")
                     end.as({{inner_type}})
                   end.as(Array({{inner_type}}))
                 {% end %}
                 when {{type}}
                   arg_value
                 else
-                  raise TypeCastError.new # signals invalid type to resolver
+                  raise ::GraphQL::TypeError.new("bad type for {{ arg.name.camelcase(lower: true) }}")
                 end
               end
             end,

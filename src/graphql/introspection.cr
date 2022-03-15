@@ -126,7 +126,7 @@ module GraphQL
         when Language::TypeDefinition, Language::WrapperType
           self.new(document, type)
         else
-          raise "cannot create type from #{type}"
+          raise GraphQL::TypeError.new("cannot create type from #{type}")
         end
       end
 
@@ -153,7 +153,7 @@ module GraphQL
         when Language::ListType
           TypeKind::LIST
         else
-          raise "could not match any type"
+          raise GraphQL::TypeError.new("could not match any type")
         end
       end
 
@@ -196,8 +196,6 @@ module GraphQL
           nil
         when Language::ListType
           nil
-        when GraphQL::Language::ASTNode
-          raise "ASTNode"
         end
       end
 
