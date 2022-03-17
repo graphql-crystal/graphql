@@ -513,7 +513,6 @@ rest was built from the ground up. How they compare:</p>
 | Type-safe                   | :heavy_check_mark:      | :x:                       |
 | Automatic schema derivation | :heavy_check_mark:      | :x:                       |
 | Actively developed          | :heavy_check_mark:      | :x:                       |
-| Stable                      | :heavy_check_mark:      | :heavy_check_mark:        |
 | Supports interfaces         | :x:                     | :heavy_check_mark:        |
 | Supports subscriptions      | :x:                     | :x:                       |</p>
 <h2><a id="getting-started" class="anchor" href="#getting-started">
@@ -688,17 +687,17 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
 </a>Scalars</h2>
 <p>The following scalar values are supported:</p>
 <ul>
-<li>Int32</li>
-<li>Float64</li>
-<li>String</li>
-<li>Boolean</li>
+<li>Int32 -&gt; Int</li>
+<li>Float64 -&gt; Float</li>
+<li>String -&gt; String</li>
+<li>Bool -&gt; Boolean</li>
+<li>GraphQL::Scalars::ID -&gt; ID</li>
 </ul>
-<p>There is also the built-in <code>ID</code> type that serializes to a string.</p>
-<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
-<span class="k">def</span> <span class="m">id</span> : <span class="t">GraphQL</span><span class="t">::</span><span class="t">ID</span>
-  <span class="t">GraphQL</span><span class="t">::</span><span class="t">ID</span>.<span class="k">new</span>(<span class="s">&quot;my_id_string&quot;</span>)
-<span class="k">end</span></code></pre>
-<p>We can also create custom scalars:</p>
+<p>Built-in custom scalars:</p>
+<ul>
+<li>GraphQL::Scalars::BigInt</li>
+</ul>
+<p>Custom scalars can be created by implementing from_json/to_json:</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>]
 <span class="k">class</span> <span class="t">ReverseStringScalar</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseScalar</span>
   @value : <span class="t">String</span>
