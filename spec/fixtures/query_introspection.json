@@ -305,9 +305,13 @@
                   "name": "arg1",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "\"Default\""
                 },
@@ -315,9 +319,13 @@
                   "name": "arg2",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "123"
                 },
@@ -325,9 +333,13 @@
                   "name": "arg3",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Float",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Float",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "1.23"
                 }
@@ -411,9 +423,13 @@
                   "name": "bool",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "false"
                 },
@@ -421,9 +437,13 @@
                   "name": "emptyStr",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "\"\""
                 },
@@ -431,9 +451,13 @@
                   "name": "float",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Float",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Float",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "2.0"
                 },
@@ -441,9 +465,13 @@
                   "name": "int",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Int",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "1"
                 },
@@ -451,9 +479,13 @@
                   "name": "str",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "\"qwe\""
                 }
@@ -1037,9 +1069,13 @@
                   "name": "includeDeprecated",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "false"
                 }
@@ -1068,9 +1104,13 @@
                   "name": "includeDeprecated",
                   "description": null,
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Boolean",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": "false"
                 }

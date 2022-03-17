@@ -64,8 +64,8 @@ type __Schema {
 
 type __Type {
   description: String
-  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-  fields(includeDeprecated: Boolean = false): [__Field!]
+  enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
+  fields(includeDeprecated: Boolean! = false): [__Field!]
   inputFields: [__InputValue!]
   interfaces: [__Type!]
   kind: __TypeKind!

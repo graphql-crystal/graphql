@@ -1,4 +1,51 @@
 module GraphQL::Document
+  private macro _graphql_t(t, nilable)
+    {% type = t.resolve %}
+    {% unless nilable %}
+    ::GraphQL::Language::NonNullType.new(of_type:
+    {% end %}
+      {% if type < ::Object && type.annotation(::GraphQL::Object) %}
+        ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Object)["name"] || type.name.split("::").last }})
+      {% elsif type < ::Enum && type.annotation(::GraphQL::Enum) %}
+        ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Enum)["name"] || type.name.split("::").last }})
+      {% elsif type < ::Object && type.annotation(::GraphQL::InputObject) %}
+        ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::InputObject)["name"] || type.name.split("::").last }})
+      {% elsif type < ::Object && type.annotation(::GraphQL::Scalar) %}
+        ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Scalar)["name"] || type.name.split("::").last }})
+      {% elsif type == String %}
+        ::GraphQL::Language::TypeName.new(name: "String")
+      {% elsif type == Int32 %}
+        ::GraphQL::Language::TypeName.new(name: "Int")
+      {% elsif type < Float %}
+        ::GraphQL::Language::TypeName.new(name: "Float")
+      {% elsif type == Bool %}
+        ::GraphQL::Language::TypeName.new(name: "Boolean")
+      {% elsif type < Array %}
+        {% inner = type.type_vars.find { |t| t != Nil } %}
+        ::GraphQL::Language::ListType.new(of_type: _graphql_t({{ inner }}, {{ inner.nilable? }}))
+      {% else %}
+        {% raise "GraphQL: type #{type} is not a GraphQL type" %}
+      {% end %}
+    {% unless nilable %}
+    )
+    {% end %}
+  end
+
+  private macro _graphql_input_def(t, nilable, default, name, description)
+    {% type = t.resolve %}
+    ::GraphQL::Language::InputValueDefinition.new(
+      name: {{ name }},
+      description: {{ description }},
+      type: (_graphql_t {{ type }}, {{ nilable }}),
+      {% if type.annotation(::GraphQL::Enum) %}
+      default_value: {{default}}.nil? ? nil : ::GraphQL::Language::AEnum.new(name: {{default}}.to_s),
+      {% else %}
+      default_value: {{default}},
+      {% end %}
+      directives: [] of ::GraphQL::Language::Directive,
+    )
+  end
+
   macro included
     macro finished
       {% verbatim do %}
@@ -95,80 +142,16 @@ module GraphQL::Document
         {% for object in objects %}
           %fields = [] of ::GraphQL::Language::FieldDefinition
           {% for method in object.methods.select(&.annotation(::GraphQL::Field)) %}
+
             %input_values = [] of ::GraphQL::Language::InputValueDefinition
             {% for arg in method.args %}
-              {%
-                types = [] of TypeNode
-
-                arg.restriction.resolve.union_types.each do |type|
-                  if !(type < ::GraphQL::Context) && type != Nil
-                    types.unshift(type)
-                  elsif type == Nil
-                    types.push(type)
-                  end
-                end
-
-                types.push Nil if types.last != Nil && !arg.default_value.is_a?(Nop)
-
-                if !types.empty?
-                  types.first.type_vars.each do |type|
-                    types.unshift type
-                  end
-                end
-
-                types.push Nil if types.last != Nil && !arg.default_value.is_a?(Nop)
-              %}
-
-              # we may want some type validation here?
-              {% for type in types %}
-                {% if type < ::Object && type.annotation(::GraphQL::Object) %}
-                  %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Object)["name"] || type.name.split("::").last }})
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type < ::Enum && type.annotation(::GraphQL::Enum) %}
-                  %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Enum)["name"] || type.name.split("::").last }})
-                  %dv = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                  %default_value = %dv.nil? ? nil : ::GraphQL::Language::AEnum.new(name: %dv.to_s)
-                {% elsif type < ::Object && type.annotation(::GraphQL::InputObject) %}
-                  %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::InputObject)["name"] || type.name.split("::").last }})
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type < ::Object && type.annotation(::GraphQL::Scalar) %}
-                  %type = ::GraphQL::Language::TypeName.new(name: {{ type.annotation(::GraphQL::Scalar)["name"] || type.name.split("::").last }})
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type == String %}
-                  %type = ::GraphQL::Language::TypeName.new(name: "String")
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type == Int32 %}
-                  %type = ::GraphQL::Language::TypeName.new(name: "Int")
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type < Float %}
-                  %type = ::GraphQL::Language::TypeName.new(name: "Float")
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type == Bool %}
-                  %type = ::GraphQL::Language::TypeName.new(name: "Boolean")
-                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
-                {% elsif type < Array %}
-                  %type = ::GraphQL::Language::ListType.new(of_type: %type.dup)
-                {% elsif type != Nil %}
-                  {% raise "GraphQL: #{object.name}##{arg.name} type #{type} is not a GraphQL type" %}
-                {% end %}
-
-                {% if type != Nil %}
-                  # we don't know yet if type is nullable or not so we assume it's not
-                  %type = ::GraphQL::Language::NonNullType.new(of_type: %type.dup) unless %type.is_a? ::GraphQL::Language::NonNullType
-                {% else %}
-                  # type is nullable, undo NonNullType
-                  %type = %type.of_type.dup
-                {% end %}
-              {% end %}
-              {% if !types.empty? %}
-                %input_values << ::GraphQL::Language::InputValueDefinition.new(
-                  name: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["name"] || arg.name.id.stringify.camelcase(lower: true) }},
-                  type: %type,
-                  default_value: %default_value,
-                  directives: [] of ::GraphQL::Language::Directive,
-                  description: {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["description"] || nil }},
-                )
-              {% end %}
+            %input_values << (_graphql_input_def(
+              {{ arg.restriction.resolve.union_types.find { |t| t != Nil } }},
+              {{ arg.restriction.resolve.nilable? }},
+              {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }},
+              {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["name"] || arg.name.id.stringify.camelcase(lower: true) }},
+              {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["description"] || nil }},
+            ))
             {% end %}
 
             {%

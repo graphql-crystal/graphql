@@ -15,7 +15,6 @@ rest was built from the ground up. How they compare:
 | Type-safe                   | :heavy_check_mark:      | :x:                       |
 | Automatic schema derivation | :heavy_check_mark:      | :x:                       |
 | Actively developed          | :heavy_check_mark:      | :x:                       |
-| Stable                      | :heavy_check_mark:      | :heavy_check_mark:        |
 | Supports interfaces         | :x:                     | :heavy_check_mark:        |
 | Supports subscriptions      | :x:                     | :x:                       |
 
@@ -226,21 +225,17 @@ end
 
 The following scalar values are supported:
 
-- Int32
-- Float64
-- String
-- Boolean
+- Int32 -> Int
+- Float64 -> Float
+- String -> String
+- Bool -> Boolean
+- GraphQL::Scalars::ID -> ID
 
-There is also the built-in `ID` type that serializes to a string.
+Built-in custom scalars:
 
-```crystal
-@[GraphQL::Field]
-def id : GraphQL::ID
-  GraphQL::ID.new("my_id_string")
-end
-```
+- GraphQL::Scalars::BigInt
 
-We can also create custom scalars:
+Custom scalars can be created by implementing from_json/to_json:
 
 ```crystal
 @[GraphQL::Scalar]
