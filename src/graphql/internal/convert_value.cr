@@ -7,7 +7,7 @@ module GraphQL::Internal
     {% if type == Float64 %}
     when Int32
       %value.to_f64.as({{type}})
-    {% elsif type.resolve.annotation(::GraphQL::Enum) %}
+    {% elsif type.annotation(::GraphQL::Enum) %}
     when ::GraphQL::Language::AEnum
       {{type}}.parse(%value.to_value)
     when String

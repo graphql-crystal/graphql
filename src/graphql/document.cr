@@ -145,13 +145,17 @@ module GraphQL::Document
 
             %input_values = [] of ::GraphQL::Language::InputValueDefinition
             {% for arg in method.args %}
-            %input_values << (_graphql_input_def(
-              {{ arg.restriction.resolve.union_types.find { |t| t != Nil } }},
-              {{ arg.restriction.resolve.nilable? }},
-              {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }},
-              {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["name"] || arg.name.id.stringify.camelcase(lower: true) }},
-              {{ method.annotation(::GraphQL::Field)["arguments"] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id] && method.annotation(::GraphQL::Field)["arguments"][arg.name.id]["description"] || nil }},
-            ))
+              {%
+                ann_args = method.annotation(::GraphQL::Field)["arguments"]
+                ann_arg = ann_args && ann_args[arg.name.id]
+              %}
+              %input_values << (_graphql_input_def(
+                {{ arg.restriction.resolve.union_types.find { |t| t != Nil } }},
+                {{ arg.restriction.resolve.nilable? }},
+                {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }},
+                {{ ann_arg && ann_arg["name"] || arg.name.id.stringify.camelcase(lower: true) }},
+                {{ ann_arg && ann_arg["description"] || nil }},
+              ))
             {% end %}
 
             {%
