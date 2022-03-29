@@ -155,8 +155,7 @@ module GraphQL::Document
           raise "GraphQL: document object limit reached" unless objects.size < 1000
         %}
 
-        type : ::GraphQL::Language::Type | ::GraphQL::Language::ListType | ::GraphQL::Language::TypeName
-        definitions = [] of ::GraphQL::Language::TypeDefinition
+        %definitions = [] of ::GraphQL::Language::TypeDefinition
 
         {% for object in objects %}
           %fields = [] of ::GraphQL::Language::FieldDefinition
@@ -218,7 +217,7 @@ module GraphQL::Document
           {% end %}
 
           {% if object.annotation(::GraphQL::Object) %}
-            definitions << ::GraphQL::Language::ObjectTypeDefinition.new(
+            %definitions << ::GraphQL::Language::ObjectTypeDefinition.new(
               name: {{ object.annotation(::GraphQL::Object)["name"] || object.name.split("::").last }},
               fields: %fields.sort{|a, b| a.name <=> b.name },
               interfaces: [] of String?,
@@ -226,7 +225,7 @@ module GraphQL::Document
               description: {{ object.annotation(::GraphQL::Object)["description"] }},
             )
           {% elsif object.annotation(::GraphQL::InputObject) %}
-            definitions << ::GraphQL::Language::InputObjectTypeDefinition.new(
+            %definitions << ::GraphQL::Language::InputObjectTypeDefinition.new(
               name: {{ object.annotation(::GraphQL::InputObject)["name"] || object.name.split("::").last }},
               fields: %input_values,
               directives: [] of ::GraphQL::Language::Directive,
@@ -238,7 +237,7 @@ module GraphQL::Document
         {% end %}
 
         {% for e_num in enums %}
-          definitions << ::GraphQL::Language::EnumTypeDefinition.new(
+          %definitions << ::GraphQL::Language::EnumTypeDefinition.new(
             name: {{ e_num.annotation(::GraphQL::Enum)["name"] || e_num.name.split("::").last }},
             description: {{ e_num.annotation(::GraphQL::Enum)["description"] }},
             fvalues: ([
@@ -256,14 +255,14 @@ module GraphQL::Document
         {% end %}
 
         {% for scalar in scalars %}
-          definitions << ::GraphQL::Language::ScalarTypeDefinition.new(
+          %definitions << ::GraphQL::Language::ScalarTypeDefinition.new(
             name: {{ scalar.annotation(::GraphQL::Scalar)["name"] || scalar.name.split("::").last }},
             description: {{ scalar.annotation(::GraphQL::Scalar)["description"] }},
             directives: [] of ::GraphQL::Language::Directive
           )
         {% end %}
 
-        ::GraphQL::Language::Document.new(definitions.sort { |a, b| a.name <=> b.name })
+        ::GraphQL::Language::Document.new(%definitions.sort { |a, b| a.name <=> b.name })
         {% end %}
       end
       {% end %}
