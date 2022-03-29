@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom exception handler on `Context`
 - BigInt scalar
 - Nested array support
+- Instance vars support
 
 ### Fixed
 

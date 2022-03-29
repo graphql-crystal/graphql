@@ -4,10 +4,10 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 18 * * *'
+    - cron: "0 18 * * *"
 
 jobs:
-  build:
+  spec:
     runs-on: ubuntu-latest
     container:
       image: crystallang/crystal:latest-alpine

@@ -6,9 +6,50 @@ module GraphQL::ObjectType
   macro included
     macro finished
       {% verbatim do %}
-      # :nodoc:
+      {% verbatim do %}
+
+        # :nodoc:
       def _graphql_type : String
         {{ @type.annotation(::GraphQL::Object)["name"] || @type.name.split("::").last }}
+      end
+
+      # :nodoc:
+      private macro _graphql_serialize(val)
+        case val = {{ val }}
+        when ::GraphQL::ObjectType
+          json.field path do
+            json.object do
+              val._graphql_resolve(context, field.selections, json).each do |error|
+                errors << error.with_path(path)
+              end
+            end
+          end
+        when Array
+          json.field path do
+            json.array do
+              val.each_with_index do |v, i|
+                case v
+                when ::GraphQL::ObjectType
+                  json.object do
+                    v._graphql_resolve(context, field.selections, json).each do |error|
+                      errors << error.with_path(i).with_path(path)
+                    end
+                  end
+                when ::Enum
+                  json.scalar(v.to_s)
+                else
+                  v.to_json(json)
+                end
+              end
+            end
+          end
+        when ::Enum
+          json.field path, val.to_s
+        when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
+          json.field path, val
+        else
+          raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
+        end
       end
 
       # :nodoc:
@@ -67,10 +108,15 @@ module GraphQL::ObjectType
 
       # :nodoc:
       def _graphql_resolve(context, field : ::GraphQL::Language::Field, json : JSON::Builder) : Array(::GraphQL::Error)
+        {% begin %}
         errors = [] of ::GraphQL::Error
         path = field._alias || field.name
 
         case field.name
+        {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
+        when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
+          _graphql_serialize self.{{var.name.id}}
+        {% end %}
         {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
         {% for ancestor in @type.ancestors %}
           {% for method in ancestor.methods.select(&.annotation(::GraphQL::Field)) %}
@@ -79,7 +125,7 @@ module GraphQL::ObjectType
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          case result = self.{{method.name.id}}(
+          _graphql_serialize self.{{method.name.id}}(
             {% for arg in method.args %}
             {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
@@ -100,40 +146,6 @@ module GraphQL::ObjectType
             end,
             {% end %}
           )
-          when ::GraphQL::ObjectType
-            json.field path do
-              json.object do
-                result._graphql_resolve(context, field.selections, json).each do |error|
-                  errors << error.with_path(path)
-                end
-              end
-            end
-          when Array
-            json.field path do
-              json.array do
-                result.each_with_index do |v, i|
-                  case v
-                  when ::GraphQL::ObjectType
-                    json.object do
-                      v._graphql_resolve(context, field.selections, json).each do |error|
-                        errors << error.with_path(i).with_path(path)
-                      end
-                    end
-                  when ::Enum
-                    json.scalar(v.to_s)
-                  else
-                    v.to_json(json)
-                  end
-                end
-              end
-            end
-          when ::Enum
-            json.field path, result.to_s
-          when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
-            json.field path, result
-          else
-            raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
-          end
         {% end %}
         when "__typename"
           json.field path, _graphql_type
@@ -152,7 +164,11 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("field is not defined")
         end
         errors
+
+        {% end %}
       end
+
+      {% end %}
       {% end %}
     end
   end

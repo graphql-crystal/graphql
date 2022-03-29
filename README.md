@@ -94,7 +94,7 @@ curl \
 This should return:
 
 ```json
-{ "data": { "echo": "Hello, John Doe!" } }
+{ "data": { "hello": "Hello, John Doe!" } }
 ```
 
 For easier development, we recommend using [GraphiQL](https://github.com/graphql/graphiql).
@@ -156,6 +156,19 @@ class Bar < GraphQL::BaseObject
   def baz : Float64
     42_f64
   end
+end
+```
+
+Instances variables are also supported:
+
+```crystal
+@[GraphQL::Object]
+class Foo < GraphQL::BaseObject
+  @[GraphQL::Field]
+  property bar : String
+
+  @[GraphQL::Field]
+  getter baz : Float64
 end
 ```
 
