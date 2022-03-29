@@ -7,17 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-03-29
+
 ### Added
 
 - Base classes
 - Custom exception handler on `Context`
 - BigInt scalar
-- Nested array support
 - Instance vars support
 
 ### Fixed
 
 - Fixed enums in input objects
+- Arrays can now be nested
 - Array members are now marked as non-null unless nilable
 
 ### Changed
