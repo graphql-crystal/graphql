@@ -8,7 +8,7 @@ module GraphQL::ObjectType
       {% verbatim do %}
       {% verbatim do %}
 
-        # :nodoc:
+      # :nodoc:
       def _graphql_type : String
         {{ @type.annotation(::GraphQL::Object)["name"] || @type.name.split("::").last }}
       end

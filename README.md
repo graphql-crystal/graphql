@@ -4,7 +4,7 @@ GraphQL server library for Crystal.
 
 - **Boilerplate-free**: Schema is generated at compile time
 - **Type-safe**: Relies on the Crystal compiler for type checking
-- **High performance**: Benchmarks TBD
+- **High performance**: See [benchmark](examples/benchmark/README.md)
 
 The language implementation is derived from
 [ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal), the
