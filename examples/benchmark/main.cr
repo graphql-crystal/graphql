@@ -26,4 +26,8 @@ end
 
 logging false
 
+gzip true
+
+Kemal.config.powered_by_header = false
+
 Kemal.run
