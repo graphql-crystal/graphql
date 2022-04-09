@@ -90,7 +90,7 @@ module GraphQL
       errors = [] of GraphQL::Error
 
       context.query_type = @query._graphql_type
-      context.mutation_type = @mutation.nil? ? nil : @mutation.not_nil!._graphql_type
+      context.mutation_type = @mutation.try &._graphql_type
       context.document = @document
 
       document.visit(->(node : Language::ASTNode) {

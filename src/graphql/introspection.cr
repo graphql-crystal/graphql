@@ -17,14 +17,14 @@ module GraphQL
 
       @[GraphQL::Field]
       def types : Array(GraphQL::Introspection::Type)
-        @document.definitions.select { |d| d.is_a? Language::TypeDefinition }.map { |d| Type.new @document, d.as(Language::TypeDefinition) }
+        @document.definitions.select(Language::TypeDefinition).map { |d| Type.new @document, d.as(Language::TypeDefinition) }
       end
 
       @[GraphQL::Field]
       def query_type : GraphQL::Introspection::Type
-        Type.new @document, @document.definitions.find { |d|
+        Type.new @document, @document.definitions.find! { |d|
           d.is_a?(Language::TypeDefinition) && d.name == @query_type
-        }.not_nil!.as(Language::TypeDefinition)
+        }.as(Language::TypeDefinition)
       end
 
       @[GraphQL::Field]
@@ -122,7 +122,7 @@ module GraphQL
       def self.from_ast(document : Language::Document, type : Language::ASTNode)
         case type
         when Language::TypeName
-          self.new(document, document.definitions.find { |d| d.is_a? Language::TypeDefinition && d.name == type.name }.not_nil!.as(Language::TypeDefinition))
+          self.new(document, document.definitions.find! { |d| d.is_a? Language::TypeDefinition && d.name == type.name }.as(Language::TypeDefinition))
         when Language::TypeDefinition, Language::WrapperType
           self.new(document, type)
         else
