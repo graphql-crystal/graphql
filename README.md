@@ -2,21 +2,9 @@
 
 GraphQL server library for Crystal.
 
-- **Boilerplate-free**: Schema is generated at compile time
+- **Boilerplate-free**: Schema generated at compile time
 - **Type-safe**: Relies on the Crystal compiler for type checking
-- **High performance**: See [benchmark](examples/benchmark/README.md)
-
-The language implementation is derived from
-[ziprandom/graphql-crystal](https://github.com/ziprandom/graphql-crystal), the
-rest was built from the ground up. How they compare:
-
-|                             | graphql-crystal/graphql | ziprandom/graphql-crystal |
-| --------------------------- | ----------------------- | ------------------------- |
-| Type-safe                   | :heavy_check_mark:      | :x:                       |
-| Automatic schema derivation | :heavy_check_mark:      | :x:                       |
-| Actively developed          | :heavy_check_mark:      | :x:                       |
-| Supports interfaces         | :x:                     | :heavy_check_mark:        |
-| Supports subscriptions      | :x:                     | :x:                       |
+- **High performance**: See [benchmarks](https://github.com/graphql-crystal/benchmarks)
 
 ## Getting Started
 
@@ -65,9 +53,7 @@ type Query {
 }
 ```
 
-Now for the integration with our HTTP library or framework. All we need to do is
-to call `schema.execute` with the right arguments. Here is a simple example for
-Kemal, customize as needed:
+To serve our API over HTTP we call `schema.execute` with the request parameters and receive a JSON string. Here is an example for Kemal:
 
 ```crystal
 post "/graphql" do |env|
@@ -98,12 +84,12 @@ This should return:
 ```
 
 For easier development, we recommend using [GraphiQL](https://github.com/graphql/graphiql).
-A starter template combining Kemal and GraphiQL can be found at `examples/graphiql`.
+A starter template combining Kemal and GraphiQL is found at [examples/graphiql](examples/graphiql).
 
 ## Context
 
 `context` is a optional argument that our fields can retrieve. It lets fields
-access global data like database connections.
+access global data, like database connections.
 
 ```crystal
 # Define our own context type
@@ -127,8 +113,7 @@ class MyMath < GraphQL::BaseObject
 end
 ```
 
-Context instances should only be used once, do not reuse them for multiple
-executes.
+Context instances must not be reused for multiple executions.
 
 ## Objects
 
@@ -139,13 +124,15 @@ as classes. To define a object, we need a `GraphQL::Object` annotation and to in
 ```crystal
 @[GraphQL::Object]
 class Foo < GraphQL::BaseObject
+  # type restrictions are mandatory on fields
   @[GraphQL::Field]
-  def hello(first_name : String, last_name : String) : String # explicit types are mandatory
+  def hello(first_name : String, last_name : String) : String
     "Hello #{first_name} #{last_name}"
   end
 
+  # besides basic types, we can also return other objects
   @[GraphQL::Field]
-  def bar : Bar # in addition to basic types, we can also return other objects
+  def bar : Bar
     Bar.new
   end
 end
@@ -159,7 +146,7 @@ class Bar < GraphQL::BaseObject
 end
 ```
 
-Instances variables are also supported:
+For simple objects, we can use instance variables:
 
 ```crystal
 @[GraphQL::Object]
@@ -206,7 +193,7 @@ schema = GraphQL::Schema.new(Query.new, Mutation.new)
 
 ## Input Objects
 
-Input objects are objects that are used as field arguments. To define a input
+Input objects are objects that are used as field arguments. To define an input
 object, use a `GraphQL::InputObject` annotation and inherit `GraphQL::BaseInputObject`.
 It must define a constructor with a `GraphQL::Field` annotation.
 
@@ -224,7 +211,7 @@ end
 
 ## Enums
 
-Defining enums is very straightforward, just add a `GraphQL::Enum` annotation.
+Defining enums is straightforward. Just add a `GraphQL::Enum` annotation:
 
 ```crystal
 @[GraphQL::Enum]
@@ -248,7 +235,7 @@ Built-in custom scalars:
 
 - GraphQL::Scalars::BigInt
 
-Custom scalars can be created by implementing from_json/to_json:
+Custom scalars are created by implementing from_json/to_json:
 
 ```crystal
 @[GraphQL::Scalar]
@@ -284,7 +271,7 @@ Supported on: `Object`, `InputObject`, `Field`, `Enum`, `Scalar`
 
 We can use the `name` argument to customize the introspection type name of a
 type. This is not needed in most situations because type names are automatically
-converted to PascalCase or camelCase. However, `item_id` is converted to
+converted to PascalCase or camelCase. However, `item_id` converts to
 `itemId`, but we might want to use `itemID`. For this, we can use the `name`
 argument.
 
@@ -302,7 +289,7 @@ end
 
 Supported on: `Object`, `InputObject`, `Field`, `Enum`, `Scalar`
 
-Describes the type. This is made available through the introspection interface
+Describes the type. Descriptions are available through the introspection interface
 so it's always a good idea to set this argument.
 
 ```crystal
@@ -315,7 +302,7 @@ end
 
 Supported on: `Field`
 
-The deprecated argument is set to mark a type as deprecated.
+The deprecated argument marks a type as deprecated.
 
 ```crystal
 class Sheep
@@ -328,8 +315,8 @@ end
 
 ### arguments
 
-A hash that is used to set names and descriptions for field arguments. Note that
-arguments cannot be deprecated as of the latest GraphQL spec (June 2018).
+Sets names and descriptions for field arguments. Note that
+arguments cannot be marked as deprecated.
 
 ```crystal
 class Sheep
