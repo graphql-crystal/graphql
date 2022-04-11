@@ -270,8 +270,10 @@ module GraphQL
           description += node_description.split('\n').map { |s| "#{indent}#{s.strip}" }.join('\n')
           description += "#{indent}\"\"\"\n"
         else
-          description += "#{indent}\"#{node.description}\"\n"
+          description += "#{indent}\"#{node_description.gsub("\"", "\\\"")}\"\n"
         end
+
+        description
       end
 
       def self.generate_field_definitions(fields, indent : String = "")
