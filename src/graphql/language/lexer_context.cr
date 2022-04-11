@@ -247,7 +247,7 @@ class GraphQL::Language::LexerContext
     code = get_code
     value = ""
 
-    while is_not_at_the_end_of_query() && (is_block || code.ord != 0x000A && code.ord != 0x000D) && code != '"'
+    while is_not_at_the_end_of_query() && (is_block || code.ord != 0x000A && code.ord != 0x000D) && (is_block ? @source[@current_index..@current_index + 2] != %(""") : code != '"')
       check_for_invalid_characters(code) unless is_block && code.ord == 0x000A
       code = process_character(pointerof(value), pointerof(chunk_start))
     end
