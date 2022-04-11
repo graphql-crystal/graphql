@@ -48,7 +48,7 @@ module GraphQL
     end
 
     class SchemaDefinition < ASTNode
-      values({query: String, mutation: String?, subscription: String?})
+      values({query: String, mutation: String?, subscription: String?, directives: Array(Directive)})
     end
 
     # A query, mutation or subscription.

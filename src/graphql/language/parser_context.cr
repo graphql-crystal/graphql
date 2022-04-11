@@ -656,7 +656,8 @@ class GraphQL::Language::ParserContext
     Language::SchemaDefinition.new(
       query: definitions["query"],
       mutation: definitions["mutation"]?,
-      subscription: definitions["subscription"]?
+      subscription: definitions["subscription"]?,
+      directives: directives,
     )
   end
 
