@@ -2,10 +2,7 @@ require "kemal"
 require "graphql"
 
 @[GraphQL::Object]
-class Query
-  include GraphQL::ObjectType
-  include GraphQL::QueryType
-
+class Query < GraphQL::BaseQuery
   @[GraphQL::Field]
   def hello(name : String) : String
     "Hello, #{name}!"

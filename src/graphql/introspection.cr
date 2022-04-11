@@ -223,7 +223,7 @@ module GraphQL
       # OBJECT only
       @[GraphQL::Field]
       def interfaces : Array(GraphQL::Introspection::Type)?
-        case definition = @definition
+        case @definition
         when Language::ObjectTypeDefinition
           [] of GraphQL::Introspection::Type
         else
@@ -234,7 +234,7 @@ module GraphQL
       # INTERFACE and UNION only
       @[GraphQL::Field]
       def possible_types : Array(GraphQL::Introspection::Type)?
-        case definition = @definition
+        case @definition
         when Language::InterfaceTypeDefinition, Language::UnionTypeDefinition
           [] of GraphQL::Introspection::Type
         else

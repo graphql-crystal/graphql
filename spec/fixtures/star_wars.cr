@@ -129,7 +129,7 @@ module StarWars
     @[GraphQL::Field]
     def humans : Array(Human)
       humans = [] of Human
-      CHARACTERS.select { |c| c.is_a?(Human) }.each { |h| humans << h.as(Human) }
+      CHARACTERS.select(Human).each { |h| humans << h.as(Human) }
       humans
     end
 

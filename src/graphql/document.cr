@@ -180,7 +180,7 @@ module GraphQL::Document
           {% for method in object.methods.select(&.annotation(::GraphQL::Field)) %}
             %input_values = [] of ::GraphQL::Language::InputValueDefinition
             {% for arg in method.args %}
-              {% unless arg.restriction.resolve < ::GraphQL::Context || arg.restriction.resolve == ::GraphQL::Context %}
+              {% unless arg.restriction.resolve <= ::GraphQL::Context %}
                 {%
                   ann_args = method.annotation(::GraphQL::Field)["arguments"]
                   ann_arg = ann_args && ann_args[arg.name.id]
@@ -269,5 +269,4 @@ module GraphQL::Document
       {% end %}
     end
   end
-
 end
