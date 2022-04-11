@@ -502,7 +502,7 @@
 <p>GraphQL server library for Crystal.</p>
 <ul>
 <li><strong>Boilerplate-free</strong>: Schema generated at compile time</li>
-<li><strong>Type-safe</strong>: Relies on the Crystal compiler for type checking</li>
+<li><strong>Type-safe</strong>: Crystal guarantees your code matches your schema</li>
 <li><strong>High performance</strong>: See <a href="https://github.com/graphql-crystal/benchmarks">benchmarks</a></li>
 </ul>
 <h2><a id="getting-started" class="anchor" href="#getting-started">
@@ -685,15 +685,15 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
 </a>Scalars</h2>
 <p>The following scalar values are supported:</p>
 <ul>
-<li>Int32 -&gt; Int</li>
-<li>Float64 -&gt; Float</li>
-<li>String -&gt; String</li>
-<li>Bool -&gt; Boolean</li>
-<li>GraphQL::Scalars::ID -&gt; ID</li>
+<li><code>Int32</code> &lt;-&gt; <code>Int</code></li>
+<li><code>Float64</code> &lt;-&gt; <code>Float</code></li>
+<li><code>String</code> &lt;-&gt; <code>String</code></li>
+<li><code>Bool</code> &lt;-&gt; <code>Boolean</code></li>
+<li><code><a href="GraphQL/Scalars/ID.html">GraphQL::Scalars::ID</a></code> &lt;-&gt; <code>String</code></li>
 </ul>
 <p>Built-in custom scalars:</p>
 <ul>
-<li>GraphQL::Scalars::BigInt</li>
+<li><code><a href="GraphQL/Scalars/BigInt.html">GraphQL::Scalars::BigInt</a></code> &lt;-&gt; <code>String</code></li>
 </ul>
 <p>Custom scalars are created by implementing from_json/to_json:</p>
 <pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>]
@@ -704,7 +704,7 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="m">self</span>.from_json(string_or_io)
-    <span class="k">self</span>.<span class="k">new</span>(<span class="t">String</span>.from_json(string_or_io))
+    <span class="k">self</span>.<span class="k">new</span>(<span class="t">String</span>.from_json(string_or_io).reverse)
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="m">to_json</span>(builder : <span class="t">JSON</span><span class="t">::</span><span class="t">Builder</span>)
