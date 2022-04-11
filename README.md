@@ -3,7 +3,7 @@
 GraphQL server library for Crystal.
 
 - **Boilerplate-free**: Schema generated at compile time
-- **Type-safe**: Relies on the Crystal compiler for type checking
+- **Type-safe**: Crystal guarantees your code matches your schema
 - **High performance**: See [benchmarks](https://github.com/graphql-crystal/benchmarks)
 
 ## Getting Started
@@ -225,15 +225,15 @@ end
 
 The following scalar values are supported:
 
-- Int32 -> Int
-- Float64 -> Float
-- String -> String
-- Bool -> Boolean
-- GraphQL::Scalars::ID -> ID
+- `Int32` <-> `Int`
+- `Float64` <-> `Float`
+- `String` <-> `String`
+- `Bool` <-> `Boolean`
+- `GraphQL::Scalars::ID` <-> `String`
 
 Built-in custom scalars:
 
-- GraphQL::Scalars::BigInt
+- `GraphQL::Scalars::BigInt` <-> `String`
 
 Custom scalars are created by implementing from_json/to_json:
 
@@ -246,7 +246,7 @@ class ReverseStringScalar < GraphQL::BaseScalar
   end
 
   def self.from_json(string_or_io)
-    self.new(String.from_json(string_or_io))
+    self.new(String.from_json(string_or_io).reverse)
   end
 
   def to_json(builder : JSON::Builder)
