@@ -74,7 +74,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def create_operation_definition(start, operation, name)
-    description = @descriptions.pop?
     Language::OperationDefinition.new(
       operation_type: operation,
       name: name,
@@ -85,7 +84,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def create_operation_definition(start)
-    description = @descriptions.pop?
     Language::OperationDefinition.new(
       operation_type: "query",
       name: nil,
@@ -164,9 +162,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_argument
-    description = @descriptions.pop?
-    start = @current_token.start_position
-
     Language::Argument.new(
       name: get_name!,
       value: expect_colon_and_parse_value_literal(false),
@@ -230,7 +225,6 @@ class GraphQL::Language::ParserContext
     end
 
     text = [] of String?
-    start = @current_token.start_position
     end_position : Int32
 
     loop do
@@ -251,7 +245,6 @@ class GraphQL::Language::ParserContext
     end
 
     text = [] of String?
-    start = @current_token.start_position
     end_position : Int32
 
     loop do
@@ -267,7 +260,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_directive
-    start = @current_token.start_position
     expect(Token::Kind::AT)
     Language::Directive.new(
       name: get_name!,
@@ -277,7 +269,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_directive_definition
     description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("directive")
     expect(Token::Kind::AT)
 
@@ -324,7 +315,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_enum_type_definition
     description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("enum")
 
     Language::EnumTypeDefinition.new(
@@ -344,7 +334,6 @@ class GraphQL::Language::ParserContext
     parse_description
 
     description = @descriptions.pop?
-    start = @current_token.start_position
 
     Language::EnumValueDefinition.new(
       name: get_name!,
@@ -358,7 +347,6 @@ class GraphQL::Language::ParserContext
     parse_description
 
     description = @descriptions.pop?
-    start = @current_token.start_position
     name = get_name!
     args = parse_argument_defs
     expect(Token::Kind::COLON)
@@ -407,8 +395,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_fragment_definition
-    description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("fragment")
 
     Language::FragmentDefinition.new(
@@ -445,7 +431,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_input_object_type_definition
     description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("input")
 
     Language::InputObjectTypeDefinition.new(
@@ -459,7 +444,6 @@ class GraphQL::Language::ParserContext
   private def parse_input_value_def
     parse_description
     description = @descriptions.pop?
-    start = @current_token.start_position
     name = get_name!
     expect(Token::Kind::COLON)
     Language::InputValueDefinition.new(
@@ -479,7 +463,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_interface_type_definition
     description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("interface")
 
     Language::InterfaceTypeDefinition.new(
@@ -491,7 +474,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_list(is_constant) : Language::ArgumentValue
-    start = @current_token.start_position
     constant = Proc(Language::ArgumentValue).new { parse_constant_value }
     value = Proc(Language::ArgumentValue).new { parse_value_value }
 
@@ -499,7 +481,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_name : String?
-    start = @current_token.start_position
     value = @current_token.value
 
     expect(Token::Kind::NAME)
@@ -536,7 +517,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_named_type : Language::TypeName
-    start = @current_token.start_position
     Language::TypeName.new(name: get_name!)
   end
 
@@ -556,9 +536,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_object(is_constant)
-    description = @descriptions.pop?
-    start = @current_token.start_position
-
     Language::InputObject.new(arguments: parse_object_fields(is_constant))
   end
 
@@ -568,8 +545,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_object_field(is_constant)
-    description = @descriptions.pop?
-    start = @current_token.start_position
     Language::Argument.new(
       name: get_name!,
       value: expect_colon_and_parse_value_literal(is_constant)
@@ -590,7 +565,6 @@ class GraphQL::Language::ParserContext
   private def parse_object_type_definition
     description = @descriptions.pop?
 
-    start = @current_token.start_position
     expect_keyword("type")
 
     Language::ObjectTypeDefinition.new(
@@ -619,7 +593,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_operation_type_definition
-    start = @current_token.start_position
     operation = parse_operation_type
     expect(Token::Kind::COLON)
     type = parse_named_type
@@ -629,7 +602,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_scalar_type_definition
     description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("scalar")
     name = get_name!
     directives = parse_directives
@@ -642,14 +614,12 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_schema_definition
-    description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("schema")
     directives = parse_directives
     definitions = many(Token::Kind::BRACE_L, ->{ parse_operation_type_definition }, Token::Kind::BRACE_R)
 
     definitions = definitions.as(Array).reduce(Hash(String, String).new) do |memo, pair|
-      pair.as(Tuple(String, GraphQL::Language::TypeName)).tap { |pair| memo[pair[0]] = pair[1].name }
+      pair.as(Tuple(String, GraphQL::Language::TypeName)).tap { |p| memo[p[0]] = p[1].name }
       memo
     end
 
@@ -666,7 +636,6 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_selection_set
-    start = @current_token.start_position
     many(Token::Kind::BRACE_L, ->{ parse_selection }, Token::Kind::BRACE_R)
   end
 
@@ -678,7 +647,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_type
     type = nil
-    start = @current_token.start_position
     if skip(Token::Kind::BRACKET_L)
       type = parse_type
       expect(Token::Kind::BRACKET_R)
@@ -718,7 +686,6 @@ class GraphQL::Language::ParserContext
 
   private def parse_union_type_definition
     description = @descriptions.pop?
-    start = @current_token.start_position
     expect_keyword("union")
     name = get_name!
     directives = parse_directives
@@ -763,14 +730,12 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_variable
-    start = @current_token.start_position
     expect(Token::Kind::DOLLAR)
 
     Language::VariableIdentifier.new(name: get_name!)
   end
 
   private def parse_variable_definition : Language::VariableDefinition
-    start = @current_token.start_position
     Language::VariableDefinition.new(
       name: parse_variable.name.not_nil!,
       type: advance_through_colon_and_parse_type.not_nil!,

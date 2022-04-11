@@ -14,7 +14,11 @@
   },
 
   // Add the IDs of extensions you want installed when the container is created.
-  "extensions": ["crystal-lang-tools.crystal-lang", "esbenp.prettier-vscode"],
+  "extensions": [
+    "crystal-lang-tools.crystal-lang",
+    "esbenp.prettier-vscode",
+    "tombonnike.vscode-status-bar-format-toggle"
+  ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],

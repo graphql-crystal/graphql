@@ -22,13 +22,6 @@ module TestEnumsAsDefaultArgument
 end
 
 describe GraphQL::Enum do
-  it "Enums generates correct schema for default arguments" do
-    got = GraphQL::Schema.new(TestEnumsAsDefaultArgument::Query.new).document.to_s.strip
-    expected = {{ read_file("spec/enums/as_argument_default.graphql") }}.strip
-    puts "\n====================\n#{got}\n====================" if got != expected
-    got.should eq expected
-  end
-
   it "returns the correct value" do
     GraphQL::Schema.new(TestEnumsAsDefaultArgument::Query.new).execute(
       %(

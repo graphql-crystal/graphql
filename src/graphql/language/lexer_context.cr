@@ -67,7 +67,7 @@ class GraphQL::Language::LexerContext
       if code == '+' || code == '-'
         code = self.next_code
       end
-      code = read_digits_from_own_source(code)
+      read_digits_from_own_source(code)
     end
 
     is_float ? create_float_token(start) : create_int_token(start)

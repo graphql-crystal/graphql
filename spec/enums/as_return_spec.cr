@@ -22,13 +22,6 @@ module TestEnumsAsReturn
 end
 
 describe GraphQL::Enum do
-  it "Enums generates correct schema" do
-    got = GraphQL::Schema.new(TestEnumsAsReturn::Query.new).document.to_s.strip
-    expected = {{ read_file("spec/enums/as_return.graphql") }}.strip
-    puts "\n====================\n#{got}\n====================" if got != expected
-    got.should eq expected
-  end
-
   it "returns the correct value" do
     GraphQL::Schema.new(TestEnumsAsReturn::Query.new).execute(
       %(

@@ -140,7 +140,7 @@ module GraphQL
       end
 
       def self.generate(node : InputValueDefinition, indent : String = "")
-        out = description = generate_description(node, indent: indent)
+        out = generate_description(node, indent: indent)
         out += "#{indent}#{node.name}: #{generate(node.type)}"
         out += " = #{generate(node.default_value)}" unless node.default_value.nil?
         out += generate_directives(node.directives)
@@ -238,7 +238,6 @@ module GraphQL
 
       def self.generate(node, indent : String = "")
         raise "fallback - should never happen"
-        ""
       end
 
       def self.generate_directives(directives, indent : String = "")
