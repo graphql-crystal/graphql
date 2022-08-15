@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.4.1">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -569,7 +569,7 @@ access global data, like database connections.</p>
 <span class="k">end</span>
 
 <span class="c"># Pass it to schema.execute</span>
-context <span class="o">=</span> <span class="t">MyContext</span>.<span class="k">new</span>(<span class="t">Math</span>.<span class="t">PI</span>)
+context <span class="o">=</span> <span class="t">MyContext</span>.<span class="k">new</span>(<span class="t">Math</span><span class="t">::</span><span class="t">PI</span>)
 schema.execute(query, variables, operation_name, context)
 
 <span class="c"># Access it in our fields</span>
