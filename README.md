@@ -100,7 +100,7 @@ class MyContext < GraphQL::Context
 end
 
 # Pass it to schema.execute
-context = MyContext.new(Math.PI)
+context = MyContext.new(Math::PI)
 schema.execute(query, variables, operation_name, context)
 
 # Access it in our fields
