@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.4.1">
+<meta name="generator" content="Crystal Docs 1.5.0">
 <meta name="crystal_docs.project_version" content="0.4.0">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -527,7 +527,7 @@ queries and it looks like this:</p>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 <p>Now we can create a schema object:</p>
-<pre><code class="language-crystal">schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.<span class="k">new</span>(<span class="t">Query</span>.<span class="k">new</span>)</code></pre>
+<pre><code class="language-crystal">schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.new(<span class="t">Query</span>.new)</code></pre>
 <p>To verify we did everything correctly, we can print out the schema:</p>
 <pre><code class="language-crystal">puts schema.document.to_s</code></pre>
 <p>Which, among several built-in types, prints our query type:</p>
@@ -569,7 +569,7 @@ access global data, like database connections.</p>
 <span class="k">end</span>
 
 <span class="c"># Pass it to schema.execute</span>
-context <span class="o">=</span> <span class="t">MyContext</span>.<span class="k">new</span>(<span class="t">Math</span><span class="t">::</span><span class="t">PI</span>)
+context <span class="o">=</span> <span class="t">MyContext</span>.new(<span class="t">Math</span><span class="t">::</span><span class="t">PI</span>)
 schema.execute(query, variables, operation_name, context)
 
 <span class="c"># Access it in our fields</span>
@@ -600,7 +600,7 @@ as classes. To define a object, we need a <code><a href="GraphQL/Object.html">Gr
   <span class="c"># besides basic types, we can also return other objects</span>
   @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
   <span class="k">def</span> <span class="m">bar</span> : <span class="t">Bar</span>
-    <span class="t">Bar</span>.<span class="k">new</span>
+    <span class="t">Bar</span>.new
   <span class="k">end</span>
 <span class="k">end</span>
 
@@ -634,7 +634,7 @@ as classes. To define a object, we need a <code><a href="GraphQL/Object.html">Gr
   <span class="k">end</span>
 <span class="k">end</span>
 
-schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.<span class="k">new</span>(<span class="t">Query</span>.<span class="k">new</span>)</code></pre>
+schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.new(<span class="t">Query</span>.new)</code></pre>
 <h2><a id="mutation" class="anchor" href="#mutation">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -649,7 +649,7 @@ schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::
   <span class="k">end</span>
 <span class="k">end</span>
 
-schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.<span class="k">new</span>(<span class="t">Query</span>.<span class="k">new</span>, <span class="t">Mutation</span>.<span class="k">new</span>)</code></pre>
+schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.new(<span class="t">Query</span>.new, <span class="t">Mutation</span>.new)</code></pre>
 <h2><a id="input-objects" class="anchor" href="#input-objects">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -704,7 +704,7 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="m">self</span>.from_json(string_or_io)
-    <span class="k">self</span>.<span class="k">new</span>(<span class="t">String</span>.from_json(string_or_io).reverse)
+    <span class="k">self</span>.new(<span class="t">String</span>.from_json(string_or_io).reverse)
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="m">to_json</span>(builder : <span class="t">JSON</span><span class="t">::</span><span class="t">Builder</span>)
