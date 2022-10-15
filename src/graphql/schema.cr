@@ -126,19 +126,21 @@ module GraphQL
                     end
                   end
 
-      data = nil
+      result = ObjectType::ResolveResult.new(nil)
 
       if !operation.nil? && operation.operation_type == "query"
-        query_errors, data = @query._graphql_resolve(context, operation.selections)
-        errors.concat query_errors
+        result = @query._graphql_resolve(context, operation.selections)
+        errors.concat result.errors
       elsif !operation.nil? && operation.operation_type == "mutation"
         if mutation = @mutation
-          mutation_errors, data = mutation._graphql_resolve(context, operation.selections)
-          errors.concat mutation_errors
+          result = mutation._graphql_resolve(context, operation.selections)
+          errors.concat result.errors
         else
           errors << Error.new("mutation operations are not supported", [] of String | Int32)
         end
       end
+
+      data = result.data
 
       if errors.empty?
         { "data" => data }

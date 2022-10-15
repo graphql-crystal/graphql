@@ -15,6 +15,8 @@ module GraphQL::ObjectType
   )
   alias ObjectHash = Hash(String, ObjectHashMember)
 
+  record ResolveResult(V), data : V, errors : Array(GraphQL::Error) = [] of GraphQL::Error
+
   macro included
     macro finished
       {% verbatim do %}
@@ -26,9 +28,11 @@ module GraphQL::ObjectType
       end
 
       # :nodoc:
-      def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection)) : {Array(::GraphQL::Error), ObjectHash}
+      def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection)) : ResolveResult(ObjectHash)
         errors = [] of ::GraphQL::Error
-        result = ObjectHash.new
+        data = ObjectHash.new
+
+        field_results = Hash(String, Channel(ResolveResult(ObjectHashMember) | ::Exception)).new
 
         selections.each do |selection|
           case selection
@@ -45,31 +49,30 @@ module GraphQL::ObjectType
             end
 
             case selection
-            when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
+            when ::GraphQL::Language::Field
+              path = selection._alias || selection.name
+              field_results[path] = Channel(ResolveResult(ObjectHashMember) | ::Exception).new
+
+              spawn do
+                field_result = _graphql_resolve(context, selection)
+                field_results[path].send(field_result)
+              rescue ex
+                field_results[path].send(ex)
+              end
+            when ::GraphQL::Language::FragmentSpread
               begin
-                case selection
-                when ::GraphQL::Language::Field
-                  field_errors, field_value = _graphql_resolve(context, selection)
-                  path = selection._alias || selection.name
-                  errors.concat field_errors
-                  result[path] = field_value
-                when ::GraphQL::Language::FragmentSpread
-                  fragment_errors, fragment_values = _graphql_resolve(context, selection)
-                  errors.concat fragment_errors
-                  result.merge! fragment_values
-                end
+                fragment_result = _graphql_resolve(context, selection)
+                errors.concat fragment_result.errors
+                data.merge! fragment_result.data
               rescue e
                 if message = context.handle_exception(e)
-                  errors << ::GraphQL::Error.new(
-                    message,
-                    selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
-                  )
+                  errors << ::GraphQL::Error.new(message, selection.name)
                 end
               end
             when ::GraphQL::Language::InlineFragment
-              fragment_errors, fragment_values = _graphql_resolve(context, selection.selections)
-              errors.concat fragment_errors
-              result.merge! fragment_values
+              fragment_result = _graphql_resolve(context, selection.selections)
+              errors.concat fragment_result.errors
+              data.merge! fragment_result.data
             end
           else
             # this never happens, only required due to Selection being turned into ASTNode
@@ -77,28 +80,44 @@ module GraphQL::ObjectType
             raise ::GraphQL::TypeError.new("invalid selection type")
           end
         end
-        {errors, result}
+
+        field_results.each do |path, channel|
+          field_result = channel.receive
+
+          case field_result
+          when ResolveResult
+            data[path] = field_result.data
+            errors.concat field_result.errors
+          when ::Exception
+            if message = context.handle_exception(field_result)
+              errors << ::GraphQL::Error.new(message, path)
+            end
+          end
+        end
+
+        ResolveResult.new(data, errors)
       end
 
 
       # :nodoc:
-      def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread) : {Array(::GraphQL::Error), ObjectHash}
+      def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread) : ResolveResult(ObjectHash)
         errors = [] of ::GraphQL::Error
-        result = ObjectHash.new
+        data = ObjectHash.new
 
         f = context.fragments.find{ |f| f.name == fragment.name}
         if f.nil?
           errors << ::GraphQL::Error.new("no fragment #{fragment.name}", fragment.name)
         else
-          fragment_errors, fragment_values = _graphql_resolve(context, f.selections)
-          errors.concat fragment_errors
-          result.merge! fragment_values
+          fragment_result = _graphql_resolve(context, f.selections)
+          errors.concat fragment_result.errors
+          data.merge! fragment_result.data
         end
-        {errors, result}
+
+        ResolveResult.new(data, errors)
       end
 
       # :nodoc:
-      def _graphql_resolve(context, field : ::GraphQL::Language::Field) : {Array(::GraphQL::Error), ObjectHashMember}
+      def _graphql_resolve(context, field : ::GraphQL::Language::Field) : ResolveResult(ObjectHashMember)
         {% begin %}
         case field.name
         {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
@@ -142,34 +161,40 @@ module GraphQL::ObjectType
         {% end %}
       end
 
-      def _graphql_resolve(context, field : ::GraphQL::Language::Field, value) : {Array(::GraphQL::Error), ObjectHashMember}
+      def _graphql_resolve(context, field : ::GraphQL::Language::Field, value) : ResolveResult(ObjectHashMember)
         path = field._alias || field.name
         errors = [] of ::GraphQL::Error
 
         case value
         when ::GraphQL::ObjectType
-          object_errors, object_data = value._graphql_resolve(context, field.selections)
-          object_errors.each do |error|
+          object_result = value._graphql_resolve(context, field.selections)
+          object_result.errors.each do |error|
             errors << error.with_path(path)
           end
 
-          return {errors, object_data}
+          return ResolveResult(ObjectHashMember).new(object_result.data, errors)
         when Array
-          results = value.map { |v| _graphql_resolve(context, field, v) }
+          results = value.map_with_index do |v, i|
+            Channel(ResolveResult(ObjectHashMember)).new.tap do |channel|
+              spawn { channel.send _graphql_resolve(context, field, v) }
+            end
+          end
+
           array_data = [] of ObjectHashMember
 
-          results.each_with_index do |(member_errors, member_data), i|
-            array_data << member_data
-            member_errors.each do |error|
+          results.each_with_index do |channel, i|
+            member_result = channel.receive
+            array_data << member_result.data
+            member_result.errors.each do |error|
               errors << error.with_path(i).with_path(path)
             end
           end
 
-          {errors, array_data}
+          ResolveResult(ObjectHashMember).new(array_data, errors)
         when ::Enum
-          {errors, value.to_s}
+          ResolveResult(ObjectHashMember).new(value.to_s)
         when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
-          {errors, value}
+          ResolveResult(ObjectHashMember).new(value)
         else
           raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
         end
