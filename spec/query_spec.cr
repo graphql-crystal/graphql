@@ -8,6 +8,13 @@ describe GraphQL::Introspection do
     got.should eq expected
   end
 
+  it "returns a hash when execute_to_hash is called" do
+    got = GraphQL::Schema.new(QueryFixture::Query.new).execute_to_hash(GraphQL::INTROSPECTION_QUERY)
+    expected = JSON.parse({{ read_file "spec/fixtures/query_introspection.json" }})
+    puts "\n====================\n#{got}\n====================" if got != expected
+    got.should eq expected
+  end
+
   it "resolves nested input object with various value types" do
     GraphQL::Schema.new(QueryFixture::Query.new).execute(
       %(
