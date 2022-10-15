@@ -17,82 +17,138 @@ module GraphQL::ObjectType
       private macro _graphql_serialize(val)
         case val = {{ val }}
         when ::GraphQL::ObjectType
-          json.field path do
-            json.object do
-              val._graphql_resolve(context, field.selections, json).each do |error|
-                errors << error.with_path(path)
-              end
+          json.object do
+            val._graphql_resolve(context, field.selections, json).each do |error|
+              errors << error.with_path(path)
             end
           end
         when Array
-          json.field path do
-            json.array do
-              val.each_with_index do |v, i|
-                case v
-                when ::GraphQL::ObjectType
-                  json.object do
-                    v._graphql_resolve(context, field.selections, json).each do |error|
-                      errors << error.with_path(i).with_path(path)
-                    end
+          json.array do
+            val.each_with_index do |v, i|
+              case v
+              when ::GraphQL::ObjectType
+                json.object do
+                  v._graphql_resolve(context, field.selections, json).each do |error|
+                    errors << error.with_path(i).with_path(path)
                   end
-                when ::Enum
-                  json.scalar(v.to_s)
-                else
-                  v.to_json(json)
                 end
+              when ::Enum
+                json.scalar(v.to_s)
+              else
+                v.to_json(json)
               end
             end
           end
         when ::Enum
-          json.field path, val.to_s
+          json.string val
         when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
-          json.field path, val
+          val.to_json(json)
         else
           raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
         end
       end
 
       # :nodoc:
+      def _graphql_skip?(selection : ::GraphQL::Language::Field | ::GraphQL::Language::FragmentSpread | ::GraphQL::Language::InlineFragment)
+        if skip = selection.directives.find { |d| d.name == "skip" }
+          if arg = skip.arguments.find { |a| a.name == "if" }
+            return true if arg.value.as(Bool)
+          end
+        end
+
+        if inc = selection.directives.find { |d| d.name == "include" }
+          if arg = inc.arguments.find { |a| a.name == "if" }
+            return true if !arg.value.as(Bool)
+          end
+        end
+
+        false
+      end
+
+      # :nodoc:
       def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
-        errors = [] of ::GraphQL::Error
-        selections.each do |selection|
+        error_channel = Channel(::GraphQL::Error).new
+        json_fragment_channel = Channel({String, String}).new
+        errors = Array(::GraphQL::Error).new
+
+        spawn do
+          while error = error_channel.receive?
+            errors << error
+          end
+        end
+
+        unskipped_selections = selections.reject do |selection|
           case selection
           when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread, ::GraphQL::Language::InlineFragment
-            if skip = selection.directives.find { |d| d.name == "skip" }
-              if arg = skip.arguments.find { |a| a.name == "if" }
-                next if arg.value.as(Bool)
-              end
-            end
-            if inc = selection.directives.find { |d| d.name == "include" }
-              if arg = inc.arguments.find { |a| a.name == "if" }
-                next if !arg.value.as(Bool)
-              end
-            end
+            _graphql_skip?(selection)
+          else
+            false
+          end
+        end
 
-            case selection
-            when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
-              begin
-                errors.concat _graphql_resolve(context, selection, json)
+        unskipped_selections.each do |selection|
+          case selection
+          when ::GraphQL::Language::Field
+            spawn do
+              path = selection._alias || selection.name
+
+              fragment = String.build do |fragment|
+                fragment_builder = JSON::Builder.new(fragment)
+                fragment_builder.document do
+                  _graphql_resolve(context, selection, fragment_builder).each do |error|
+                    error_channel.send error
+                  end
+                end
               rescue e
                 if message = context.handle_exception(e)
-                  errors << ::GraphQL::Error.new(
-                    message,
-                    selection.is_a?(::GraphQL::Language::Field) ? selection._alias || selection.name : selection.name
-                  )
+                  error_channel.send ::GraphQL::Error.new(message, path)
                 end
               end
-            when ::GraphQL::Language::InlineFragment
-              errors.concat _graphql_resolve(context, selection.selections, json)
+
+              json_fragment_channel.send({path, fragment})
             end
+          when ::GraphQL::Language::FragmentSpread
+            begin
+              _graphql_resolve(context, selection, json).each { |error| error_channel.send error }
+            rescue e
+              if message = context.handle_exception(e)
+                error_channel.send ::GraphQL::Error.new(message, selection.name)
+              end
+            end
+          when ::GraphQL::Language::InlineFragment
+            _graphql_resolve(context, selection.selections, json).each { |error| error_channel.send error }
           else
             # this never happens, only required due to Selection being turned into ASTNode
             # https://crystal-lang.org/reference/1.3/syntax_and_semantics/virtual_and_abstract_types.html
             raise ::GraphQL::TypeError.new("invalid selection type")
           end
         end
+
+        json_fragments = [] of {String, String}
+
+        unskipped_fields = unskipped_selections.each.select { |s| s.is_a?(::GraphQL::Language::Field) }.map(&.as(::GraphQL::Language::Field)).to_a
+
+        unskipped_fields.size.times do
+          json_fragments << json_fragment_channel.receive
+        end
+
+        error_channel.close
+
+        json_fragments.sort_by! do |path, _|
+          unskipped_fields.index! do |selection|
+            selection_path = selection._alias || selection.name
+            path == selection_path
+          end
+        end
+
+
+        json_fragments.each do |path, fragment|
+          next if fragment.empty?
+          json.field(path) { json.raw fragment }
+        end
+
         errors
       end
-
 
       # :nodoc:
       def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread, json : JSON::Builder) : Array(::GraphQL::Error)
@@ -148,15 +204,13 @@ module GraphQL::ObjectType
           )
         {% end %}
         when "__typename"
-          json.field path, _graphql_type
+          json.string _graphql_type
         {% if @type < ::GraphQL::QueryType %}
         when "__schema"
-          json.field path do
-            json.object do
-              introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
-              introspection._graphql_resolve(context, field.selections, json).each do |error|
-                errors << error.with_path(path)
-              end
+          json.object do
+            introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
+            introspection._graphql_resolve(context, field.selections, json).each do |error|
+              errors << error.with_path(path)
             end
           end
         {% end %}
