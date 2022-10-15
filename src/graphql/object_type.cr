@@ -3,6 +3,18 @@ require "./scalar_type"
 require "./internal/convert_value"
 
 module GraphQL::ObjectType
+  alias ObjectHashMember = Union(
+    String,
+    Int32,
+    Float64,
+    Bool,
+    Nil,
+    Array(ObjectHashMember),
+    ObjectHash,
+    GraphQL::ScalarType,
+  )
+  alias ObjectHash = Hash(String, ObjectHashMember)
+
   macro included
     macro finished
       {% verbatim do %}
@@ -14,47 +26,10 @@ module GraphQL::ObjectType
       end
 
       # :nodoc:
-      private macro _graphql_serialize(val)
-        case val = {{ val }}
-        when ::GraphQL::ObjectType
-          json.field path do
-            json.object do
-              val._graphql_resolve(context, field.selections, json).each do |error|
-                errors << error.with_path(path)
-              end
-            end
-          end
-        when Array
-          json.field path do
-            json.array do
-              val.each_with_index do |v, i|
-                case v
-                when ::GraphQL::ObjectType
-                  json.object do
-                    v._graphql_resolve(context, field.selections, json).each do |error|
-                      errors << error.with_path(i).with_path(path)
-                    end
-                  end
-                when ::Enum
-                  json.scalar(v.to_s)
-                else
-                  v.to_json(json)
-                end
-              end
-            end
-          end
-        when ::Enum
-          json.field path, val.to_s
-        when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
-          json.field path, val
-        else
-          raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
-        end
-      end
-
-      # :nodoc:
-      def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
+      def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection)) : {Array(::GraphQL::Error), ObjectHash}
         errors = [] of ::GraphQL::Error
+        result = ObjectHash.new
+
         selections.each do |selection|
           case selection
           when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread, ::GraphQL::Language::InlineFragment
@@ -72,7 +47,17 @@ module GraphQL::ObjectType
             case selection
             when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread
               begin
-                errors.concat _graphql_resolve(context, selection, json)
+                case selection
+                when ::GraphQL::Language::Field
+                  field_errors, field_value = _graphql_resolve(context, selection)
+                  path = selection._alias || selection.name
+                  errors.concat field_errors
+                  result[path] = field_value
+                when ::GraphQL::Language::FragmentSpread
+                  fragment_errors, fragment_values = _graphql_resolve(context, selection)
+                  errors.concat fragment_errors
+                  result.merge! fragment_values
+                end
               rescue e
                 if message = context.handle_exception(e)
                   errors << ::GraphQL::Error.new(
@@ -82,7 +67,9 @@ module GraphQL::ObjectType
                 end
               end
             when ::GraphQL::Language::InlineFragment
-              errors.concat _graphql_resolve(context, selection.selections, json)
+              fragment_errors, fragment_values = _graphql_resolve(context, selection.selections)
+              errors.concat fragment_errors
+              result.merge! fragment_values
             end
           else
             # this never happens, only required due to Selection being turned into ASTNode
@@ -90,32 +77,33 @@ module GraphQL::ObjectType
             raise ::GraphQL::TypeError.new("invalid selection type")
           end
         end
-        errors
+        {errors, result}
       end
 
 
       # :nodoc:
-      def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread, json : JSON::Builder) : Array(::GraphQL::Error)
+      def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread) : {Array(::GraphQL::Error), ObjectHash}
         errors = [] of ::GraphQL::Error
+        result = ObjectHash.new
+
         f = context.fragments.find{ |f| f.name == fragment.name}
         if f.nil?
           errors << ::GraphQL::Error.new("no fragment #{fragment.name}", fragment.name)
         else
-          errors.concat _graphql_resolve(context, f.selections, json)
+          fragment_errors, fragment_values = _graphql_resolve(context, f.selections)
+          errors.concat fragment_errors
+          result.merge! fragment_values
         end
-        errors
+        {errors, result}
       end
 
       # :nodoc:
-      def _graphql_resolve(context, field : ::GraphQL::Language::Field, json : JSON::Builder) : Array(::GraphQL::Error)
+      def _graphql_resolve(context, field : ::GraphQL::Language::Field) : {Array(::GraphQL::Error), ObjectHashMember}
         {% begin %}
-        errors = [] of ::GraphQL::Error
-        path = field._alias || field.name
-
         case field.name
         {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
         when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
-          _graphql_serialize self.{{var.name.id}}
+          return _graphql_resolve(context, field, self.{{var.name.id}})
         {% end %}
         {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
         {% for ancestor in @type.ancestors %}
@@ -125,7 +113,7 @@ module GraphQL::ObjectType
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          _graphql_serialize self.{{method.name.id}}(
+          value = self.{{method.name.id}}(
             {% for arg in method.args %}
             {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
@@ -146,26 +134,45 @@ module GraphQL::ObjectType
             end,
             {% end %}
           )
-        {% end %}
-        when "__typename"
-          json.field path, _graphql_type
-        {% if @type < ::GraphQL::QueryType %}
-        when "__schema"
-          json.field path do
-            json.object do
-              introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
-              introspection._graphql_resolve(context, field.selections, json).each do |error|
-                errors << error.with_path(path)
-              end
-            end
-          end
+          return _graphql_resolve(context, field, value)
         {% end %}
         else
           raise ::GraphQL::TypeError.new("field is not defined")
         end
-        errors
-
         {% end %}
+      end
+
+      def _graphql_resolve(context, field : ::GraphQL::Language::Field, value) : {Array(::GraphQL::Error), ObjectHashMember}
+        path = field._alias || field.name
+        errors = [] of ::GraphQL::Error
+
+        case value
+        when ::GraphQL::ObjectType
+          object_errors, object_data = value._graphql_resolve(context, field.selections)
+          object_errors.each do |error|
+            errors << error.with_path(path)
+          end
+
+          return {errors, object_data}
+        when Array
+          results = value.map { |v| _graphql_resolve(context, field, v) }
+          array_data = [] of ObjectHashMember
+
+          results.each_with_index do |(member_errors, member_data), i|
+            array_data << member_data
+            member_errors.each do |error|
+              errors << error.with_path(i).with_path(path)
+            end
+          end
+
+          {errors, array_data}
+        when ::Enum
+          {errors, value.to_s}
+        when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
+          {errors, value}
+        else
+          raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
+        end
       end
 
       {% end %}

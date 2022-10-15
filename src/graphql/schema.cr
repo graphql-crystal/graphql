@@ -78,13 +78,17 @@ module GraphQL
       end
     end
 
-    def execute(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new) : String
+    def execute(io : IO, query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new)
+      execute_to_hash(query, variables, operation_name, context).to_json(io)
+    end
+
+    def execute(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new)
       String.build do |io|
         execute(io, query, variables, operation_name, context)
       end
     end
 
-    def execute(io : IO, query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new) : Nil
+    def execute_to_hash(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new)
       document = Language.parse(query)
       operations = [] of Language::OperationDefinition
       errors = [] of GraphQL::Error
@@ -122,31 +126,26 @@ module GraphQL
                     end
                   end
 
-      JSON.build(io) do |json|
-        json.object do
-          if !operation.nil? && operation.operation_type == "query"
-            json.field "data" do
-              json.object do
-                errors.concat @query._graphql_resolve(context, operation.selections, json)
-              end
-            end
-          elsif !operation.nil? && operation.operation_type == "mutation"
-            if mutation = @mutation
-              json.field "data" do
-                json.object do
-                  errors.concat mutation._graphql_resolve(context, operation.selections, json)
-                end
-              end
-            else
-              errors << Error.new("mutation operations are not supported", [] of String | Int32)
-            end
-          end
-          unless errors.empty?
-            json.field "errors" do
-              errors.to_json(json)
-            end
-          end
+      data = nil
+
+      if !operation.nil? && operation.operation_type == "query"
+        query_errors, data = @query._graphql_resolve(context, operation.selections)
+        errors.concat query_errors
+      elsif !operation.nil? && operation.operation_type == "mutation"
+        if mutation = @mutation
+          mutation_errors, data = mutation._graphql_resolve(context, operation.selections)
+          errors.concat mutation_errors
+        else
+          errors << Error.new("mutation operations are not supported", [] of String | Int32)
         end
+      end
+
+      if errors.empty?
+        { "data" => data }
+      elsif data.nil?
+        { "errors" => errors }
+      else
+        { "data" => data, "errors" => errors }
       end
     end
   end
