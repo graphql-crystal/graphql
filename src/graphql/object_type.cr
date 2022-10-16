@@ -18,38 +18,52 @@ module GraphQL::ObjectType
       end
 
       # :nodoc:
-      private macro _graphql_serialize(val)
-        case val = {{ val }}
+      private def _graphql_serialize(context, field : ::GraphQL::Language::Field, value, json : ::JSON::Builder) : Array(::GraphQL::Error)
+        errors = [] of ::GraphQL::Error
+        path = field._alias || field.name
+
+        case value
         when ::GraphQL::ObjectType
           json.object do
-            val._graphql_resolve(context, field.selections, json).each do |error|
+            value._graphql_resolve(context, field.selections, json).each do |error|
               errors << error.with_path(path)
             end
           end
         when Array
           json.array do
-            val.each_with_index do |v, i|
-              case v
-              when ::GraphQL::ObjectType
-                json.object do
-                  v._graphql_resolve(context, field.selections, json).each do |error|
-                    errors << error.with_path(i).with_path(path)
+            json_fragments = value.map_with_index do |v, i|
+              channel = Channel(JSONFragment).new
+
+              spawn do
+                fragment = build_json_fragment(context, [path, i]) do |json|
+                  _graphql_serialize(context, field, v, json).map do |error|
+                    error.with_path(i).with_path(path)
                   end
                 end
-              when ::Enum
-                json.scalar(v.to_s)
-              else
-                v.to_json(json)
+
+                channel.send(fragment)
               end
+
+              channel
+            end
+
+            json_fragments.each do |channel|
+              fragment = channel.receive
+              errors.concat fragment.errors
+
+              next if fragment.json.empty?
+              json.raw fragment.json
             end
           end
         when ::Enum
-          json.string val
+          json.string value
         when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
-          val.to_json(json)
+          value.to_json(json)
         else
           raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
         end
+
+        errors
       end
 
       # :nodoc:
@@ -75,7 +89,6 @@ module GraphQL::ObjectType
         json_fragments = Hash(String, Channel(JSONFragment)).new
 
         selections.each do |selection|
-
           case selection
           when ::GraphQL::Language::Field
             next if _graphql_skip?(selection)
@@ -142,7 +155,7 @@ module GraphQL::ObjectType
         case field.name
         {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
         when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
-          _graphql_serialize self.{{var.name.id}}
+          errors.concat _graphql_serialize(context, field, self.{{var.name.id}}, json)
         {% end %}
         {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
         {% for ancestor in @type.ancestors %}
@@ -152,7 +165,7 @@ module GraphQL::ObjectType
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          _graphql_serialize self.{{method.name.id}}(
+          value = self.{{method.name.id}}(
             {% for arg in method.args %}
             {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
@@ -173,6 +186,7 @@ module GraphQL::ObjectType
             end,
             {% end %}
           )
+          errors.concat _graphql_serialize(context, field, value, json)
         {% end %}
         when "__typename"
           json.string _graphql_type
@@ -194,7 +208,7 @@ module GraphQL::ObjectType
       end
 
       # :nodoc:
-      private def build_json_fragment(context, path : String, &block : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
+      private def build_json_fragment(context, path : String | Array(Int32 | String), &block : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
         errors = [] of ::GraphQL::Error
 
         json = String.build do |io|
