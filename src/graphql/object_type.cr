@@ -1,8 +1,12 @@
+require "./error"
 require "./language"
 require "./scalar_type"
 require "./internal/convert_value"
 
 module GraphQL::ObjectType
+  # :nodoc:
+  record JSONFragment, json : String, errors : Array(::GraphQL::Error)
+
   macro included
     macro finished
       {% verbatim do %}
@@ -67,56 +71,38 @@ module GraphQL::ObjectType
 
       # :nodoc:
       def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
-        error_channel = Channel(::GraphQL::Error).new
-        json_fragment_channel = Channel({String, String}).new
-        errors = Array(::GraphQL::Error).new
+        errors = [] of ::GraphQL::Error
+        json_fragments = Hash(String, Channel(JSONFragment)).new
 
-        spawn do
-          while error = error_channel.receive?
-            errors << error
-          end
-        end
+        selections.each do |selection|
 
-        unskipped_selections = selections.reject do |selection|
-          case selection
-          when ::GraphQL::Language::Field, ::GraphQL::Language::FragmentSpread, ::GraphQL::Language::InlineFragment
-            _graphql_skip?(selection)
-          else
-            false
-          end
-        end
-
-        unskipped_selections.each do |selection|
           case selection
           when ::GraphQL::Language::Field
-            spawn do
-              path = selection._alias || selection.name
+            next if _graphql_skip?(selection)
+            path = selection._alias || selection.name
+            json_fragments[path] = Channel(JSONFragment).new
 
-              fragment = String.build do |fragment|
-                fragment_builder = JSON::Builder.new(fragment)
-                fragment_builder.document do
-                  _graphql_resolve(context, selection, fragment_builder).each do |error|
-                    error_channel.send error
-                  end
-                end
-              rescue e
-                if message = context.handle_exception(e)
-                  error_channel.send ::GraphQL::Error.new(message, path)
-                end
+            spawn do
+              fragment = build_json_fragment(context, path) do |json|
+                _graphql_resolve(context, selection, json)
               end
 
-              json_fragment_channel.send({path, fragment})
+              json_fragments[path].send fragment
             end
           when ::GraphQL::Language::FragmentSpread
+            next if _graphql_skip?(selection)
+
             begin
-              _graphql_resolve(context, selection, json).each { |error| error_channel.send error }
+              errors.concat _graphql_resolve(context, selection, json)
             rescue e
               if message = context.handle_exception(e)
-                error_channel.send ::GraphQL::Error.new(message, selection.name)
+                errors << ::GraphQL::Error.new(message, selection.name)
               end
             end
           when ::GraphQL::Language::InlineFragment
-            _graphql_resolve(context, selection.selections, json).each { |error| error_channel.send error }
+            next if _graphql_skip?(selection)
+
+            errors.concat _graphql_resolve(context, selection.selections, json)
           else
             # this never happens, only required due to Selection being turned into ASTNode
             # https://crystal-lang.org/reference/1.3/syntax_and_semantics/virtual_and_abstract_types.html
@@ -124,27 +110,12 @@ module GraphQL::ObjectType
           end
         end
 
-        json_fragments = [] of {String, String}
+        json_fragments.each do |path, channel|
+          fragment = channel.receive
+          errors.concat fragment.errors
+          next if fragment.json.empty?
 
-        unskipped_fields = unskipped_selections.each.select { |s| s.is_a?(::GraphQL::Language::Field) }.map(&.as(::GraphQL::Language::Field)).to_a
-
-        unskipped_fields.size.times do
-          json_fragments << json_fragment_channel.receive
-        end
-
-        error_channel.close
-
-        json_fragments.sort_by! do |path, _|
-          unskipped_fields.index! do |selection|
-            selection_path = selection._alias || selection.name
-            path == selection_path
-          end
-        end
-
-
-        json_fragments.each do |path, fragment|
-          next if fragment.empty?
-          json.field(path) { json.raw fragment }
+          json.field(path) { json.raw fragment.json }
         end
 
         errors
@@ -220,6 +191,24 @@ module GraphQL::ObjectType
         errors
 
         {% end %}
+      end
+
+      # :nodoc:
+      private def build_json_fragment(context, path : String, &block : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
+        errors = [] of ::GraphQL::Error
+
+        json = String.build do |io|
+          builder = JSON::Builder.new(io)
+          builder.document do
+            errors.concat yield builder
+          end
+        rescue e
+          if message = context.handle_exception(e)
+            errors << ::GraphQL::Error.new(message, path)
+          end
+        end
+
+        JSONFragment.new(json, errors)
       end
 
       {% end %}
