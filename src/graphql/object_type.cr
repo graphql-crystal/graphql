@@ -98,7 +98,7 @@ module GraphQL::ObjectType
     when Array
       json.array do
         json_fragments = value.map_with_index do |v, i|
-          channel = Channel(JSONFragment).new
+          channel = Channel(JSONFragment | ::Exception).new
 
           spawn do
             fragment = _graphql_build_json_fragment(context, [path, i]) do |json|
@@ -108,6 +108,9 @@ module GraphQL::ObjectType
             end
 
             channel.send(fragment)
+          rescue ex
+            # unhandled exception, bubble up
+            channel.send(ex)
           end
 
           channel
@@ -115,6 +118,7 @@ module GraphQL::ObjectType
 
         json_fragments.each do |channel|
           fragment = channel.receive
+          raise fragment if fragment.is_a?(::Exception)
           errors.concat fragment.errors
 
           next if fragment.json.empty?
@@ -152,14 +156,14 @@ module GraphQL::ObjectType
   # :nodoc:
   protected def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
     errors = [] of ::GraphQL::Error
-    json_fragments = Hash(String, Channel(JSONFragment)).new
+    json_fragments = Hash(String, Channel(JSONFragment | ::Exception)).new
 
     selections.each do |selection|
       case selection
       when ::GraphQL::Language::Field
         next if _graphql_skip?(selection)
         path = selection._alias || selection.name
-        json_fragments[path] = Channel(JSONFragment).new
+        json_fragments[path] = Channel(JSONFragment | ::Exception).new
 
         spawn do
           fragment = _graphql_build_json_fragment(context, path) do |json|
@@ -167,6 +171,9 @@ module GraphQL::ObjectType
           end
 
           json_fragments[path].send fragment
+        rescue ex
+          # unhandled exception, bubble up
+          json_fragments[path].send(ex)
         end
       when ::GraphQL::Language::FragmentSpread
         next if _graphql_skip?(selection)
@@ -191,6 +198,8 @@ module GraphQL::ObjectType
 
     json_fragments.each do |path, channel|
       fragment = channel.receive
+      raise fragment if fragment.is_a?(::Exception)
+
       errors.concat fragment.errors
       next if fragment.json.empty?
 
