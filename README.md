@@ -156,6 +156,9 @@ class Foo < GraphQL::BaseObject
 
   @[GraphQL::Field]
   getter baz : Float64
+
+  def initialize(@bar, @baz)
+  end
 end
 ```
 
