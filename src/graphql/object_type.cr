@@ -71,7 +71,7 @@ module GraphQL::ObjectType
           end
         {% end %}
         else
-          raise ::GraphQL::TypeError.new("field is not defined: #{field.name}")
+          raise ::GraphQL::TypeError.new("Field is not defined: #{field.name}")
         end
         errors
 
