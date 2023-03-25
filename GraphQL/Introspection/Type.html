@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.5.0">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="0.4.0">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -605,33 +605,33 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#description%3AString%3F-instance-method" class="signature"><strong>#description</strong> : String?</a>
+        <a href="#description%3AString%7CNil-instance-method" class="signature"><strong>#description</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#enum_values%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AEnumValue%29%3F-instance-method" class="signature"><strong>#enum_values</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(GraphQL::Introspection::EnumValue)?</a>
+        <a href="#enum_values%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AEnumValue%29%7CNil-instance-method" class="signature"><strong>#enum_values</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(GraphQL::Introspection::EnumValue) | Nil</a>
         
           <div class="summary"><p>ENUM only</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#fields%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AField%29%3F-instance-method" class="signature"><strong>#fields</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(GraphQL::Introspection::Field)?</a>
+        <a href="#fields%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AField%29%7CNil-instance-method" class="signature"><strong>#fields</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(GraphQL::Introspection::Field) | Nil</a>
         
           <div class="summary"><p>OBJECT and INTERFACE only</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#input_fields%3AArray%28GraphQL%3A%3AIntrospection%3A%3AInputValue%29%3F-instance-method" class="signature"><strong>#input_fields</strong> : Array(GraphQL::Introspection::InputValue)?</a>
+        <a href="#input_fields%3AArray%28GraphQL%3A%3AIntrospection%3A%3AInputValue%29%7CNil-instance-method" class="signature"><strong>#input_fields</strong> : Array(GraphQL::Introspection::InputValue) | Nil</a>
         
           <div class="summary"><p>INPUT_OBJECT only</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#interfaces%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%3F-instance-method" class="signature"><strong>#interfaces</strong> : Array(GraphQL::Introspection::Type)?</a>
+        <a href="#interfaces%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%7CNil-instance-method" class="signature"><strong>#interfaces</strong> : Array(GraphQL::Introspection::Type) | Nil</a>
         
           <div class="summary"><p>OBJECT only</p></div>
         
@@ -643,19 +643,19 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#name%3AString%3F-instance-method" class="signature"><strong>#name</strong> : String?</a>
+        <a href="#name%3AString%7CNil-instance-method" class="signature"><strong>#name</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#of_type%3AGraphQL%3A%3AIntrospection%3A%3AType%3F-instance-method" class="signature"><strong>#of_type</strong> : GraphQL::Introspection::Type?</a>
+        <a href="#of_type%3AGraphQL%3A%3AIntrospection%3A%3AType%7CNil-instance-method" class="signature"><strong>#of_type</strong> : GraphQL::Introspection::Type | Nil</a>
         
           <div class="summary"><p>NON_NULL and LIST only</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#possible_types%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%3F-instance-method" class="signature"><strong>#possible_types</strong> : Array(GraphQL::Introspection::Type)?</a>
+        <a href="#possible_types%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%7CNil-instance-method" class="signature"><strong>#possible_types</strong> : Array(GraphQL::Introspection::Type) | Nil</a>
         
           <div class="summary"><p>INTERFACE and UNION only</p></div>
         
@@ -763,12 +763,12 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="description:String?-instance-method">
+    <div class="entry-detail" id="description:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>description</strong> : String?
+        def <strong>description</strong> : String | Nil
 
-        <a class="method-permalink" href="#description%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#description%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -777,12 +777,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="enum_values(include_deprecated:Bool=false):Array(GraphQL::Introspection::EnumValue)?-instance-method">
+    <div class="entry-detail" id="enum_values(include_deprecated:Bool=false):Array(GraphQL::Introspection::EnumValue)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>enum_values</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(<a href="../../GraphQL/Introspection/EnumValue.html">GraphQL::Introspection::EnumValue</a>)?
+        def <strong>enum_values</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(<a href="../../GraphQL/Introspection/EnumValue.html">GraphQL::Introspection::EnumValue</a>) | Nil
 
-        <a class="method-permalink" href="#enum_values%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AEnumValue%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#enum_values%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AEnumValue%29%7CNil-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -796,12 +796,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="fields(include_deprecated:Bool=false):Array(GraphQL::Introspection::Field)?-instance-method">
+    <div class="entry-detail" id="fields(include_deprecated:Bool=false):Array(GraphQL::Introspection::Field)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>fields</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(<a href="../../GraphQL/Introspection/Field.html">GraphQL::Introspection::Field</a>)?
+        def <strong>fields</strong>(include_deprecated : Bool = <span class="n">false</span>) : Array(<a href="../../GraphQL/Introspection/Field.html">GraphQL::Introspection::Field</a>) | Nil
 
-        <a class="method-permalink" href="#fields%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AField%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#fields%28include_deprecated%3ABool%3Dfalse%29%3AArray%28GraphQL%3A%3AIntrospection%3A%3AField%29%7CNil-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -815,12 +815,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="input_fields:Array(GraphQL::Introspection::InputValue)?-instance-method">
+    <div class="entry-detail" id="input_fields:Array(GraphQL::Introspection::InputValue)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>input_fields</strong> : Array(<a href="../../GraphQL/Introspection/InputValue.html">GraphQL::Introspection::InputValue</a>)?
+        def <strong>input_fields</strong> : Array(<a href="../../GraphQL/Introspection/InputValue.html">GraphQL::Introspection::InputValue</a>) | Nil
 
-        <a class="method-permalink" href="#input_fields%3AArray%28GraphQL%3A%3AIntrospection%3A%3AInputValue%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#input_fields%3AArray%28GraphQL%3A%3AIntrospection%3A%3AInputValue%29%7CNil-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -834,12 +834,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="interfaces:Array(GraphQL::Introspection::Type)?-instance-method">
+    <div class="entry-detail" id="interfaces:Array(GraphQL::Introspection::Type)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>interfaces</strong> : Array(<a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>)?
+        def <strong>interfaces</strong> : Array(<a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>) | Nil
 
-        <a class="method-permalink" href="#interfaces%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#interfaces%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%7CNil-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -867,12 +867,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="name:String?-instance-method">
+    <div class="entry-detail" id="name:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>name</strong> : String?
+        def <strong>name</strong> : String | Nil
 
-        <a class="method-permalink" href="#name%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#name%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -881,12 +881,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="of_type:GraphQL::Introspection::Type?-instance-method">
+    <div class="entry-detail" id="of_type:GraphQL::Introspection::Type|Nil-instance-method">
       <div class="signature">
         
-        def <strong>of_type</strong> : <a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>?
+        def <strong>of_type</strong> : <a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a> | Nil
 
-        <a class="method-permalink" href="#of_type%3AGraphQL%3A%3AIntrospection%3A%3AType%3F-instance-method">#</a>
+        <a class="method-permalink" href="#of_type%3AGraphQL%3A%3AIntrospection%3A%3AType%7CNil-instance-method">#</a>
       </div>
       
         <div class="doc">
@@ -900,12 +900,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="possible_types:Array(GraphQL::Introspection::Type)?-instance-method">
+    <div class="entry-detail" id="possible_types:Array(GraphQL::Introspection::Type)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>possible_types</strong> : Array(<a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>)?
+        def <strong>possible_types</strong> : Array(<a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>) | Nil
 
-        <a class="method-permalink" href="#possible_types%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#possible_types%3AArray%28GraphQL%3A%3AIntrospection%3A%3AType%29%7CNil-instance-method">#</a>
       </div>
       
         <div class="doc">

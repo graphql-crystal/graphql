@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.5.0">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="0.4.0">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -567,7 +567,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28document%3AGraphQL%3A%3ALanguage%3A%3ADocument%2Cquery_type%3AString%2Cmutation_type%3AString%3F%29-class-method" class="signature"><strong>.new</strong>(document : GraphQL::Language::Document, query_type : String, mutation_type : String?)</a>
+        <a href="#new%28document%3AGraphQL%3A%3ALanguage%3A%3ADocument%2Cquery_type%3AString%2Cmutation_type%3ANil%7CString%29-class-method" class="signature"><strong>.new</strong>(document : GraphQL::Language::Document, query_type : String, mutation_type : Nil | String)</a>
         
       </li>
     
@@ -593,7 +593,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#mutation_type%3AGraphQL%3A%3AIntrospection%3A%3AType%3F-instance-method" class="signature"><strong>#mutation_type</strong> : GraphQL::Introspection::Type?</a>
+        <a href="#mutation_type%3AGraphQL%3A%3AIntrospection%3A%3AType%7CNil-instance-method" class="signature"><strong>#mutation_type</strong> : GraphQL::Introspection::Type | Nil</a>
         
       </li>
     
@@ -603,7 +603,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#subscription_type%3AGraphQL%3A%3AIntrospection%3A%3AType%3F-instance-method" class="signature"><strong>#subscription_type</strong> : GraphQL::Introspection::Type?</a>
+        <a href="#subscription_type%3AGraphQL%3A%3AIntrospection%3A%3AType%7CNil-instance-method" class="signature"><strong>#subscription_type</strong> : GraphQL::Introspection::Type | Nil</a>
         
       </li>
     
@@ -662,12 +662,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(document:GraphQL::Language::Document,query_type:String,mutation_type:String?)-class-method">
+    <div class="entry-detail" id="new(document:GraphQL::Language::Document,query_type:String,mutation_type:Nil|String)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(document : <a href="../../GraphQL/Language/Document.html">GraphQL::Language::Document</a>, query_type : String, mutation_type : String?)
+        def self.<strong>new</strong>(document : <a href="../../GraphQL/Language/Document.html">GraphQL::Language::Document</a>, query_type : String, mutation_type : Nil | String)
 
-        <a class="method-permalink" href="#new%28document%3AGraphQL%3A%3ALanguage%3A%3ADocument%2Cquery_type%3AString%2Cmutation_type%3AString%3F%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28document%3AGraphQL%3A%3ALanguage%3A%3ADocument%2Cquery_type%3AString%2Cmutation_type%3ANil%7CString%29-class-method">#</a>
       </div>
       
       <br/>
@@ -704,12 +704,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="mutation_type:GraphQL::Introspection::Type?-instance-method">
+    <div class="entry-detail" id="mutation_type:GraphQL::Introspection::Type|Nil-instance-method">
       <div class="signature">
         
-        def <strong>mutation_type</strong> : <a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>?
+        def <strong>mutation_type</strong> : <a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a> | Nil
 
-        <a class="method-permalink" href="#mutation_type%3AGraphQL%3A%3AIntrospection%3A%3AType%3F-instance-method">#</a>
+        <a class="method-permalink" href="#mutation_type%3AGraphQL%3A%3AIntrospection%3A%3AType%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -732,12 +732,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="subscription_type:GraphQL::Introspection::Type?-instance-method">
+    <div class="entry-detail" id="subscription_type:GraphQL::Introspection::Type|Nil-instance-method">
       <div class="signature">
         
-        def <strong>subscription_type</strong> : <a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a>?
+        def <strong>subscription_type</strong> : <a href="../../GraphQL/Introspection/Type.html">GraphQL::Introspection::Type</a> | Nil
 
-        <a class="method-permalink" href="#subscription_type%3AGraphQL%3A%3AIntrospection%3A%3AType%3F-instance-method">#</a>
+        <a class="method-permalink" href="#subscription_type%3AGraphQL%3A%3AIntrospection%3A%3AType%7CNil-instance-method">#</a>
       </div>
       
       <br/>

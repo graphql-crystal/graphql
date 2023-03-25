@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.5.0">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="0.4.0">
 <meta name="crystal_docs.project_name" content="graphql">
 
@@ -553,7 +553,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28query%3AQueryType%2Cmutation%3AMutationType%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(query : QueryType, mutation : MutationType? = <span class="n">nil</span>)</a>
+        <a href="#new%28query%3AQueryType%2Cmutation%3AMutationType%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(query : QueryType, mutation : MutationType | Nil = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -579,12 +579,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%3F%3Dnil%2Coperation_name%3AString%3F%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method" class="signature"><strong>#execute</strong>(query : String, variables : Hash(String, JSON::Any)? = <span class="n">nil</span>, operation_name : String? = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : String</a>
+        <a href="#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method" class="signature"><strong>#execute</strong>(query : String, variables : Hash(String, JSON::Any) | Nil = <span class="n">nil</span>, operation_name : String | Nil = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : String</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#execute%28io%3AIO%2Cquery%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%3F%3Dnil%2Coperation_name%3AString%3F%3Dnil%2Ccontext%3DContext.new%29%3ANil-instance-method" class="signature"><strong>#execute</strong>(io : IO, query : String, variables : Hash(String, JSON::Any)? = <span class="n">nil</span>, operation_name : String? = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : Nil</a>
+        <a href="#execute%28io%3AIO%2Cquery%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3ANil-instance-method" class="signature"><strong>#execute</strong>(io : IO, query : String, variables : Hash(String, JSON::Any) | Nil = <span class="n">nil</span>, operation_name : String | Nil = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : Nil</a>
         
       </li>
     
@@ -628,12 +628,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(query:QueryType,mutation:MutationType?=nil)-class-method">
+    <div class="entry-detail" id="new(query:QueryType,mutation:MutationType|Nil=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(query : <a href="../GraphQL/QueryType.html">QueryType</a>, mutation : <a href="../GraphQL/MutationType.html">MutationType</a>? = <span class="n">nil</span>)
+        def self.<strong>new</strong>(query : <a href="../GraphQL/QueryType.html">QueryType</a>, mutation : <a href="../GraphQL/MutationType.html">MutationType</a> | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28query%3AQueryType%2Cmutation%3AMutationType%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28query%3AQueryType%2Cmutation%3AMutationType%7CNil%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -670,12 +670,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="execute(query:String,variables:Hash(String,JSON::Any)?=nil,operation_name:String?=nil,context=Context.new):String-instance-method">
+    <div class="entry-detail" id="execute(query:String,variables:Hash(String,JSON::Any)|Nil=nil,operation_name:String|Nil=nil,context=Context.new):String-instance-method">
       <div class="signature">
         
-        def <strong>execute</strong>(query : String, variables : Hash(String, JSON::Any)? = <span class="n">nil</span>, operation_name : String? = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : String
+        def <strong>execute</strong>(query : String, variables : Hash(String, JSON::Any) | Nil = <span class="n">nil</span>, operation_name : String | Nil = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : String
 
-        <a class="method-permalink" href="#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%3F%3Dnil%2Coperation_name%3AString%3F%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method">#</a>
       </div>
       
       <br/>
@@ -684,12 +684,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="execute(io:IO,query:String,variables:Hash(String,JSON::Any)?=nil,operation_name:String?=nil,context=Context.new):Nil-instance-method">
+    <div class="entry-detail" id="execute(io:IO,query:String,variables:Hash(String,JSON::Any)|Nil=nil,operation_name:String|Nil=nil,context=Context.new):Nil-instance-method">
       <div class="signature">
         
-        def <strong>execute</strong>(io : IO, query : String, variables : Hash(String, JSON::Any)? = <span class="n">nil</span>, operation_name : String? = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : Nil
+        def <strong>execute</strong>(io : IO, query : String, variables : Hash(String, JSON::Any) | Nil = <span class="n">nil</span>, operation_name : String | Nil = <span class="n">nil</span>, context = <span class="t">Context</span>.new) : Nil
 
-        <a class="method-permalink" href="#execute%28io%3AIO%2Cquery%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%3F%3Dnil%2Coperation_name%3AString%3F%3Dnil%2Ccontext%3DContext.new%29%3ANil-instance-method">#</a>
+        <a class="method-permalink" href="#execute%28io%3AIO%2Cquery%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3ANil-instance-method">#</a>
       </div>
       
       <br/>
