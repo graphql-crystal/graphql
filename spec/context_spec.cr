@@ -62,9 +62,9 @@ describe GraphQL::Context do
 
     schema.execute(query, context: ctx).should eq (
       {
-        "data" => {} of String => JSON::Any,
+        "data"   => {} of String => JSON::Any,
         "errors" => [
-          { "message" => "boom", "path" => ["exception"] }
+          {"message" => "boom", "path" => ["exception"]},
         ],
       }
     ).to_json

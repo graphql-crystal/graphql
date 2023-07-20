@@ -16,11 +16,11 @@ module GraphQL
         value.as({{type.id}})
       end
 
-      def self.to_fvalue(v : NullValue): Nil
+      def self.to_fvalue(v : NullValue) : Nil
         nil
       end
 
-      def self.to_argumentvalue(v : NullValue): Nil
+      def self.to_argumentvalue(v : NullValue) : Nil
         nil
       end
     end

@@ -32,11 +32,11 @@ describe GraphQL do
     )).should eq (
       {
         "data" => {
-          "prop" => "123",
+          "prop"   => "123",
           "getter" => "foo",
-          "q" => {
+          "q"      => {
             "prop": "321",
-          }
+          },
         },
       }
     ).to_json

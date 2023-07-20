@@ -212,7 +212,7 @@ module GraphQL::ObjectType
   # :nodoc:
   private def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread, json : JSON::Builder) : Array(::GraphQL::Error)
     errors = [] of ::GraphQL::Error
-    f = context.fragments.find{ |f| f.name == fragment.name}
+    f = context.fragments.find { |f| f.name == fragment.name }
     if f.nil?
       errors << ::GraphQL::Error.new("no fragment #{fragment.name}", fragment.name)
     else

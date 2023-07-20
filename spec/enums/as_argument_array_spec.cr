@@ -46,7 +46,7 @@ describe GraphQL::Enum do
   end
 
   it "returns the correct value with variable" do
-    request = {"variables" => {"e" => ["EMPIRE","NEWHOPE"]}}.to_json
+    request = {"variables" => {"e" => ["EMPIRE", "NEWHOPE"]}}.to_json
 
     graphql_request = GraphqlRequest.from_json(request)
 

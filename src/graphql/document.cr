@@ -62,8 +62,16 @@ module GraphQL::Document
           scalars = [::GraphQL::Scalars::String, ::GraphQL::Scalars::Boolean, ::GraphQL::Scalars::Float, ::GraphQL::Scalars::Int, ::GraphQL::Scalars::ID] of TypeNode
 
           (0..1000).each do |i|
-            if objects[i]
-              objects[i].instance_vars.select(&.annotation(::GraphQL::Field)).each do |prop|
+            obj = objects[i]
+            if obj
+              vars = obj.instance_vars.select(&.annotation(::GraphQL::Field))
+              obj.ancestors.each do |ancestor|
+                ancestor.instance_vars.select(&.annotation(::GraphQL::Field)).each do |var|
+                  vars << var
+                end
+              end
+
+              vars.select(&.annotation(::GraphQL::Field)).each do |prop|
                 prop.type.resolve.union_types.each do |type|
                   if type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(type.resolve) && !(type.resolve < ::GraphQL::Context)
                     objects << type.resolve
@@ -88,9 +96,16 @@ module GraphQL::Document
                 end
               end
 
-              objects[i].methods.select(&.annotation(::GraphQL::Field)).each do |method|
-                if method.return_type.is_a?(Nop) && !objects[i].annotation(::GraphQL::InputObject)
-                  raise "GraphQL: #{objects[i].name.id}##{method.name.id} must have a return type"
+              methods = obj.methods.select(&.annotation(::GraphQL::Field))
+              obj.ancestors.each do |ancestor|
+                ancestor.methods.select(&.annotation(::GraphQL::Field)).each do |method|
+                  methods << method
+                end
+              end
+
+              methods.each do |method|
+                if method.return_type.is_a?(Nop) && !obj.annotation(::GraphQL::InputObject)
+                  raise "GraphQL: #{obj.name.id}##{method.name.id} must have a return type"
                 end
 
                 method.args.each do |arg|
@@ -118,7 +133,7 @@ module GraphQL::Document
                   end
                 end
 
-                if objects[i].annotation(::GraphQL::Object)
+                if obj.annotation(::GraphQL::Object)
                   method.return_type.types.each do |type|
                     if type.resolve < Array
                       type.resolve.type_vars.each do |inner_type|
