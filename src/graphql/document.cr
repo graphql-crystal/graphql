@@ -175,7 +175,16 @@ module GraphQL::Document
         {% for object in objects %}
           %fields = [] of ::GraphQL::Language::FieldDefinition
 
-          {% for var in object.instance_vars.select(&.annotation(::GraphQL::Field)) %}
+          {%
+            vars = object.instance_vars.select(&.annotation(::GraphQL::Field))
+            object.ancestors.each do |ancestor|
+              ancestor.instance_vars.select(&.annotation(::GraphQL::Field)).each do |var|
+                vars << var
+              end
+            end
+          %}
+
+          {% for var in vars %}
             %directives = [] of ::GraphQL::Language::Directive
             {% if var.annotation(::GraphQL::Field)["deprecated"] %}
               %directives << ::GraphQL::Language::Directive.new(
@@ -192,7 +201,16 @@ module GraphQL::Document
             )
           {% end %}
 
-          {% for method in object.methods.select(&.annotation(::GraphQL::Field)) %}
+          {%
+            methods = object.methods.select(&.annotation(::GraphQL::Field))
+            object.ancestors.each do |ancestor|
+              ancestor.methods.select(&.annotation(::GraphQL::Field)).each do |method|
+                methods << method
+              end
+            end
+          %}
+
+          {% for method in methods %}
             %input_values = [] of ::GraphQL::Language::InputValueDefinition
             {% for arg in method.args %}
               {% unless arg.restriction.resolve <= ::GraphQL::Context %}
