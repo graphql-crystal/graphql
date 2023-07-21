@@ -53,7 +53,7 @@ class GraphQL::Language::LexerContext
     code = @source[start]
     code = self.next_code if code == '-'
     next_code_char = code == '0' ? self.next_code : read_digits_from_own_source(code)
-    raise ParserError.new("Invalid number, unexpected digit after #{code}: #{next_code_char}") if (next_code_char.ord >= 48 && next_code_char.ord <= 57)
+    raise ParserError.new("Invalid number, unexpected digit after #{code}: #{next_code_char}") if next_code_char.ord >= 48 && next_code_char.ord <= 57
 
     code = next_code_char
     if code == '.'
@@ -296,7 +296,7 @@ class GraphQL::Language::LexerContext
   end
 
   private def resolve_char_name(code, unicode_string = nil)
-    return "<EOF>" if (code == '\0')
+    return "<EOF>" if code == '\0'
 
     return "\"#{unicode_string}\"" if unicode_string && !unicode_string.blank?
     "\"#{code}\""
