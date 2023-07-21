@@ -9,5 +9,6 @@ crystal: ">= 1.4.0"
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
+    branch: master
   kemal:
     github: kemalcr/kemal
