@@ -222,7 +222,7 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
-  private def _graphql_build_json_fragment(context, path : String | Array(Int32 | String), &block : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
+  private def _graphql_build_json_fragment(context, path : String | Array(Int32 | String), & : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
     errors = [] of ::GraphQL::Error
 
     json = String.build do |io|

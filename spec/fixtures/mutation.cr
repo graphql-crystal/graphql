@@ -58,7 +58,8 @@ module MutationFixture
       return io.map &.value unless io.nil?
       return strings unless strings.nil?
       return ints.map &.to_s unless ints.nil?
-      floats.not_nil!.map &.to_s
+      return floats.map &.to_s unless floats.nil?
+      [] of String
     end
   end
 end

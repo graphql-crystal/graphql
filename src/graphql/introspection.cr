@@ -30,9 +30,9 @@ module GraphQL
       @[GraphQL::Field]
       def mutation_type : GraphQL::Introspection::Type?
         if mt = @mutation_type
-          Type.new @document, @document.definitions.find { |d|
+          Type.new @document, @document.definitions.find! { |d|
             d.is_a?(Language::TypeDefinition) && d.name == mt
-          }.not_nil!.as(Language::TypeDefinition)
+          }.as(Language::TypeDefinition)
         else
           nil
         end

@@ -16,7 +16,7 @@ class GraphQL::Language::ParserContext
   end
 
   def dispose
-    raise ParserError.new("ParserContext has {descriptions.Count} not applied descriptions.") if (descriptions.Count > 0)
+    raise ParserError.new("ParserContext has {descriptions.Count} not applied descriptions.") if descriptions.Count > 0
   end
 
   private def advance
@@ -94,7 +94,7 @@ class GraphQL::Language::ParserContext
   end
 
   private def expect(kind)
-    if (@current_token.kind == kind)
+    if @current_token.kind == kind
       advance
     else
       raise ParserError.new("Expected #{Token.get_token_kind_description(kind)}, found #{@current_token.kind} #{@current_token.value}")
