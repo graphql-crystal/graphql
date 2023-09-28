@@ -13,7 +13,7 @@ module GraphQL::Document
 
           objects = [@type, ::GraphQL::Introspection::Schema]
           enums = [] of TypeNode
-          scalars = [::GraphQL::Scalars::String, ::GraphQL::Scalars::Boolean, ::GraphQL::Scalars::Float, ::GraphQL::Scalars::Int, ::GraphQL::Scalars::ID] of TypeNode
+          scalars = [::GraphQL::Scalars::String, ::GraphQL::Scalars::Boolean, ::GraphQL::Scalars::Float, ::GraphQL::Scalars::Int, ::GraphQL::Scalars::Int64, ::GraphQL::Scalars::ID] of TypeNode
 
           (0..1000).each do |i|
             if objects[i]

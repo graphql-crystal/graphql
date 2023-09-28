@@ -29,6 +29,15 @@ module GraphQL::Scalars
     end
   end
 
+  @[Scalar(description: "The `Int64` scalar type represents Int64.")]
+  record Int64, value : ::Int64 do
+    include GraphQL::ScalarType
+
+    def to_json(builder)
+      builder.scalar(@value)
+    end
+  end
+
   @[Scalar(description: "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).")]
   record Float, value : ::Float64 do
     include GraphQL::ScalarType
