@@ -131,6 +131,9 @@ module GraphQL::Document
                 {% elsif type == String %}
                   %type = ::GraphQL::Language::TypeName.new(name: "String")
                   %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
+                {% elsif type == GraphQL::Scalars::Int64 %}
+                  %type = ::GraphQL::Language::TypeName.new(name: "Int")
+                  %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
                 {% elsif type < Int %}
                   %type = ::GraphQL::Language::TypeName.new(name: "Int")
                   %default_value = {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }}
