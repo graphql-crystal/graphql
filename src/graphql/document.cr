@@ -89,6 +89,9 @@ module GraphQL::Document
                     if inner_type.resolve.annotation(::GraphQL::InputObject) && !objects.includes?(inner_type.resolve) && !(inner_type.resolve < ::GraphQL::Context)
                       objects << inner_type.resolve
                     end
+                    if inner_type.resolve.annotation(::GraphQL::Object) && !objects.includes?(inner_type.resolve) && !(inner_type.resolve < ::GraphQL::Context)
+                      objects << inner_type.resolve
+                    end
                     if inner_type.resolve.annotation(::GraphQL::Enum) && !enums.includes?(inner_type.resolve)
                       enums << inner_type.resolve
                     end

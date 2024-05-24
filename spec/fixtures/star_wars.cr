@@ -5,7 +5,8 @@ module StarWars
       name: "Luke Skywalker",
       friends: ["1002", "1003", "2000", "2001"],
       appears_in: [Episode::IV, Episode::V, Episode::VI],
-      home_planet: "Tatooine"
+      home_planet: "Tatooine",
+      lightsabers: [Lightsaber.new(color: "green")]
     ),
     Human.new(
       id: "1001",
@@ -85,12 +86,26 @@ module StarWars
   end
 
   @[GraphQL::Object]
+  class Lightsaber
+    include GraphQL::ObjectType
+
+    @[GraphQL::Field]
+    property color : String
+
+    def initialize(@color : String)
+    end
+  end
+
+  @[GraphQL::Object]
   class Human < Character
     include GraphQL::ObjectType
 
     @home_planet : String?
 
-    def initialize(@id, @name, @friends, @appears_in, @home_planet = nil)
+    @[GraphQL::Field]
+    property lightsabers : Array(Lightsaber)
+
+    def initialize(@id, @name, @friends, @appears_in, @lightsabers = [] of Lightsaber, @home_planet = nil)
     end
 
     @[GraphQL::Field]
