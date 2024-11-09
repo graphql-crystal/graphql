@@ -19,7 +19,7 @@ jobs:
       - name: Build documentation
         run: crystal docs
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.6.8
+        uses: JamesIves/github-pages-deploy-action@v4.6.9
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
