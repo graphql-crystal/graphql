@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-09
+
+### Fixed
+
+- Nullable variables may be omitted or set to `null`, and defaults declared in
+  the operation (`query ($n: Int = 1)`) are applied. Previously every omitted
+  variable failed the whole request with "missing variable"
+- `null` literals and `null` variable values are accepted for nullable
+  arguments instead of failing with "bad type for argument"
+- Omitting a non-null variable now reports "missing required variable", and a
+  variable whose value cannot be converted reports the conversion error
+  instead of "missing variable"
+- Syntax errors in a query are returned in the `errors` array instead of
+  raising `GraphQL::ParserError` out of `Schema#execute`
+- Unsupported operation types such as `subscription` return an error instead
+  of an empty response
+- Error paths for list elements no longer repeat the field name
+  (`["items", 0, "items", "boom"]` is now `["items", 0, "boom"]`), and nested
+  lists include every index
+- Root mutation fields are resolved serially even when `max_concurrency` is
+  set, as the spec requires. Nested fields still run concurrently
+- Fields selected through fragment spreads and inline fragments keep their
+  position in the response, and fields sharing a response key are merged
+  instead of emitting duplicate keys
+
 ## [0.5.1] - 2026-10-09
 
 ### Fixed
