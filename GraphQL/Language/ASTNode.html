@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Crystal Docs 1.20.3">
-<meta name="crystal_docs.project_version" content="0.9.3">
+<meta name="crystal_docs.project_version" content="0.9.4">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::ASTNode - graphql 0.9.3</title>
+  <title>GraphQL::Language::ASTNode - graphql 0.9.4</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.9.3
+        0.9.4
       </span>
     </div>
   </div>
@@ -667,7 +667,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28line%3AInt32%7CNil%3Dnil%2Ccolumn%3AInt32%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(line : Int32 | Nil = <span class="n">nil</span>, column : Int32 | Nil = <span class="n">nil</span>)</a>
+        <a href="#new%28source%3AString%7CNil%3Dnil%2Cstart%3AInt32%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(source : String | Nil = <span class="n">nil</span>, start : Int32 | Nil = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -714,24 +714,14 @@
       <li class="entry-summary">
         <a href="#column%3AInt32%7CNil-instance-method" class="signature"><strong>#column</strong> : Int32 | Nil</a>
         
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#column%3D%28column%3AInt32%7CNil%29-instance-method" class="signature"><strong>#column=</strong>(column : Int32 | Nil)</a>
+          <div class="summary"><p>1-based column of the node in the query, if known.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#line%3AInt32%7CNil-instance-method" class="signature"><strong>#line</strong> : Int32 | Nil</a>
         
-          <div class="summary"><p>1-based position in the query source, set by the parser on the nodes that errors refer to.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#line%3D%28line%3AInt32%7CNil%29-instance-method" class="signature"><strong>#line=</strong>(line : Int32 | Nil)</a>
-        
-          <div class="summary"><p>1-based position in the query source, set by the parser on the nodes that errors refer to.</p></div>
+          <div class="summary"><p>1-based line of the node in the query, if known.</p></div>
         
       </li>
     
@@ -784,12 +774,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(line:Int32|Nil=nil,column:Int32|Nil=nil)-class-method">
+    <div class="entry-detail" id="new(source:String|Nil=nil,start:Int32|Nil=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(line : Int32 | Nil = <span class="n">nil</span>, column : Int32 | Nil = <span class="n">nil</span>)
+        def self.<strong>new</strong>(source : String | Nil = <span class="n">nil</span>, start : Int32 | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28line%3AInt32%7CNil%3Dnil%2Ccolumn%3AInt32%7CNil%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28source%3AString%7CNil%3Dnil%2Cstart%3AInt32%7CNil%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -860,19 +850,10 @@
         <a class="method-permalink" href="#column%3AInt32%7CNil-instance-method">#</a>
       </div>
       
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="column=(column:Int32|Nil)-instance-method">
-      <div class="signature">
-        
-        def <strong>column=</strong>(column : Int32 | Nil)
-
-        <a class="method-permalink" href="#column%3D%28column%3AInt32%7CNil%29-instance-method">#</a>
-      </div>
+        <div class="doc">
+          
+          <p>1-based column of the node in the query, if known.</p>
+        </div>
       
       <br/>
       <div>
@@ -890,28 +871,7 @@
       
         <div class="doc">
           
-          <p>1-based position in the query source, set by the parser on the
-nodes that errors refer to.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="line=(line:Int32|Nil)-instance-method">
-      <div class="signature">
-        
-        def <strong>line=</strong>(line : Int32 | Nil)
-
-        <a class="method-permalink" href="#line%3D%28line%3AInt32%7CNil%29-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>1-based position in the query source, set by the parser on the
-nodes that errors refer to.</p>
+          <p>1-based line of the node in the query, if known.</p>
         </div>
       
       <br/>
