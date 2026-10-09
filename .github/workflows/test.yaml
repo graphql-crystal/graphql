@@ -34,6 +34,6 @@ jobs:
         run: crystal tool format --check src spec
       - name: Lint
         if: ${{ matrix.format }}
-        run: crystal build lib/ameba/src/cli.cr -o bin/ameba && bin/ameba
+        run: mkdir -p bin && crystal build lib/ameba/src/cli.cr -o bin/ameba && bin/ameba
       - name: Run tests
         run: crystal spec
