@@ -11,6 +11,12 @@ module GraphQL
     # Number of fields the executed operation selected, filled in by
     # `Schema#execute` before resolution starts.
     property complexity = 0
+
+    # Maximum nesting of selection sets, lists and input objects a query may
+    # have. Parsing stops with an error beyond it. The default of 100 is far
+    # above what real queries use, and protects the process: nesting a few
+    # thousand levels deep would otherwise overflow the stack.
+    property max_depth : Int32 = Language::DEFAULT_MAX_DEPTH
     property fragments : Array(Language::FragmentDefinition) = [] of Language::FragmentDefinition
     property query_type : String = ""
     property mutation_type : String? = nil

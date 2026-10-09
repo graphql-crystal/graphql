@@ -5,11 +5,24 @@ class GraphQL::Language::ParserContext
   @current_token : Token
   @descriptions = [] of String
 
-  def initialize(source : String, lexer : Language::Lexer)
+  @depth = 0
+
+  def initialize(source : String, lexer : Language::Lexer, @max_depth : Int32 = Language::DEFAULT_MAX_DEPTH)
     @source = source
     @lexer = lexer
 
     @current_token = @lexer.lex(@source)
+  end
+
+  # Tracks how deeply selection sets, lists and input objects nest, so a
+  # hostile query cannot exhaust the stack of the recursive descent here or
+  # of the walks that run on the document afterwards.
+  private def nested(&)
+    @depth += 1
+    raise ParserError.new("query nesting depth exceeds #{@max_depth}") if @depth > @max_depth
+    yield
+  ensure
+    @depth -= 1
   end
 
   def parse
@@ -505,7 +518,7 @@ class GraphQL::Language::ParserContext
     constant = Proc(Language::ArgumentValue).new { parse_constant_value }
     value = Proc(Language::ArgumentValue).new { parse_value_value }
 
-    any(Token::Kind::BRACKET_L, is_constant ? constant : value, Token::Kind::BRACKET_R)
+    nested { any(Token::Kind::BRACKET_L, is_constant ? constant : value, Token::Kind::BRACKET_R) }
   end
 
   private def parse_name : String?
@@ -582,9 +595,11 @@ class GraphQL::Language::ParserContext
   private def parse_object_fields(is_constant)
     fields = [] of Language::Argument
 
-    expect(Token::Kind::BRACE_L)
-    while !skip(Token::Kind::BRACE_R)
-      fields.push(parse_object_field(is_constant))
+    nested do
+      expect(Token::Kind::BRACE_L)
+      while !skip(Token::Kind::BRACE_R)
+        fields.push(parse_object_field(is_constant))
+      end
     end
 
     fields
@@ -664,7 +679,7 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_selection_set
-    many(Token::Kind::BRACE_L, -> { parse_selection }, Token::Kind::BRACE_R)
+    nested { many(Token::Kind::BRACE_L, -> { parse_selection }, Token::Kind::BRACE_R) }
   end
 
   private def parse_string(is_constant)

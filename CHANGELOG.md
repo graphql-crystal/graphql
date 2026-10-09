@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Queries nesting selection sets, lists or input objects more than
+  `Context#max_depth` levels (100 by default) are rejected while parsing.
+  Before, a query a few thousand levels deep overflowed the stack and killed
+  the process
+
+### Changed
+
+- `GraphQL::Language.parse` takes a `max_depth` argument. The unused
+  `Parser#max_nesting` property is gone
+
 ## [0.9.1] - 2026-10-09
 
 ### Added

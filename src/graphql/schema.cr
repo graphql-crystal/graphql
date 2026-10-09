@@ -163,7 +163,7 @@ module GraphQL
     # the operation to run, or nil after adding the reason to `errors`.
     private def prepare(query : String, variables : Hash(String, JSON::Any)?, operation_name : String?, context : Context, errors : Array(Error)) : Language::OperationDefinition?
       document = begin
-        Language.parse(query)
+        Language.parse(query, max_depth: context.max_depth)
       rescue ex : ParserError
         errors << Error.new(ex.message || "syntax error")
         return nil

@@ -149,6 +149,15 @@ whole selection tree with fragments expanded. It is computed before any
 resolver runs, and an operation over the limit is answered with an error and
 no data. After execution, `context.complexity` holds the count.
 
+Nesting depth is limited separately. Selection sets, lists and input objects
+may nest `max_depth` levels, 100 by default, and a deeper query is rejected
+while parsing. Real queries rarely pass twenty levels; the limit exists so a
+hostile query cannot exhaust the stack:
+
+```crystal
+context.max_depth = 30
+```
+
 ## Objects
 
 Objects are perhaps the most commonly used type in GraphQL. They are implemented
