@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Resolver fibers no longer leak when a sibling field or array element raises
+  an exception that bubbles up (#48, #52)
+
+### Changed
+
+- Fields and array elements are now resolved sequentially by default. Set
+  `Context#max_concurrency` to resolve them concurrently with a bounded number
+  of fibers; previously every field and array element spawned its own fiber
+  with no limit
+
 ## [0.4.0] - 2022-03-29
 
 ### Added

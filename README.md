@@ -115,6 +115,24 @@ end
 
 Context instances must not be reused for multiple executions.
 
+## Concurrency
+
+By default, a query is resolved sequentially in the fiber that called
+`schema.execute`. To resolve fields and array elements concurrently, set
+`max_concurrency` on the context:
+
+```crystal
+context = MyContext.new(Math::PI)
+context.max_concurrency = 8
+schema.execute(query, variables, operation_name, context)
+```
+
+This is the maximum number of fibers a single execution may have running at
+once. When the budget is used up, remaining work runs inline, so a large
+list never fans out into an unbounded number of fibers. Choose a value your
+downstream resources can sustain; resolvers that check out database
+connections should stay below the connection pool size.
+
 ## Objects
 
 Objects are perhaps the most commonly used type in GraphQL. They are implemented

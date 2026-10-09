@@ -7,6 +7,9 @@ module GraphQL::ObjectType
   # :nodoc:
   record JSONFragment, json : String, errors : Array(::GraphQL::Error)
 
+  # :nodoc:
+  alias PendingFragment = Channel(JSONFragment | ::Exception) | JSONFragment | ::Exception
+
   macro included
     macro finished
       {% verbatim do %}
@@ -97,28 +100,18 @@ module GraphQL::ObjectType
       end
     when Array
       json.array do
-        json_fragments = value.map_with_index do |v, i|
-          channel = Channel(JSONFragment | ::Exception).new
-
-          spawn do
-            fragment = _graphql_build_json_fragment(context, [path, i]) do |json|
+        pending = value.map_with_index do |v, i|
+          _graphql_fork(context) do
+            _graphql_build_json_fragment(context, [path, i]) do |json|
               _graphql_serialize(context, field, v, json).map do |error|
                 error.with_path(i).with_path(path)
               end
             end
-
-            channel.send(fragment)
-          rescue ex
-            # unhandled exception, bubble up
-            channel.send(ex)
           end
-
-          channel
         end
 
-        json_fragments.each do |channel|
-          fragment = channel.receive
-          raise fragment if fragment.is_a?(::Exception)
+        pending.each do |item|
+          fragment = _graphql_await(item)
           errors.concat fragment.errors
 
           next if fragment.json.empty?
@@ -156,24 +149,18 @@ module GraphQL::ObjectType
   # :nodoc:
   protected def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
     errors = [] of ::GraphQL::Error
-    json_fragments = Hash(String, Channel(JSONFragment | ::Exception)).new
+    pending = Hash(String, PendingFragment).new
 
     selections.each do |selection|
       case selection
       when ::GraphQL::Language::Field
         next if _graphql_skip?(selection)
         path = selection._alias || selection.name
-        json_fragments[path] = Channel(JSONFragment | ::Exception).new
 
-        spawn do
-          fragment = _graphql_build_json_fragment(context, path) do |json|
+        pending[path] = _graphql_fork(context) do
+          _graphql_build_json_fragment(context, path) do |json|
             _graphql_resolve(context, selection, json)
           end
-
-          json_fragments[path].send fragment
-        rescue ex
-          # unhandled exception, bubble up
-          json_fragments[path].send(ex)
         end
       when ::GraphQL::Language::FragmentSpread
         next if _graphql_skip?(selection)
@@ -196,10 +183,8 @@ module GraphQL::ObjectType
       end
     end
 
-    json_fragments.each do |path, channel|
-      fragment = channel.receive
-      raise fragment if fragment.is_a?(::Exception)
-
+    pending.each do |path, item|
+      fragment = _graphql_await(item)
       errors.concat fragment.errors
       next if fragment.json.empty?
 
@@ -207,6 +192,44 @@ module GraphQL::ObjectType
     end
 
     errors
+  end
+
+  # :nodoc:
+  # Builds a fragment in a new fiber if the context's concurrency budget
+  # allows it, otherwise right here in the calling fiber. Either way the
+  # result (or the exception it raised) is handed back to `_graphql_await`,
+  # so ordering and error semantics are identical on both paths.
+  private def _graphql_fork(context, &block : -> JSONFragment) : PendingFragment
+    if context._graphql_acquire?
+      # Capacity 1 lets the fiber deliver its result and exit even when the
+      # receiver gave up early because a sibling raised. With an unbuffered
+      # channel such fibers would block on `send` forever.
+      channel = Channel(JSONFragment | ::Exception).new(1)
+
+      spawn do
+        channel.send(block.call)
+      rescue ex
+        # unhandled exception, bubble up
+        channel.send(ex)
+      ensure
+        context._graphql_release
+      end
+
+      channel
+    else
+      begin
+        block.call
+      rescue ex
+        ex
+      end
+    end
+  end
+
+  # :nodoc:
+  private def _graphql_await(pending : PendingFragment) : JSONFragment
+    fragment = pending.is_a?(Channel) ? pending.receive : pending
+    raise fragment if fragment.is_a?(::Exception)
+    fragment
   end
 
   # :nodoc:
