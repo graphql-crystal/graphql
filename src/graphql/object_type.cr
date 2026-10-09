@@ -30,7 +30,22 @@ module GraphQL::ObjectType
 
       # :nodoc:
       def _graphql_type : String
-        {{ @type.annotation(::GraphQL::Object)["name"] || @type.name.split("::").last }}
+        {{ (@type.annotation(::GraphQL::Object) && @type.annotation(::GraphQL::Object)["name"]) || @type.name.split("::").last }}
+      end
+
+      # :nodoc:
+      # Names of the interfaces and unions this type belongs to, so fragments
+      # conditioned on them apply to this object.
+      def _graphql_abstract_types : Array(String)
+        {% begin %}
+        {% abstract_types = @type.ancestors.select { |a| a.annotation(::GraphQL::Interface) || a.annotation(::GraphQL::Union) } %}
+        {% names = abstract_types.map { |a| ((a.annotation(::GraphQL::Interface) || a.annotation(::GraphQL::Union))["name"]) || a.name.split("::").last } %}
+        {% if names.empty? %}
+        [] of String
+        {% else %}
+        {{ names }}
+        {% end %}
+        {% end %}
       end
 
       # :nodoc:
@@ -50,6 +65,8 @@ module GraphQL::ObjectType
             {% methods << method %}
           {% end %}
         {% end %}
+        {% seen = [] of String %}
+        {% methods = methods.select { |m| n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true); seen.includes?(n) ? false : (seen << n; true) } %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
           {{ method.return_type.is_a?(Nop) ? true : method.return_type.resolve.nilable? }}
@@ -78,7 +95,8 @@ module GraphQL::ObjectType
               {% leaf = leaf.type_vars.first %}
             {% end %}
           {% end %}
-          {% if leaf.annotation(::GraphQL::Object) %}
+          {% leaf = parse_type(leaf.name.stringify).resolve %} # a virtual type (abstract class element) carries no annotations
+          {% if leaf.annotation(::GraphQL::Object) || leaf.annotation(::GraphQL::Interface) || leaf.annotation(::GraphQL::Union) %}
           raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
           {% else %}
           raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
@@ -92,6 +110,8 @@ module GraphQL::ObjectType
             {% methods << method %}
           {% end %}
         {% end %}
+        {% seen = [] of String %}
+        {% methods = methods.select { |m| n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true); seen.includes?(n) ? false : (seen << n; true) } %}
         {% for method in methods %}
         {% ann_args = method.annotation(::GraphQL::Field)["arguments"] %}
         {% arg_names = method.args.map { |a| (ann_args && ann_args[a.name.id] && ann_args[a.name.id]["name"]) || a.name.id.stringify.camelcase(lower: true) } %}
@@ -104,7 +124,8 @@ module GraphQL::ObjectType
               {% leaf = leaf.type_vars.first %}
             {% end %}
           {% end %}
-          {% if leaf.annotation(::GraphQL::Object) %}
+          {% leaf = parse_type(leaf.name.stringify).resolve %} # a virtual type (abstract class element) carries no annotations
+          {% if leaf.annotation(::GraphQL::Object) || leaf.annotation(::GraphQL::Interface) || leaf.annotation(::GraphQL::Union) %}
           raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
           {% else %}
           raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
@@ -150,6 +171,18 @@ module GraphQL::ObjectType
           json.object do
             introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
             errors.concat introspection._graphql_resolve(context, field.selections, json)
+          end
+        when "__type"
+          raise ::GraphQL::TypeError.new("field __type must have a selection of subfields") if field.selections.empty?
+          type_name = field.arguments.find { |a| a.name == "name" }.try(&.value)
+          raise ::GraphQL::TypeError.new("missing required argument name") unless type_name.is_a?(String)
+          document = context.document.not_nil!
+          if definition = document.definitions.find { |d| d.is_a?(::GraphQL::Language::TypeDefinition) && d.name == type_name }
+            json.object do
+              errors.concat ::GraphQL::Introspection::Type.new(document, definition.as(::GraphQL::Language::TypeDefinition))._graphql_resolve(context, field.selections, json)
+            end
+          else
+            json.null
           end
         {% end %}
         else
@@ -248,13 +281,13 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
-  # A fragment only applies to objects of the type it was declared on.
-  # Without interfaces and unions, that means the condition must name this
-  # very type. An absent condition (`... { }`) always applies.
+  # A fragment applies to objects of the type it was declared on, and to
+  # objects implementing that interface or belonging to that union. An
+  # absent condition (`... { }`) always applies.
   private def _graphql_type_condition_matches?(type : ::GraphQL::Language::Type?) : Bool
     case type
     when Nil                           then true
-    when ::GraphQL::Language::TypeName then type.name == _graphql_type
+    when ::GraphQL::Language::TypeName then type.name == _graphql_type || _graphql_abstract_types.includes?(type.name)
     else                                    false
     end
   end

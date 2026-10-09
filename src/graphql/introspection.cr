@@ -220,11 +220,13 @@ module GraphQL
         end
       end
 
-      # OBJECT only
+      # OBJECT and INTERFACE only
       @[GraphQL::Field]
       def interfaces : Array(GraphQL::Introspection::Type)?
-        case @definition
+        case definition = @definition
         when Language::ObjectTypeDefinition
+          definition.interfaces.map { |name| Type.from_ast(@document, Language::TypeName.new(name: name)) }
+        when Language::InterfaceTypeDefinition
           [] of GraphQL::Introspection::Type
         else
           nil
@@ -234,9 +236,13 @@ module GraphQL
       # INTERFACE and UNION only
       @[GraphQL::Field]
       def possible_types : Array(GraphQL::Introspection::Type)?
-        case @definition
-        when Language::InterfaceTypeDefinition, Language::UnionTypeDefinition
-          [] of GraphQL::Introspection::Type
+        case definition = @definition
+        when Language::InterfaceTypeDefinition
+          @document.definitions.compact_map do |d|
+            Type.new(@document, d) if d.is_a?(Language::ObjectTypeDefinition) && d.interfaces.includes?(definition.name)
+          end
+        when Language::UnionTypeDefinition
+          definition.types.map { |t| Type.from_ast(@document, t) }
         else
           nil
         end

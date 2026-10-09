@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Interfaces: annotate an abstract class or module with `GraphQL::Interface`
+  and inherit from or include it. Fields may return the interface, fragments
+  with a type condition select implementation-specific fields, and
+  introspection reports `interfaces` and `possibleTypes` (#28)
+- Unions: annotate a module with `GraphQL::Union` and include it in the
+  member objects (#29)
+- The `__type(name:)` introspection meta-field, which was missing
+
+### Fixed
+
+- A field overridden in a subclass is listed once in the schema instead of
+  once per definition
+
 - Errors raised while resolving a field carry `locations` with the line and
   column of that field in the query, as the spec requires. Fragment errors
   point at the spread
