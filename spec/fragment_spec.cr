@@ -84,7 +84,7 @@ describe "fragments" do
     )).should eq (
       {
         "data"   => {"luke" => {"name" => "Luke Skywalker"}},
-        "errors" => [{"message" => "fragment Loop spreads itself", "path" => ["Loop"]}],
+        "errors" => [{"message" => "fragment Loop spreads itself", "locations" => [{"line" => 5, "column" => 9}], "path" => ["Loop"]}],
       }
     ).to_json
   end
@@ -97,7 +97,7 @@ describe "fragments" do
     )).should eq (
       {
         "data"   => {} of String => String,
-        "errors" => [{"message" => "fragment A spreads itself", "path" => ["A"]}],
+        "errors" => [{"message" => "fragment A spreads itself", "locations" => [{"line" => 4, "column" => 29}], "path" => ["A"]}],
       }
     ).to_json
   end
@@ -140,7 +140,7 @@ describe "fragments" do
     schema.execute(%({ ...Missing })).should eq (
       {
         "data"   => {} of String => String,
-        "errors" => [{"message" => "no fragment Missing", "path" => ["Missing"]}],
+        "errors" => [{"message" => "no fragment Missing", "locations" => [{"line" => 1, "column" => 3}], "path" => ["Missing"]}],
       }
     ).to_json
   end

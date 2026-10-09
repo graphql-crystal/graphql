@@ -33,7 +33,7 @@ describe "complexity" do
     ctx = GraphQL::Context.new
     ctx.max_complexity = 4
     schema.execute(query, context: ctx).should eq (
-      {"errors" => [{"message" => "operation complexity 5 exceeds the maximum of 4", "path" => [] of String}]}
+      {"errors" => [{"message" => "operation complexity 5 exceeds the maximum of 4"}]}
     ).to_json
     ctx.complexity.should eq 5
   end

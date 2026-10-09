@@ -27,7 +27,7 @@ describe "@skip and @include" do
     })).should eq (
       {
         "data"   => {"luke" => {"name" => "Luke Skywalker"}},
-        "errors" => [{"message" => "argument if of directive @skip must be a Boolean", "path" => ["leia"]}],
+        "errors" => [{"message" => "argument if of directive @skip must be a Boolean", "locations" => [{"line" => 3, "column" => 7}], "path" => ["leia"]}],
       }
     ).to_json
   end
@@ -39,7 +39,7 @@ describe "@skip and @include" do
     })).should eq (
       {
         "data"   => {"luke" => {"name" => "Luke Skywalker"}},
-        "errors" => [{"message" => "argument if of directive @include must be a Boolean", "path" => ["leia"]}],
+        "errors" => [{"message" => "argument if of directive @include must be a Boolean", "locations" => [{"line" => 3, "column" => 7}], "path" => ["leia"]}],
       }
     ).to_json
   end
@@ -52,7 +52,7 @@ describe "@skip and @include" do
     fragment Leia on Query { leia: human(id: "1003") { name } })).should eq (
       {
         "data"   => {"luke" => {"name" => "Luke Skywalker"}},
-        "errors" => [{"message" => "directive @skip requires argument if", "path" => ["Leia"]}],
+        "errors" => [{"message" => "directive @skip requires argument if", "locations" => [{"line" => 3, "column" => 7}], "path" => ["Leia"]}],
       }
     ).to_json
   end

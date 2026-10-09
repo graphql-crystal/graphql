@@ -181,7 +181,7 @@ module GraphQL::ObjectType
       json.array do
         pending = value.map_with_index do |v, i|
           _graphql_fork(context) do
-            _graphql_build_json_fragment(context, [i] of String | Int32) do |json|
+            _graphql_build_json_fragment(context, [i] of String | Int32, field) do |json|
               _graphql_serialize(context, field, v, json).map &.with_path(i)
             end
           end
@@ -220,24 +220,24 @@ module GraphQL::ObjectType
   # Evaluates `@skip` and `@include` on a selection. A malformed directive
   # (the spec requires `if: Boolean!`) is reported under `path` and the
   # selection is skipped.
-  private def _graphql_skip?(directives : Array(::GraphQL::Language::Directive), path : Array(String | Int32), errors : Array(::GraphQL::Error)) : Bool
+  private def _graphql_skip?(selection : ::GraphQL::Language::ASTNode, directives : Array(::GraphQL::Language::Directive), path : Array(String | Int32)?, errors : Array(::GraphQL::Error)) : Bool
     skip = false
 
     directives.each do |directive|
       unless directive.name == "skip" || directive.name == "include"
-        errors << ::GraphQL::Error.new("unknown directive @#{directive.name}", path)
+        errors << ::GraphQL::Error.new("unknown directive @#{directive.name}", path, selection)
         return true
       end
 
       arg = directive.arguments.find { |a| a.name == "if" }
       if arg.nil?
-        errors << ::GraphQL::Error.new("directive @#{directive.name} requires argument if", path)
+        errors << ::GraphQL::Error.new("directive @#{directive.name} requires argument if", path, selection)
         return true
       end
 
       value = arg.value
       unless value.is_a?(Bool)
-        errors << ::GraphQL::Error.new("argument if of directive @#{directive.name} must be a Boolean", path)
+        errors << ::GraphQL::Error.new("argument if of directive @#{directive.name} must be a Boolean", path, selection)
         return true
       end
 
@@ -268,7 +268,7 @@ module GraphQL::ObjectType
       case selection
       when ::GraphQL::Language::Field
         path = selection._alias || selection.name
-        next if _graphql_skip?(selection.directives, [path] of String | Int32, errors)
+        next if _graphql_skip?(selection, selection.directives, [path] of String | Int32, errors)
         if existing = fields[path]?
           next if selection.selections.empty?
           merged = existing.dup
@@ -278,17 +278,17 @@ module GraphQL::ObjectType
           fields[path] = selection
         end
       when ::GraphQL::Language::FragmentSpread
-        next if _graphql_skip?(selection.directives, [selection.name] of String | Int32, errors)
+        next if _graphql_skip?(selection, selection.directives, [selection.name] of String | Int32, errors)
         if visited_fragments.includes?(selection.name)
-          errors << ::GraphQL::Error.new("fragment #{selection.name} spreads itself", selection.name)
+          errors << ::GraphQL::Error.new("fragment #{selection.name} spreads itself", selection.name, selection)
         elsif fragment = context.fragments.find { |f| f.name == selection.name }
           next unless _graphql_type_condition_matches?(fragment.type)
           _graphql_collect_fields(context, fragment.selections, fields, errors, visited_fragments + [selection.name])
         else
-          errors << ::GraphQL::Error.new("no fragment #{selection.name}", selection.name)
+          errors << ::GraphQL::Error.new("no fragment #{selection.name}", selection.name, selection)
         end
       when ::GraphQL::Language::InlineFragment
-        next if _graphql_skip?(selection.directives, [] of String | Int32, errors)
+        next if _graphql_skip?(selection, selection.directives, nil, errors)
         next unless _graphql_type_condition_matches?(selection.type)
         _graphql_collect_fields(context, selection.selections, fields, errors, visited_fragments)
       else
@@ -310,7 +310,7 @@ module GraphQL::ObjectType
     pending = Hash(String, PendingFragment).new
     fields.each do |path, field|
       pending[path] = _graphql_fork(context, serial) do
-        _graphql_build_json_fragment(context, path) do |json|
+        _graphql_build_json_fragment(context, path, field) do |json|
           _graphql_resolve(context, field, json)
         end
       end
@@ -391,7 +391,7 @@ module GraphQL::ObjectType
   # fragment, which the caller renders as null or propagates further up.
   # `path` is the prefix the caller would otherwise add to the block's
   # errors, so exceptions can be reported at the same place.
-  private def _graphql_build_json_fragment(context, path : String | Array(Int32 | String), & : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
+  private def _graphql_build_json_fragment(context, path : String | Array(Int32 | String), node : ::GraphQL::Language::ASTNode? = nil, & : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
     errors = [] of ::GraphQL::Error
     failed = false
 
@@ -407,7 +407,7 @@ module GraphQL::ObjectType
     rescue e
       failed = true
       if message = context.handle_exception(e)
-        errors << ::GraphQL::Error.new(message, path)
+        errors << ::GraphQL::Error.new(message, path.is_a?(String) ? [path] of String | Int32 : path, node)
       end
     end
 

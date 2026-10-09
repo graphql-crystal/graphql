@@ -30,8 +30,9 @@ describe Exception do
         "data"   => {"err" => nil},
         "errors" => [
           {
-            "message" => "handled",
-            "path"    => ["err"],
+            "message"   => "handled",
+            "locations" => [{"line" => 3, "column" => 11}],
+            "path"      => ["err"],
           },
         ],
       }

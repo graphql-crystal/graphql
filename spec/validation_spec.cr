@@ -66,13 +66,13 @@ describe "validation" do
     schema.execute(%({ hello greet(who: "you", name: "x") })).should eq (
       {
         "data"   => {"hello" => "hi", "greet" => nil},
-        "errors" => [{"message" => "unknown argument name on field greet", "path" => ["greet"]}],
+        "errors" => [{"message" => "unknown argument name on field greet", "locations" => [{"line" => 1, "column" => 9}], "path" => ["greet"]}],
       }
     ).to_json
     schema.execute(%({ hello(x: 1) })).should eq (
       {
         "data"   => {"hello" => nil},
-        "errors" => [{"message" => "unknown argument x on field hello", "path" => ["hello"]}],
+        "errors" => [{"message" => "unknown argument x on field hello", "locations" => [{"line" => 1, "column" => 3}], "path" => ["hello"]}],
       }
     ).to_json
   end
@@ -81,7 +81,7 @@ describe "validation" do
     schema.execute(%({ point(p: {x: 1, z: 2}) })).should eq (
       {
         "data"   => {"point" => nil},
-        "errors" => [{"message" => "unknown field z on input object Point", "path" => ["point"]}],
+        "errors" => [{"message" => "unknown field z on input object Point", "locations" => [{"line" => 1, "column" => 3}], "path" => ["point"]}],
       }
     ).to_json
   end
@@ -90,7 +90,7 @@ describe "validation" do
     schema.execute(%({ hello @nope thing @skip(if: false) { name } })).should eq (
       {
         "data"   => {"thing" => {"name" => "thing"}},
-        "errors" => [{"message" => "unknown directive @nope", "path" => ["hello"]}],
+        "errors" => [{"message" => "unknown directive @nope", "locations" => [{"line" => 1, "column" => 3}], "path" => ["hello"]}],
       }
     ).to_json
   end
@@ -99,13 +99,13 @@ describe "validation" do
     schema.execute(%({ hello { x } })).should eq (
       {
         "data"   => {"hello" => nil},
-        "errors" => [{"message" => "field hello must not have a selection since its type has no subfields", "path" => ["hello"]}],
+        "errors" => [{"message" => "field hello must not have a selection since its type has no subfields", "locations" => [{"line" => 1, "column" => 3}], "path" => ["hello"]}],
       }
     ).to_json
     schema.execute(%({ thing { __typename { x } } })).should eq (
       {
         "data"   => {"thing" => nil},
-        "errors" => [{"message" => "field __typename must not have a selection since its type has no subfields", "path" => ["thing", "__typename"]}],
+        "errors" => [{"message" => "field __typename must not have a selection since its type has no subfields", "locations" => [{"line" => 1, "column" => 11}], "path" => ["thing", "__typename"]}],
       }
     ).to_json
   end
@@ -115,8 +115,8 @@ describe "validation" do
       {
         "data"   => {"thing" => nil, "things" => nil},
         "errors" => [
-          {"message" => "field thing must have a selection of subfields", "path" => ["thing"]},
-          {"message" => "field things must have a selection of subfields", "path" => ["things"]},
+          {"message" => "field thing must have a selection of subfields", "locations" => [{"line" => 1, "column" => 3}], "path" => ["thing"]},
+          {"message" => "field things must have a selection of subfields", "locations" => [{"line" => 1, "column" => 9}], "path" => ["things"]},
         ],
       }
     ).to_json
@@ -124,10 +124,10 @@ describe "validation" do
 
   it "reports a query without operations" do
     schema.execute("").should eq (
-      {"errors" => [{"message" => "query does not contain an operation", "path" => [] of String}]}
+      {"errors" => [{"message" => "query does not contain an operation"}]}
     ).to_json
     schema.execute("fragment F on Query { hello }").should eq (
-      {"errors" => [{"message" => "query does not contain an operation", "path" => [] of String}]}
+      {"errors" => [{"message" => "query does not contain an operation"}]}
     ).to_json
   end
 end

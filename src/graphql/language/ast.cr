@@ -1,6 +1,14 @@
 module GraphQL
   module Language
     abstract class ASTNode
+      # 1-based position in the query source, set by the parser on the
+      # nodes that errors refer to.
+      property line : Int32?
+      property column : Int32?
+
+      def initialize(@line : Int32? = nil, @column : Int32? = nil)
+      end
+
       macro values(args)
         property {{args.map { |k, v| "#{k} : #{v}" }.join(",").id}}
 

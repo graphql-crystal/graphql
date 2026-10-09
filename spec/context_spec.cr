@@ -64,7 +64,7 @@ describe GraphQL::Context do
       {
         "data"   => nil,
         "errors" => [
-          {"message" => "boom", "path" => ["exception"]},
+          {"message" => "boom", "locations" => [{"line" => 3, "column" => 9}], "path" => ["exception"]},
         ],
       }
     ).to_json

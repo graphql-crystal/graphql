@@ -44,13 +44,13 @@ module GraphQL
           begin
             resolved[name] = to_fvalue(variables[name])
           rescue ex
-            errors << Error.new("invalid value for variable #{name}: #{ex.message}", [] of String | Int32)
+            errors << Error.new("invalid value for variable #{name}: #{ex.message}")
             resolved[name] = nil
           end
         elsif !definition.default_value.nil?
           resolved[name] = definition.default_value
         elsif definition.type.is_a?(Language::NonNullType)
-          errors << Error.new("missing required variable #{name}", [] of String | Int32)
+          errors << Error.new("missing required variable #{name}")
           resolved[name] = nil
         else
           resolved[name] = nil
@@ -68,11 +68,11 @@ module GraphQL
         begin
           to_fvalue(variables[name])
         rescue ex
-          errors << Error.new("invalid value for variable #{name}: #{ex.message}", [] of String | Int32)
+          errors << Error.new("invalid value for variable #{name}: #{ex.message}")
           nil
         end
       else
-        errors << Error.new("missing variable #{name}", [] of String | Int32)
+        errors << Error.new("missing variable #{name}")
         nil
       end
     end
@@ -167,7 +167,7 @@ module GraphQL
       document = begin
         Language.parse(query)
       rescue ex : ParserError
-        errors << Error.new(ex.message || "syntax error", [] of String | Int32)
+        errors << Error.new(ex.message || "syntax error")
         nil
       end
 
@@ -191,18 +191,18 @@ module GraphQL
       operation = if document.nil?
                     nil
                   elsif operations.empty?
-                    errors << Error.new("query does not contain an operation", [] of String | Int32)
+                    errors << Error.new("query does not contain an operation")
                     nil
                   elsif operation_name.nil? && operations.size == 1
                     operations.first
                   else
                     if operation_name.nil?
-                      errors << Error.new("sent more than one operation but did not set operation name", [] of String | Int32)
+                      errors << Error.new("sent more than one operation but did not set operation name")
                       nil
                     elsif op = operations.find { |q| q.name == operation_name }
                       op
                     else
-                      errors << Error.new("could not find operation with name #{operation_name}", [] of String | Int32)
+                      errors << Error.new("could not find operation with name #{operation_name}")
                       nil
                     end
                   end
@@ -218,7 +218,7 @@ module GraphQL
 
         context.complexity = complexity(operation.selections, context.fragments)
         if (max = context.max_complexity) && context.complexity > max
-          errors << Error.new("operation complexity #{context.complexity} exceeds the maximum of #{max}", [] of String | Int32)
+          errors << Error.new("operation complexity #{context.complexity} exceeds the maximum of #{max}")
         end
 
         operation = nil unless errors.empty?
@@ -232,10 +232,10 @@ module GraphQL
             if mutation = @mutation
               write_data(json, errors, mutation._graphql_execute(context, operation.selections, serial: true))
             else
-              errors << Error.new("mutation operations are not supported", [] of String | Int32)
+              errors << Error.new("mutation operations are not supported")
             end
           elsif !operation.nil?
-            errors << Error.new("#{operation.operation_type} operations are not supported", [] of String | Int32)
+            errors << Error.new("#{operation.operation_type} operations are not supported")
           end
           unless errors.empty?
             json.field "errors" do

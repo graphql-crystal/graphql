@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Errors raised while resolving a field carry `locations` with the line and
+  column of that field in the query, as the spec requires. Fragment errors
+  point at the spread
+
+### Changed
+
+- Request-level errors, such as a missing variable or a syntax error, no
+  longer carry an empty `path`. The spec reserves `path` for field errors
+
 ## [0.7.2] - 2026-10-09
 
 ### Fixed

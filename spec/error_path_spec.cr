@@ -43,7 +43,7 @@ describe "error paths" do
     schema.execute(%({ it: item { index boom } })).should eq (
       {
         "data"   => {"it" => {"index" => 0, "boom" => nil}},
-        "errors" => [{"message" => "boom 0", "path" => ["it", "boom"]}],
+        "errors" => [{"message" => "boom 0", "locations" => [{"line" => 1, "column" => 20}], "path" => ["it", "boom"]}],
       }
     ).to_json
   end
@@ -53,8 +53,8 @@ describe "error paths" do
       {
         "data"   => {"items" => [{"index" => 0, "boom" => nil}, {"index" => 1, "boom" => nil}]},
         "errors" => [
-          {"message" => "boom 0", "path" => ["items", 0, "boom"]},
-          {"message" => "boom 1", "path" => ["items", 1, "boom"]},
+          {"message" => "boom 0", "locations" => [{"line" => 1, "column" => 17}], "path" => ["items", 0, "boom"]},
+          {"message" => "boom 1", "locations" => [{"line" => 1, "column" => 17}], "path" => ["items", 1, "boom"]},
         ],
       }
     ).to_json
@@ -65,8 +65,8 @@ describe "error paths" do
       {
         "data"   => {"nested" => [[{"boom" => nil}], [{"boom" => nil}]]},
         "errors" => [
-          {"message" => "boom 0", "path" => ["nested", 0, 0, "boom"]},
-          {"message" => "boom 1", "path" => ["nested", 1, 0, "boom"]},
+          {"message" => "boom 0", "locations" => [{"line" => 1, "column" => 12}], "path" => ["nested", 0, 0, "boom"]},
+          {"message" => "boom 1", "locations" => [{"line" => 1, "column" => 12}], "path" => ["nested", 1, 0, "boom"]},
         ],
       }
     ).to_json

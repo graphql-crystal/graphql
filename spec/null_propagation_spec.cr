@@ -60,7 +60,7 @@ describe "null propagation" do
     schema.execute(%({ ok leaf { ok nullable } })).should eq (
       {
         "data"   => {"ok" => "ok", "leaf" => {"ok" => "ok", "nullable" => nil}},
-        "errors" => [{"message" => "nullable failed", "path" => ["leaf", "nullable"]}],
+        "errors" => [{"message" => "nullable failed", "locations" => [{"line" => 1, "column" => 16}], "path" => ["leaf", "nullable"]}],
       }
     ).to_json
   end
@@ -69,7 +69,7 @@ describe "null propagation" do
     schema.execute(%({ ok leaf { ok required } })).should eq (
       {
         "data"   => {"ok" => "ok", "leaf" => nil},
-        "errors" => [{"message" => "required failed", "path" => ["leaf", "required"]}],
+        "errors" => [{"message" => "required failed", "locations" => [{"line" => 1, "column" => 16}], "path" => ["leaf", "required"]}],
       }
     ).to_json
   end
@@ -78,7 +78,7 @@ describe "null propagation" do
     schema.execute(%({ ok requiredLeaf { ok required } })).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "required failed", "path" => ["requiredLeaf", "required"]}],
+        "errors" => [{"message" => "required failed", "locations" => [{"line" => 1, "column" => 24}], "path" => ["requiredLeaf", "required"]}],
       }
     ).to_json
   end
@@ -88,8 +88,8 @@ describe "null propagation" do
       {
         "data"   => {"leaf" => nil},
         "errors" => [
-          {"message" => "nullable failed", "path" => ["leaf", "nullable"]},
-          {"message" => "required failed", "path" => ["leaf", "required"]},
+          {"message" => "nullable failed", "locations" => [{"line" => 1, "column" => 10}], "path" => ["leaf", "nullable"]},
+          {"message" => "required failed", "locations" => [{"line" => 1, "column" => 19}], "path" => ["leaf", "required"]},
         ],
       }
     ).to_json
@@ -100,8 +100,8 @@ describe "null propagation" do
       {
         "data"   => {"ok" => "ok", "leaves" => nil},
         "errors" => [
-          {"message" => "required failed", "path" => ["leaves", 0, "required"]},
-          {"message" => "required failed", "path" => ["leaves", 1, "required"]},
+          {"message" => "required failed", "locations" => [{"line" => 1, "column" => 15}], "path" => ["leaves", 0, "required"]},
+          {"message" => "required failed", "locations" => [{"line" => 1, "column" => 15}], "path" => ["leaves", 1, "required"]},
         ],
       }
     ).to_json
@@ -112,8 +112,8 @@ describe "null propagation" do
       {
         "data"   => {"nullableLeaves" => [nil, nil]},
         "errors" => [
-          {"message" => "required failed", "path" => ["nullableLeaves", 0, "required"]},
-          {"message" => "required failed", "path" => ["nullableLeaves", 1, "required"]},
+          {"message" => "required failed", "locations" => [{"line" => 1, "column" => 20}], "path" => ["nullableLeaves", 0, "required"]},
+          {"message" => "required failed", "locations" => [{"line" => 1, "column" => 20}], "path" => ["nullableLeaves", 1, "required"]},
         ],
       }
     ).to_json
@@ -123,7 +123,7 @@ describe "null propagation" do
     schema.execute(%({ ok requiredLeaves { required } })).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "required failed", "path" => ["requiredLeaves", 0, "required"]}],
+        "errors" => [{"message" => "required failed", "locations" => [{"line" => 1, "column" => 23}], "path" => ["requiredLeaves", 0, "required"]}],
       }
     ).to_json
   end
@@ -139,9 +139,9 @@ describe "null propagation" do
           "leaves" => [{"ok" => "ok", "nullable" => nil}, {"ok" => "ok", "nullable" => nil}],
         },
         "errors" => [
-          {"message" => "required failed", "path" => ["leaf", "required"]},
-          {"message" => "nullable failed", "path" => ["leaves", 0, "nullable"]},
-          {"message" => "nullable failed", "path" => ["leaves", 1, "nullable"]},
+          {"message" => "required failed", "locations" => [{"line" => 1, "column" => 16}], "path" => ["leaf", "required"]},
+          {"message" => "nullable failed", "locations" => [{"line" => 1, "column" => 39}], "path" => ["leaves", 0, "nullable"]},
+          {"message" => "nullable failed", "locations" => [{"line" => 1, "column" => 39}], "path" => ["leaves", 1, "nullable"]},
         ],
       }
     ).to_json

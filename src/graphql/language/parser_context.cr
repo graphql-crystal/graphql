@@ -1,6 +1,7 @@
 require "./token"
 
 class GraphQL::Language::ParserContext
+  @line_starts : Array(Int32)?
   @current_token : Token
   @descriptions = [] of String
 
@@ -48,48 +49,74 @@ class GraphQL::Language::ParserContext
     )
   end
 
+  # Line and column (1-based) of a character offset in the source.
+  private def location(start : Int32) : {Int32, Int32}
+    line_starts = @line_starts ||= begin
+      starts = [0]
+      @source.each_char_with_index { |c, i| starts << i + 1 if c == '\n' }
+      starts
+    end
+    line = line_starts.bsearch_index { |s| s > start } || line_starts.size
+    {line, start - line_starts[line - 1] + 1}
+  end
+
   private def create_field(start : Int32, name : String, f_alias) : Language::Field
+    line, column = location(start)
     Language::Field.new(
       name: name,
       _alias: f_alias,
       arguments: parse_arguments,
       directives: parse_directives,
-      selections: peek(Token::Kind::BRACE_L) ? parse_selection_set : [] of String
+      selections: peek(Token::Kind::BRACE_L) ? parse_selection_set : [] of String,
+      line: line,
+      column: column,
     )
   end
 
   private def create_graphql_fragment_spread(start)
+    line, column = location(start)
     Language::FragmentSpread.new(
       parse_fragment_name.not_nil!,
       parse_directives,
+      line: line,
+      column: column,
     )
   end
 
   private def create_inline_fragment(start)
+    line, column = location(start)
     Language::InlineFragment.new(
       get_type_condition,
       parse_directives,
       parse_selection_set,
+      line: line,
+      column: column,
     )
   end
 
   private def create_operation_definition(start, operation, name)
+    line, column = location(start)
     Language::OperationDefinition.new(
       operation_type: operation,
       name: name,
       variables: parse_variable_definitions,
       directives: parse_directives,
       selections: parse_selection_set,
+      line: line,
+      column: column,
     )
   end
 
   private def create_operation_definition(start)
+    line, column = location(start)
     Language::OperationDefinition.new(
       operation_type: "query",
       name: nil,
       variables: parse_variable_definitions,
       directives: [] of Language::Directive,
       selections: parse_selection_set,
+      line: line,
+      column: column,
     )
   end
 

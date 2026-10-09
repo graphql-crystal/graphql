@@ -156,7 +156,7 @@ describe GraphQL::MutationType do
       {
         "data"   => nil,
         "errors" => [
-          {"message" => "missing required argument io", "path" => ["value"]},
+          {"message" => "missing required argument io", "locations" => [{"line" => 3, "column" => 9}], "path" => ["value"]},
         ],
       }
     ).to_json

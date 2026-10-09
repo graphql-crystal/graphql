@@ -61,7 +61,7 @@ describe "input coercion" do
     schema.execute(%({ int(n: 99999999999) })).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "Int cannot represent non 32-bit signed integer value: 99999999999", "path" => ["int"]}],
+        "errors" => [{"message" => "Int cannot represent non 32-bit signed integer value: 99999999999", "locations" => [{"line" => 1, "column" => 3}], "path" => ["int"]}],
       }
     ).to_json
   end
@@ -97,7 +97,7 @@ describe "input coercion" do
     schema.execute(%({ strings(list: ["a", 1]) })).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "bad type for argument list", "path" => ["strings"]}],
+        "errors" => [{"message" => "bad type for argument list", "locations" => [{"line" => 1, "column" => 3}], "path" => ["strings"]}],
       }
     ).to_json
   end
@@ -106,7 +106,7 @@ describe "input coercion" do
     schema.execute(%({ strings(list: ["a", null]) })).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "bad type for argument list", "path" => ["strings"]}],
+        "errors" => [{"message" => "bad type for argument list", "locations" => [{"line" => 1, "column" => 3}], "path" => ["strings"]}],
       }
     ).to_json
   end

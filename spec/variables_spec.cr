@@ -55,7 +55,7 @@ describe "variables" do
 
   it "rejects an omitted non-null variable" do
     schema.execute(%(query ($n: Int!) { double(n: $n) })).should eq (
-      {"errors" => [{"message" => "missing required variable n", "path" => [] of String}]}
+      {"errors" => [{"message" => "missing required variable n"}]}
     ).to_json
   end
 
@@ -63,7 +63,7 @@ describe "variables" do
     schema.execute(%({ double(n: null) })).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "missing required argument n", "path" => ["double"]}],
+        "errors" => [{"message" => "missing required argument n", "locations" => [{"line" => 1, "column" => 3}], "path" => ["double"]}],
       }
     ).to_json
   end
@@ -75,7 +75,7 @@ describe "variables" do
     ).should eq (
       {
         "data"   => nil,
-        "errors" => [{"message" => "Int cannot represent non 32-bit signed integer value: 99999999999", "path" => ["double"]}],
+        "errors" => [{"message" => "Int cannot represent non 32-bit signed integer value: 99999999999", "locations" => [{"line" => 1, "column" => 20}], "path" => ["double"]}],
       }
     ).to_json
   end
