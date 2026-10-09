@@ -112,9 +112,7 @@ describe GraphQL::Introspection do
     ).should eq (
       {
         "errors" => [
-          {"message" => "mutation operations are not supported",
-           "path"    => [] of Nil,
-          },
+          {"message" => "mutation operations are not supported"},
         ],
       }
     ).to_json

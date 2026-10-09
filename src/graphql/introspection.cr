@@ -4,6 +4,21 @@ require "./query_type"
 
 module GraphQL
   module Introspection
+    # :nodoc:
+    module Deprecation
+      def self.deprecated?(directives : Array(Language::Directive)) : Bool
+        directives.any? { |d| d.name == "deprecated" }
+      end
+
+      def self.reason(directives : Array(Language::Directive)) : String?
+        if directive = directives.find { |d| d.name == "deprecated" }
+          if argument = directive.arguments.find { |a| a.name == "reason" }
+            argument.value.as?(String)
+          end
+        end
+      end
+    end
+
     @[GraphQL::Object(name: "__Schema")]
     class Schema
       include GraphQL::ObjectType
@@ -11,8 +26,14 @@ module GraphQL
       @document : Language::Document
       @query_type : String
       @mutation_type : String?
+      @subscription_type : String?
 
-      def initialize(@document, @query_type, @mutation_type)
+      def initialize(@document, @query_type, @mutation_type, @subscription_type = nil)
+      end
+
+      @[GraphQL::Field]
+      def description : String?
+        nil
       end
 
       @[GraphQL::Field]
@@ -22,25 +43,30 @@ module GraphQL
 
       @[GraphQL::Field]
       def query_type : GraphQL::Introspection::Type
-        Type.new @document, @document.definitions.find! { |d|
+        definition = @document.definitions.find! do |d|
           d.is_a?(Language::TypeDefinition) && d.name == @query_type
-        }.as(Language::TypeDefinition)
+        end
+        Type.new @document, definition.as(Language::TypeDefinition)
       end
 
       @[GraphQL::Field]
       def mutation_type : GraphQL::Introspection::Type?
         if mt = @mutation_type
-          Type.new @document, @document.definitions.find! { |d|
+          definition = @document.definitions.find! do |d|
             d.is_a?(Language::TypeDefinition) && d.name == mt
-          }.as(Language::TypeDefinition)
-        else
-          nil
+          end
+          Type.new @document, definition.as(Language::TypeDefinition)
         end
       end
 
       @[GraphQL::Field]
       def subscription_type : GraphQL::Introspection::Type?
-        nil
+        if st = @subscription_type
+          definition = @document.definitions.find! do |d|
+            d.is_a?(Language::TypeDefinition) && d.name == st
+          end
+          Type.new @document, definition.as(Language::TypeDefinition)
+        end
       end
 
       @[GraphQL::Field]
@@ -95,12 +121,31 @@ module GraphQL
               description: nil,
               locations: [
                 DirectiveLocation::FIELD_DEFINITION.to_s,
+                DirectiveLocation::ARGUMENT_DEFINITION.to_s,
+                DirectiveLocation::INPUT_FIELD_DEFINITION.to_s,
                 DirectiveLocation::ENUM_VALUE.to_s,
               ],
               arguments: [
                 Language::InputValueDefinition.new(
                   name: "reason",
                   type: Language::TypeName.new(name: "String"),
+                  default_value: "No longer supported",
+                  directives: [] of GraphQL::Language::Directive,
+                  description: nil,
+                ),
+              ]
+            )
+          ),
+          GraphQL::Introspection::Directive.new(
+            @document,
+            Language::DirectiveDefinition.new(
+              name: "specifiedBy",
+              description: nil,
+              locations: [DirectiveLocation::SCALAR.to_s],
+              arguments: [
+                Language::InputValueDefinition.new(
+                  name: "url",
+                  type: Language::NonNullType.new(of_type: Language::TypeName.new(name: "String")),
                   default_value: nil,
                   directives: [] of GraphQL::Language::Directive,
                   description: nil,
@@ -122,9 +167,9 @@ module GraphQL
       def self.from_ast(document : Language::Document, type : Language::ASTNode)
         case type
         when Language::TypeName
-          self.new(document, document.definitions.find! { |d| d.is_a? Language::TypeDefinition && d.name == type.name }.as(Language::TypeDefinition))
+          new(document, document.definitions.find! { |d| d.is_a? Language::TypeDefinition && d.name == type.name }.as(Language::TypeDefinition))
         when Language::TypeDefinition, Language::WrapperType
-          self.new(document, type)
+          new(document, type)
         else
           raise GraphQL::TypeError.new("cannot create type from #{type}")
         end
@@ -172,8 +217,6 @@ module GraphQL
           definition.name
         when Language::UnionTypeDefinition
           definition.name
-        else
-          nil
         end
       end
 
@@ -199,46 +242,59 @@ module GraphQL
         end
       end
 
-      # OBJECT and INTERFACE only
-      @[GraphQL::Field]
-      def fields(include_deprecated : Bool = false) : Array(GraphQL::Introspection::Field)?
+      # SCALAR only
+      @[GraphQL::Field(name: "specifiedByURL")]
+      def specified_by_url : String?
         case definition = @definition
-        when Language::ObjectTypeDefinition
-          definition.fields.select { |f|
-            if include_deprecated
-              true
-            else
-              f.directives.find { |d| d.name == "deprecated" }.nil?
-            end
-          }.map { |f|
-            GraphQL::Introspection::Field.new(@document, f.as(Language::FieldDefinition))
-          }
-        when Language::InterfaceTypeDefinition # why can't we put this above?
-          definition.fields.map { |f| GraphQL::Introspection::Field.new(@document, f.as(Language::FieldDefinition)) }
-        else
-          nil
+        when Language::ScalarTypeDefinition
+          if directive = definition.directives.find { |d| d.name == "specifiedBy" }
+            directive.arguments.find { |a| a.name == "url" }.try(&.value.as?(String))
+          end
         end
       end
 
-      # OBJECT only
+      # INPUT_OBJECT only
+      @[GraphQL::Field]
+      def is_one_of : Bool?
+        @definition.is_a?(Language::InputObjectTypeDefinition) ? false : nil
+      end
+
+      # OBJECT and INTERFACE only
+      @[GraphQL::Field]
+      def fields(include_deprecated : Bool = false) : Array(GraphQL::Introspection::Field)?
+        definitions = case definition = @definition
+                      when Language::ObjectTypeDefinition    then definition.fields
+                      when Language::InterfaceTypeDefinition then definition.fields
+                      else                                        return
+                      end
+
+        definitions.compact_map do |f|
+          next if !include_deprecated && Deprecation.deprecated?(f.directives)
+          GraphQL::Introspection::Field.new(@document, f)
+        end
+      end
+
+      # OBJECT and INTERFACE only
       @[GraphQL::Field]
       def interfaces : Array(GraphQL::Introspection::Type)?
-        case @definition
+        case definition = @definition
         when Language::ObjectTypeDefinition
+          definition.interfaces.map { |name| Type.from_ast(@document, Language::TypeName.new(name: name)) }
+        when Language::InterfaceTypeDefinition
           [] of GraphQL::Introspection::Type
-        else
-          nil
         end
       end
 
       # INTERFACE and UNION only
       @[GraphQL::Field]
       def possible_types : Array(GraphQL::Introspection::Type)?
-        case @definition
-        when Language::InterfaceTypeDefinition, Language::UnionTypeDefinition
-          [] of GraphQL::Introspection::Type
-        else
-          nil
+        case definition = @definition
+        when Language::InterfaceTypeDefinition
+          @document.definitions.compact_map do |d|
+            Type.new(@document, d) if d.is_a?(Language::ObjectTypeDefinition) && d.interfaces.includes?(definition.name)
+          end
+        when Language::UnionTypeDefinition
+          definition.types.map { |t| Type.from_ast(@document, t) }
         end
       end
 
@@ -247,26 +303,22 @@ module GraphQL
       def enum_values(include_deprecated : Bool = false) : Array(GraphQL::Introspection::EnumValue)?
         case definition = @definition
         when Language::EnumTypeDefinition
-          definition.fvalues.select { |v|
-            if include_deprecated
-              true
-            else
-              v.directives.find { |d| d.name == "deprecated" }.nil?
-            end
-          }.map { |v| EnumValue.new(@document, v) }
-        else
-          nil
+          definition.fvalues.compact_map do |v|
+            next if !include_deprecated && Deprecation.deprecated?(v.directives)
+            EnumValue.new(@document, v)
+          end
         end
       end
 
       # INPUT_OBJECT only
       @[GraphQL::Field]
-      def input_fields : Array(GraphQL::Introspection::InputValue)?
+      def input_fields(include_deprecated : Bool = false) : Array(GraphQL::Introspection::InputValue)?
         case definition = @definition
         when Language::InputObjectTypeDefinition
-          definition.fields.map { |f| GraphQL::Introspection::InputValue.new(@document, f.as(Language::InputValueDefinition)) }
-        else
-          nil
+          definition.fields.compact_map do |f|
+            next if !include_deprecated && Deprecation.deprecated?(f.directives)
+            GraphQL::Introspection::InputValue.new(@document, f)
+          end
         end
       end
 
@@ -276,8 +328,6 @@ module GraphQL
         case definition = @definition
         when Language::NonNullType, Language::ListType
           Type.from_ast(@document, definition.of_type)
-        else
-          nil
         end
       end
     end
@@ -304,8 +354,11 @@ module GraphQL
       end
 
       @[GraphQL::Field]
-      def args : Array(GraphQL::Introspection::InputValue)
-        @definition.arguments.map { |m| InputValue.new(@document, m) }
+      def args(include_deprecated : Bool = false) : Array(GraphQL::Introspection::InputValue)
+        @definition.arguments.compact_map do |a|
+          next if !include_deprecated && Deprecation.deprecated?(a.directives)
+          InputValue.new(@document, a)
+        end
       end
 
       @[GraphQL::Field]
@@ -315,16 +368,12 @@ module GraphQL
 
       @[GraphQL::Field]
       def is_deprecated : Bool
-        !@definition.directives.find { |d| d.name == "deprecated" }.nil?
+        Deprecation.deprecated?(@definition.directives)
       end
 
       @[GraphQL::Field]
       def deprecation_reason : String?
-        if directive = @definition.directives.find { |d| d.name == "deprecated" }
-          if argument = directive.arguments.find { |d| d.name == "reason" }
-            argument.value.as(String)
-          end
-        end
+        Deprecation.reason(@definition.directives)
       end
     end
 
@@ -357,6 +406,16 @@ module GraphQL
       def default_value : String?
         Language::Generation.generate(@definition.default_value) unless @definition.default_value.nil?
       end
+
+      @[GraphQL::Field]
+      def is_deprecated : Bool
+        Deprecation.deprecated?(@definition.directives)
+      end
+
+      @[GraphQL::Field]
+      def deprecation_reason : String?
+        Deprecation.reason(@definition.directives)
+      end
     end
 
     @[GraphQL::Object(name: "__EnumValue")]
@@ -381,16 +440,12 @@ module GraphQL
 
       @[GraphQL::Field]
       def is_deprecated : Bool
-        !@definition.directives.find { |d| d.name == "deprecated" }.nil?
+        Deprecation.deprecated?(@definition.directives)
       end
 
       @[GraphQL::Field]
       def deprecation_reason : String?
-        if directive = @definition.directives.find { |d| d.name == "deprecated" }
-          if argument = directive.arguments.find { |d| d.name == "reason" }
-            argument.value.as(String)
-          end
-        end
+        Deprecation.reason(@definition.directives)
       end
     end
 
@@ -420,8 +475,16 @@ module GraphQL
       end
 
       @[GraphQL::Field]
-      def args : Array(GraphQL::Introspection::InputValue)
-        @definition.arguments.map { |a| InputValue.new(@document, a) }
+      def args(include_deprecated : Bool = false) : Array(GraphQL::Introspection::InputValue)
+        @definition.arguments.compact_map do |a|
+          next if !include_deprecated && Deprecation.deprecated?(a.directives)
+          InputValue.new(@document, a)
+        end
+      end
+
+      @[GraphQL::Field]
+      def is_repeatable : Bool
+        false
       end
     end
 

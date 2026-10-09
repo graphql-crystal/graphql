@@ -50,8 +50,9 @@ type Query {
 scalar String
 
 type __Directive {
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean! = false): [__InputValue!]!
   description: String
+  isRepeatable: Boolean!
   locations: [String!]!
   name: String!
 }
@@ -64,7 +65,7 @@ type __EnumValue {
 }
 
 type __Field {
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean! = false): [__InputValue!]!
   deprecationReason: String
   description: String
   isDeprecated: Boolean!
@@ -74,12 +75,15 @@ type __Field {
 
 type __InputValue {
   defaultValue: String
+  deprecationReason: String
   description: String
+  isDeprecated: Boolean!
   name: String!
   type: __Type!
 }
 
 type __Schema {
+  description: String
   directives: [__Directive!]!
   mutationType: __Type
   queryType: __Type!
@@ -91,12 +95,14 @@ type __Type {
   description: String
   enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
   fields(includeDeprecated: Boolean! = false): [__Field!]
-  inputFields: [__InputValue!]
+  inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
   interfaces: [__Type!]
+  isOneOf: Boolean
   kind: __TypeKind!
   name: String
   ofType: __Type
   possibleTypes: [__Type!]
+  specifiedByURL: String
 }
 
 enum __TypeKind {

@@ -1,5 +1,5 @@
 module GraphQL
-  INTROSPECTION_QUERY = %(
+  INTROSPECTION_QUERY = <<-GRAPHQL
     query IntrospectionQuery {
       __schema {
         queryType { name }
@@ -88,5 +88,5 @@ module GraphQL
         }
       }
     }
-  )
+    GRAPHQL
 end

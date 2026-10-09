@@ -21,3 +21,12 @@ describe GraphQL::Language do
     GraphQL::Language.parse(schema)
   end
 end
+
+describe "implements" do
+  it "prints and parses the current syntax and accepts the legacy one" do
+    sdl = "type Thing implements Named & Timestamped {\n  name: String!\n}"
+    GraphQL::Language.parse(sdl).to_s.should eq sdl
+    GraphQL::Language.parse("type Thing implements & Named & Timestamped { name: String! }").to_s.should eq sdl
+    GraphQL::Language.parse("type Thing implements Named, Timestamped { name: String! }").to_s.should eq sdl
+  end
+end

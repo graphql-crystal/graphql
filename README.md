@@ -113,7 +113,67 @@ class MyMath < GraphQL::BaseObject
 end
 ```
 
-Context instances must not be reused for multiple executions.
+Context instances must not be reused for multiple executions. A subscription
+is one execution: the context passed to `schema.subscribe` lives for the whole
+subscription and every event is resolved with it.
+
+## Concurrency
+
+By default, a query is resolved sequentially in the fiber that called
+`schema.execute`. To resolve fields and array elements concurrently, set
+`max_concurrency` on the context:
+
+```crystal
+context = MyContext.new(Math::PI)
+context.max_concurrency = 8
+schema.execute(query, variables, operation_name, context)
+```
+
+This is the maximum number of fibers a single execution may have running at
+once. When the budget is used up, remaining work runs inline, so a large
+list never fans out into an unbounded number of fibers. Choose a value your
+downstream resources can sustain; resolvers that check out database
+connections should stay below the connection pool size.
+
+## Complexity
+
+To reject operations that select too many fields, set `max_complexity` on the
+context:
+
+```crystal
+context = MyContext.new(Math::PI)
+context.max_complexity = 200
+schema.execute(query, variables, operation_name, context)
+```
+
+Complexity is the number of fields the operation selects, counted across the
+whole selection tree with fragments expanded. It is computed before any
+resolver runs, and an operation over the limit is answered with an error and
+no data. After execution, `context.complexity` holds the count.
+
+Nesting depth is limited separately. Selection sets, lists and input objects
+may nest `max_depth` levels, 100 by default, and a deeper query is rejected
+while parsing. Real queries rarely pass twenty levels; the limit exists so a
+hostile query cannot exhaust the stack:
+
+```crystal
+context.max_depth = 30
+```
+
+## Benchmarking
+
+`bench/bench.cr` runs realistic requests against a schema with an interface, a
+union, an enum, an input object and nesting, and reports throughput per
+scenario. Run it before and after a change, on the same machine, and compare:
+
+```bash
+crystal run --release bench/bench.cr -- --json /tmp/before.json
+# make your changes
+crystal run --release bench/bench.cr -- --compare /tmp/before.json
+```
+
+`--only NAME` runs one scenario and `--seconds N` changes the time budget per
+scenario. Every response is checked for errors before timing starts.
 
 ## Objects
 
@@ -258,13 +318,181 @@ class ReverseStringScalar < GraphQL::BaseScalar
 end
 ```
 
+A custom scalar's `to_json` is rendered into a buffer, so an exception in it
+only affects that field. The library's built-in scalars are written straight
+into the response instead; if you reopen one of them and its `to_json` raises,
+the enclosing object becomes null and the error is reported there.
+
 ## Interfaces
 
-Interfaces are not supported.
+An interface is an abstract class or a module with a `GraphQL::Interface`
+annotation. Its fields are `GraphQL::Field` methods, abstract or not. Objects
+that inherit from the class or include the module implement the interface,
+and fields may return the interface type:
+
+```crystal
+@[GraphQL::Interface]
+abstract class Character < GraphQL::BaseObject
+  @[GraphQL::Field]
+  abstract def name : String
+end
+
+@[GraphQL::Object]
+class Human < Character
+  @[GraphQL::Field]
+  def name : String
+    "Luke"
+  end
+
+  @[GraphQL::Field]
+  def home_planet : String
+    "Tatooine"
+  end
+end
+
+@[GraphQL::Object]
+class Query < GraphQL::BaseQuery
+  @[GraphQL::Field]
+  def hero : Character
+    Human.new
+  end
+end
+```
+
+Every object implementing an interface is part of the schema as soon as the
+interface is. Fields specific to one implementation are selected through
+fragments with a type condition, and `__typename` reports the concrete type:
+
+```graphql
+{
+  hero {
+    __typename
+    name
+    ... on Human {
+      homePlanet
+    }
+  }
+}
+```
+
+## Unions
+
+A union is a module with a `GraphQL::Union` annotation. Objects that include
+the module are its member types. A union has no fields of its own, so
+selections on it must go through type conditions:
+
+```crystal
+@[GraphQL::Union]
+module SearchResult
+end
+
+@[GraphQL::Object]
+class Human < GraphQL::BaseObject
+  include SearchResult
+  # ...
+end
+
+@[GraphQL::Object]
+class Starship < GraphQL::BaseObject
+  include SearchResult
+  # ...
+end
+
+@[GraphQL::Object]
+class Query < GraphQL::BaseQuery
+  @[GraphQL::Field]
+  def search(text : String) : Array(SearchResult)
+    [Human.new, Starship.new] of SearchResult
+  end
+end
+```
+
+```graphql
+{
+  search(text: "a") {
+    __typename
+    ... on Human { name }
+    ... on Starship { length }
+  }
+}
+```
+
+Both annotations accept `name` and `description` like `GraphQL::Object`.
 
 ## Subscriptions
 
-Subscriptions are not supported.
+A subscription type inherits `GraphQL::BaseSubscription`. Its fields return a
+`Channel` whose element type is the field's GraphQL type, and every value sent
+on the channel becomes one response. `GraphQL::Broadcast` fans values out to
+any number of subscribers, which is the usual way to publish from a mutation:
+
+```crystal
+MESSAGES = GraphQL::Broadcast(Message).new
+
+@[GraphQL::Object]
+class Mutation < GraphQL::BaseMutation
+  @[GraphQL::Field]
+  def post(text : String) : Message
+    message = Message.new(text)
+    MESSAGES.publish(message)
+    message
+  end
+end
+
+@[GraphQL::Object]
+class Subscription < GraphQL::BaseSubscription
+  @[GraphQL::Field]
+  def message_added : Channel(Message)
+    MESSAGES.subscribe
+  end
+end
+
+schema = GraphQL::Schema.new(Query.new, Mutation.new, Subscription.new)
+```
+
+`schema.subscribe` takes the same arguments as `schema.execute` and returns a
+`GraphQL::Subscription` that yields response documents. It ends when the
+resolver's channel closes. Call `close` to unsubscribe, which also closes the
+resolver's channel:
+
+```crystal
+subscription = schema.subscribe(%(subscription { messageAdded { text } }))
+spawn do
+  subscription.each do |response|
+    puts response # {"data":{"messageAdded":{"text":"hi"}}}
+  end
+end
+```
+
+A request that cannot be started, for example because it selects two root
+fields, yields a single error response and is already closed.
+
+### Over WebSockets
+
+`GraphQL::Transport::WebSocket` speaks the `graphql-transport-ws` protocol
+used by graphql-ws, Apollo Client, urql and Relay. It is not loaded by
+`require "graphql"`. With Kemal:
+
+```crystal
+require "graphql/transport/ws"
+
+ws "/graphql" do |socket, env|
+  GraphQL::Transport::WebSocket.new(schema, socket) { MyContext.new(env) }
+end
+```
+
+With the standard library's `HTTP::Server`, pass the protocol name so the
+handshake negotiates it, which browsers require. The subprotocol argument
+needs Crystal 1.20 or later:
+
+```crystal
+HTTP::WebSocketHandler.new([GraphQL::Transport::WebSocket::PROTOCOL]) do |socket, http|
+  GraphQL::Transport::WebSocket.new(schema, socket) { MyContext.new(http.request) }
+end
+```
+
+The block builds the context for every operation on the connection. Queries
+and mutations sent over the socket are executed once.
 
 ## Annotation Arguments
 
@@ -279,11 +507,11 @@ converted to PascalCase or camelCase. However, `item_id` converts to
 argument.
 
 ```crystal
-@[GraphQL::Object(name: "Sheep")]
-class Wolf
-  @[GraphQL::Field(name: "baa")]
-  def howl : String
-    "baa"
+@[GraphQL::Object(name: "Greeter")]
+class GreetingService
+  @[GraphQL::Field(name: "hello")]
+  def say_hello : String
+    "Hello"
   end
 end
 ```
@@ -296,8 +524,8 @@ Describes the type. Descriptions are available through the introspection interfa
 so it's always a good idea to set this argument.
 
 ```crystal
-@[GraphQL::Object(description: "I'm a sheep, I promise!")]
-class Wolf
+@[GraphQL::Object(description: "Produces greetings in several languages")]
+class Greeter
 end
 ```
 
@@ -308,27 +536,58 @@ Supported on: `Field`
 The deprecated argument marks a type as deprecated.
 
 ```crystal
-class Sheep
-  @[GraphQL::Field(deprecated: "This was a bad idea.")]
-  def fight_wolf : String
-    "Wolf ate sheep"
+class Greeter
+  @[GraphQL::Field(deprecated: "Use greet(lang:) instead")]
+  def hello : String
+    "Hello"
   end
+end
+```
+
+### values
+
+On enums, `values` describes or deprecates members by constant name:
+
+```crystal
+@[GraphQL::Enum(values: {
+  Red:  {description: "Like a rose"},
+  Blue: {deprecated: "Use Navy"},
+})]
+enum Color
+  Red
+  Blue
+  Navy
+end
+```
+
+### specified_by_url
+
+On scalars, `specified_by_url` points at the specification of the scalar's
+format and is reported as `specifiedByURL` in introspection:
+
+```crystal
+@[GraphQL::Scalar(specified_by_url: "https://tools.ietf.org/html/rfc3339")]
+record DateTime, value : Time do
+  # ...
 end
 ```
 
 ### arguments
 
-Sets names and descriptions for field arguments. Note that
-arguments cannot be marked as deprecated.
+Sets names, descriptions and deprecations for field arguments. Each argument
+may set `name`, `description` and `deprecated`:
 
 ```crystal
-class Sheep
-  @[GraphQL::Field(arguments: {weapon: {name: "weaponName", description: "The weapon the sheep should use."}})]
-  def fight_wolf(weapon : String) : String
-    if weapon == "Atomic Bomb"
-      "Sheep killed wolf"
-    else
-      "Wolf ate sheep"
+class Greeter
+  @[GraphQL::Field(arguments: {
+    language: {name: "lang", description: "Language code of the greeting"},
+    formal:   {deprecated: "Greetings are always informal now"},
+  })]
+  def greet(language : String, formal : Bool? = nil) : String
+    case language
+    when "fr" then "Bonjour"
+    when "de" then "Hallo"
+    else           "Hello"
     end
   end
 end

@@ -1,14 +1,28 @@
 require "./token"
 
 class GraphQL::Language::ParserContext
+  @line_starts : Array(Int32)?
   @current_token : Token
   @descriptions = [] of String
 
-  def initialize(source : String, lexer : Language::Lexer)
+  @depth = 0
+
+  def initialize(source : String, lexer : Language::Lexer, @max_depth : Int32 = Language::DEFAULT_MAX_DEPTH)
     @source = source
     @lexer = lexer
 
     @current_token = @lexer.lex(@source)
+  end
+
+  # Tracks how deeply selection sets, lists and input objects nest, so a
+  # hostile query cannot exhaust the stack of the recursive descent here or
+  # of the walks that run on the document afterwards.
+  private def nested(&)
+    @depth += 1
+    raise ParserError.new("query nesting depth exceeds #{@max_depth}") if @depth > @max_depth
+    yield
+  ensure
+    @depth -= 1
   end
 
   def parse
@@ -48,48 +62,74 @@ class GraphQL::Language::ParserContext
     )
   end
 
+  # Line and column (1-based) of a character offset in the source.
+  private def location(start : Int32) : {Int32, Int32}
+    line_starts = @line_starts ||= begin
+      starts = [0]
+      @source.each_char_with_index { |c, i| starts << i + 1 if c == '\n' }
+      starts
+    end
+    line = line_starts.bsearch_index { |s| s > start } || line_starts.size
+    {line, start - line_starts[line - 1] + 1}
+  end
+
   private def create_field(start : Int32, name : String, f_alias) : Language::Field
+    line, column = location(start)
     Language::Field.new(
       name: name,
       _alias: f_alias,
       arguments: parse_arguments,
       directives: parse_directives,
-      selections: peek(Token::Kind::BRACE_L) ? parse_selection_set : [] of String
+      selections: peek(Token::Kind::BRACE_L) ? parse_selection_set : [] of String,
+      line: line,
+      column: column,
     )
   end
 
   private def create_graphql_fragment_spread(start)
+    line, column = location(start)
     Language::FragmentSpread.new(
-      parse_fragment_name.not_nil!,
+      parse_fragment_name || raise(ParserError.new("Expected fragment name, found #{@current_token.kind}")),
       parse_directives,
+      line: line,
+      column: column,
     )
   end
 
   private def create_inline_fragment(start)
+    line, column = location(start)
     Language::InlineFragment.new(
       get_type_condition,
       parse_directives,
       parse_selection_set,
+      line: line,
+      column: column,
     )
   end
 
   private def create_operation_definition(start, operation, name)
+    line, column = location(start)
     Language::OperationDefinition.new(
       operation_type: operation,
       name: name,
       variables: parse_variable_definitions,
       directives: parse_directives,
       selections: parse_selection_set,
+      line: line,
+      column: column,
     )
   end
 
   private def create_operation_definition(start)
+    line, column = location(start)
     Language::OperationDefinition.new(
       operation_type: "query",
       name: nil,
       variables: parse_variable_definitions,
       directives: [] of Language::Directive,
       selections: parse_selection_set,
+      line: line,
+      column: column,
     )
   end
 
@@ -135,7 +175,7 @@ class GraphQL::Language::ParserContext
   end
 
   private def get_name!
-    parse_name.not_nil!
+    parse_name || raise ParserError.new("Expected Name, found #{@current_token.kind}")
   end
 
   private def get_type_condition
@@ -173,11 +213,11 @@ class GraphQL::Language::ParserContext
       return [] of Language::InputValueDefinition
     end
 
-    many(Token::Kind::PAREN_L, ->{ parse_input_value_def }, Token::Kind::PAREN_R)
+    many(Token::Kind::PAREN_L, -> { parse_input_value_def }, Token::Kind::PAREN_R)
   end
 
   private def parse_arguments
-    peek(Token::Kind::PAREN_L) ? many(Token::Kind::PAREN_L, ->{ parse_argument }, Token::Kind::PAREN_R) : [] of Language::Argument
+    peek(Token::Kind::PAREN_L) ? many(Token::Kind::PAREN_L, -> { parse_argument }, Token::Kind::PAREN_R) : [] of Language::Argument
   end
 
   private def parse_boolean_value(token)
@@ -221,7 +261,7 @@ class GraphQL::Language::ParserContext
 
   private def parse_comment
     if !peek(Token::Kind::COMMENT)
-      return nil
+      return
     end
 
     text = [] of String?
@@ -241,7 +281,7 @@ class GraphQL::Language::ParserContext
   private def parse_description
     is_block = peek(Token::Kind::BLOCK_STRING)
     if !peek(Token::Kind::STRING) && !is_block
-      return nil
+      return
     end
 
     text = [] of String?
@@ -320,14 +360,14 @@ class GraphQL::Language::ParserContext
     Language::EnumTypeDefinition.new(
       name: get_name!,
       directives: parse_directives,
-      fvalues: many(Token::Kind::BRACE_L, ->{ parse_enum_value_definition }, Token::Kind::BRACE_R),
+      fvalues: many(Token::Kind::BRACE_L, -> { parse_enum_value_definition }, Token::Kind::BRACE_R),
       description: description,
     )
   end
 
   private def parse_enum_value(token)
     advance
-    Language::AEnum.new(name: token.value.not_nil!)
+    Language::AEnum.new(name: token.value || raise ParserError.new("Expected an enum value"))
   end
 
   private def parse_enum_value_definition
@@ -362,25 +402,19 @@ class GraphQL::Language::ParserContext
 
   private def parse_field_selection
     start = @current_token.start_position
-    name_or_alias = parse_name # FIXME is this never null?
-    name = nil
-    f_alias = nil
+    name_or_alias = get_name!
 
     if skip(Token::Kind::COLON)
-      name = get_name!
-      f_alias = name_or_alias
+      create_field(start, get_name!, name_or_alias)
     else
-      f_alias = nil
-      name = name_or_alias
+      create_field(start, name_or_alias, nil)
     end
-
-    create_field(start, name.not_nil!, f_alias)
   end
 
   private def parse_float(is_constant) : Float64?
     token = @current_token
     advance
-    token.value.not_nil!.to_f64? if !token.value.nil?
+    token.value.try(&.to_f64?)
   end
 
   private def parse_fragment
@@ -409,20 +443,23 @@ class GraphQL::Language::ParserContext
     # raise ParserError.new("Unexpected #{@current_token.kind}") if @current_token.value == "on"
 
     if @current_token.value == "on"
-      return nil
+      return
     end
 
     parse_name
   end
 
+  # `implements A & B` per the current spec; the pre-2018 `implements A, B`
+  # form still parses because commas are insignificant.
   private def parse_implements_interfaces
     types = [] of String?
     if @current_token.value == "implements"
       advance
+      skip(Token::Kind::AMP)
 
       loop do
         types.push(parse_name)
-        break unless peek(Token::Kind::NAME)
+        break unless skip(Token::Kind::AMP) || peek(Token::Kind::NAME)
       end
     end
 
@@ -436,7 +473,7 @@ class GraphQL::Language::ParserContext
     Language::InputObjectTypeDefinition.new(
       name: get_name!,
       directives: parse_directives(),
-      fields: any(Token::Kind::BRACE_L, ->{ parse_input_value_def }, Token::Kind::BRACE_R),
+      fields: any(Token::Kind::BRACE_L, -> { parse_input_value_def }, Token::Kind::BRACE_R),
       description: description,
     )
   end
@@ -455,10 +492,11 @@ class GraphQL::Language::ParserContext
     )
   end
 
-  private def parse_int(is_constant) : Int32?
+  private def parse_int(is_constant) : Int32 | BigInt
     token = @current_token
     advance
-    token.value.not_nil!.to_i32? if !token.value.nil?
+    value = token.value || raise ParserError.new("Expected an integer")
+    value.to_i32? || BigInt.new(value)
   end
 
   private def parse_interface_type_definition
@@ -468,7 +506,7 @@ class GraphQL::Language::ParserContext
     Language::InterfaceTypeDefinition.new(
       name: get_name!,
       directives: parse_directives,
-      fields: any(Token::Kind::BRACE_L, ->{ parse_field_definition }, Token::Kind::BRACE_R),
+      fields: any(Token::Kind::BRACE_L, -> { parse_field_definition }, Token::Kind::BRACE_R),
       description: description,
     )
   end
@@ -477,7 +515,7 @@ class GraphQL::Language::ParserContext
     constant = Proc(Language::ArgumentValue).new { parse_constant_value }
     value = Proc(Language::ArgumentValue).new { parse_value_value }
 
-    any(Token::Kind::BRACKET_L, is_constant ? constant : value, Token::Kind::BRACKET_R)
+    nested { any(Token::Kind::BRACKET_L, is_constant ? constant : value, Token::Kind::BRACKET_R) }
   end
 
   private def parse_name : String?
@@ -511,8 +549,6 @@ class GraphQL::Language::ParserContext
       #   parse_type_extension_definition
     when "directive"
       parse_directive_definition
-    else
-      nil
     end
   end
 
@@ -554,9 +590,11 @@ class GraphQL::Language::ParserContext
   private def parse_object_fields(is_constant)
     fields = [] of Language::Argument
 
-    expect(Token::Kind::BRACE_L)
-    while !skip(Token::Kind::BRACE_R)
-      fields.push(parse_object_field(is_constant))
+    nested do
+      expect(Token::Kind::BRACE_L)
+      while !skip(Token::Kind::BRACE_R)
+        fields.push(parse_object_field(is_constant))
+      end
     end
 
     fields
@@ -572,7 +610,7 @@ class GraphQL::Language::ParserContext
       description: description,
       interfaces: parse_implements_interfaces,
       directives: parse_directives,
-      fields: any(Token::Kind::BRACE_L, ->{ parse_field_definition }, Token::Kind::BRACE_R),
+      fields: any(Token::Kind::BRACE_L, -> { parse_field_definition }, Token::Kind::BRACE_R),
     )
   end
 
@@ -616,7 +654,7 @@ class GraphQL::Language::ParserContext
   private def parse_schema_definition
     expect_keyword("schema")
     directives = parse_directives
-    definitions = many(Token::Kind::BRACE_L, ->{ parse_operation_type_definition }, Token::Kind::BRACE_R)
+    definitions = many(Token::Kind::BRACE_L, -> { parse_operation_type_definition }, Token::Kind::BRACE_R)
 
     definitions = definitions.as(Array).reduce(Hash(String, String).new) do |memo, pair|
       pair.as(Tuple(String, GraphQL::Language::TypeName)).tap { |p| memo[p[0]] = p[1].name }
@@ -636,7 +674,7 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_selection_set
-    many(Token::Kind::BRACE_L, ->{ parse_selection }, Token::Kind::BRACE_R)
+    nested { many(Token::Kind::BRACE_L, -> { parse_selection }, Token::Kind::BRACE_R) }
   end
 
   private def parse_string(is_constant)
@@ -646,11 +684,10 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_type
-    type = nil
     if skip(Token::Kind::BRACKET_L)
-      type = parse_type
+      inner = parse_type
       expect(Token::Kind::BRACKET_R)
-      type = Language::ListType.new(of_type: type)
+      type = Language::ListType.new(of_type: inner)
     else
       type = parse_named_type
     end
@@ -737,15 +774,15 @@ class GraphQL::Language::ParserContext
 
   private def parse_variable_definition : Language::VariableDefinition
     Language::VariableDefinition.new(
-      name: parse_variable.name.not_nil!,
-      type: advance_through_colon_and_parse_type.not_nil!,
+      name: parse_variable.name,
+      type: advance_through_colon_and_parse_type || raise(ParserError.new("Expected a type")),
       default_value: skip_equals_and_parse_value_literal.as(FValue)
     )
   end
 
   private def parse_variable_definitions : Array(Language::VariableDefinition)
     if peek(Token::Kind::PAREN_L)
-      many(Token::Kind::PAREN_L, ->{ parse_variable_definition }, Token::Kind::PAREN_R)
+      many(Token::Kind::PAREN_L, -> { parse_variable_definition }, Token::Kind::PAREN_R)
     else
       [] of Language::VariableDefinition
     end

@@ -3,18 +3,40 @@ name: Test
 on:
   push:
   pull_request:
-  schedule:
-    - cron: "0 18 * * *"
 
 jobs:
   spec:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # the oldest supported compiler, see `crystal:` in shard.yml; its
+          # Alpine image is too old for the Node runtime Actions injects, so
+          # the Ubuntu-based image is used
+          - crystal: "1.4.1"
+            image: "1.4.1"
+            format: false
+          - crystal: latest
+            image: latest-alpine
+            format: true
+    name: spec (crystal ${{ matrix.crystal }})
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:latest-alpine
+      image: crystallang/crystal:${{ matrix.image }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install dependencies
-        run: shards install
+        # ameba's postinstall builds it, which needs a current compiler
+        run: shards install --skip-postinstall
+      - name: Check formatting
+        if: ${{ matrix.format }}
+        run: crystal tool format --check src spec
+      - name: Lint
+        if: ${{ matrix.format }}
+        run: mkdir -p bin && crystal build lib/ameba/src/cli.cr -o bin/ameba && bin/ameba
+      - name: Compile the benchmark
+        if: ${{ matrix.format }}
+        run: crystal build --no-codegen bench/bench.cr
       - name: Run tests
         run: crystal spec

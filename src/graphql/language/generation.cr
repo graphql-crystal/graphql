@@ -59,7 +59,7 @@ module GraphQL
       def self.generate(node : FragmentSpread, indent : String = "")
         out = "#{indent}...#{node.name}"
         unless node.directives.empty?
-          out += " " + node.directives.map { |d| generate(d).as(String) }.join(" ")
+          out + " " + node.directives.map { |d| generate(d).as(String) }.join(" ")
         end
       end
 
@@ -122,28 +122,28 @@ module GraphQL
         out += "  query: #{node.query}\n" if node.query
         out += "  mutation: #{node.mutation}\n" if node.mutation
         out += "  subscription: #{node.subscription}\n" if node.subscription
-        out += "}"
+        out + "}"
       end
 
       def self.generate(node : ScalarTypeDefinition, indent : String = "")
         out = generate_description(node)
         out += "scalar #{node.name}"
-        out += generate_directives(node.directives)
+        out + generate_directives(node.directives)
       end
 
       def self.generate(node : ObjectTypeDefinition, indent : String = "")
         out = generate_description(node)
         out += "type #{node.name}"
         out += generate_directives(node.directives)
-        out += " implements " + node.interfaces.map { |i| i.as(String) }.join(", ") unless node.interfaces.empty?
-        out += generate_field_definitions(node.fields)
+        out += " implements " + node.interfaces.map { |i| i.as(String) }.join(" & ") unless node.interfaces.empty?
+        out + generate_field_definitions(node.fields)
       end
 
       def self.generate(node : InputValueDefinition, indent : String = "")
         out = generate_description(node, indent: indent)
         out += "#{indent}#{node.name}: #{generate(node.type)}"
         out += " = #{generate(node.default_value)}" unless node.default_value.nil?
-        out += generate_directives(node.directives)
+        out + generate_directives(node.directives)
       end
 
       def self.generate(node : FieldDefinition, indent : String = "")
@@ -151,33 +151,33 @@ module GraphQL
         unless node.arguments.empty?
           with_descriptions = !node.arguments.find { |arg| !arg.description.nil? }.nil?
           out += "("
-          args = node.arguments.map { |arg|
+          args = node.arguments.map do |arg|
             if with_descriptions
               "\n" + generate(arg, indent: indent*2).as(String)
             else
               generate(arg).as(String)
             end
-          }
+          end
           out += with_descriptions ? args.join("") : args.join(", ")
           out += "\n#{indent}" if with_descriptions
           out += ")"
         end
         out += ": #{generate(node.type)}"
-        out += generate_directives(node.directives)
+        out + generate_directives(node.directives)
       end
 
       def self.generate(node : InterfaceTypeDefinition, indent : String = "")
         out = generate_description(node)
         out += "interface #{node.name}"
         out += generate_directives(node.directives)
-        out += generate_field_definitions(node.fields)
+        out + generate_field_definitions(node.fields)
       end
 
       def self.generate(node : UnionTypeDefinition, indent : String = "")
         out = generate_description(node)
         out += "union #{node.name}"
         out += generate_directives(node.directives)
-        out += " = " + node.types.map { |t| t.as(NameOnlyNode).name }.join(" | ")
+        out + " = " + node.types.map { |t| t.as(NameOnlyNode).name }.join(" | ")
       end
 
       def self.generate(node : EnumTypeDefinition, indent : String = "")
@@ -193,7 +193,7 @@ module GraphQL
       def self.generate(node : EnumValueDefinition, indent : String = "")
         out = "  #{node.name}"
         out += generate_directives(node.directives)
-        out += "\n"
+        out + "\n"
       end
 
       def self.generate(node : InputObjectTypeDefinition, indent : String = "")
@@ -212,14 +212,14 @@ module GraphQL
         out = generate_description(node)
         out += "directive @#{node.name}"
         out += "(#{node.arguments.map { |a| generate(a).as(String) }.join(", ")})" unless node.arguments.empty?
-        out += " on #{node.locations.join(" | ")}"
+        out + " on #{node.locations.join(" | ")}"
       end
 
       #      def self.generate(node : ASTNode, indent : String = "")
       #        node.to_query_string()
       #      end
 
-      def self.generate(node : Float | Int | String | Nil | Bool, indent : String = "")
+      def self.generate(node : Float | Int | String | Bool?, indent : String = "")
         node.to_json
       end
 

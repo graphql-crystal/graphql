@@ -1,0 +1,27 @@
+# Rules relaxed on purpose; everything else is enforced in CI.
+
+Globs:
+  - "**/*.cr"
+  - "!lib"
+
+Excluded:
+  # the example's dependencies, including a symlink back to this repository
+  - examples/*/lib/**/*
+
+Naming/BlockParameterName:
+  # single-letter block parameters are used throughout the code base
+  Enabled: false
+
+Naming/PredicateName:
+  Excluded:
+    # isDeprecated, isRepeatable and isOneOf are GraphQL field names
+    - src/graphql/introspection.cr
+
+Style/MultilineStringLiteral:
+  Excluded:
+    # queries in specs are %() literals
+    - spec/**/*.cr
+
+Metrics/CyclomaticComplexity:
+  # the lexer and parser are large case statements by nature
+  MaxComplexity: 20
