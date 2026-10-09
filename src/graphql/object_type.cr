@@ -71,6 +71,19 @@ module GraphQL::ObjectType
         case field.name
         {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
         when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
+          {% leaf = var.type %}
+          {% for _ in 0..7 %}
+            {% leaf = leaf.union_types.find { |u| u != Nil } %}
+            {% if leaf < Array %}
+              {% leaf = leaf.type_vars.first %}
+            {% end %}
+          {% end %}
+          {% if leaf.annotation(::GraphQL::Object) %}
+          raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
+          {% else %}
+          raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
+          {% end %}
+          raise ::GraphQL::TypeError.new("unknown argument #{field.arguments.first.name} on field #{field.name}") unless field.arguments.empty?
           errors.concat _graphql_serialize(context, field, self.{{var.name.id}}, json)
         {% end %}
         {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
@@ -80,23 +93,47 @@ module GraphQL::ObjectType
           {% end %}
         {% end %}
         {% for method in methods %}
+        {% ann_args = method.annotation(::GraphQL::Field)["arguments"] %}
+        {% arg_names = method.args.map { |a| (ann_args && ann_args[a.name.id] && ann_args[a.name.id]["name"]) || a.name.id.stringify.camelcase(lower: true) } %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
+          {% unless method.return_type.is_a?(Nop) %}
+          {% leaf = method.return_type.resolve %}
+          {% for _ in 0..7 %}
+            {% leaf = leaf.union_types.find { |u| u != Nil } %}
+            {% if leaf < Array %}
+              {% leaf = leaf.type_vars.first %}
+            {% end %}
+          {% end %}
+          {% if leaf.annotation(::GraphQL::Object) %}
+          raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
+          {% else %}
+          raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
+          {% end %}
+          {% end %}
+          field.arguments.each do |fa|
+            {% if arg_names.empty? %}
+            raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}")
+            {% else %}
+            raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}") unless {{ arg_names }}.includes?(fa.name)
+            {% end %}
+          end
           value = self.{{method.name.id}}(
-            {% for arg in method.args %}
+            {% for arg, i in method.args %}
             {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
+            {% gql_name = arg_names[i] %}
             {{ arg.name }}: begin
               if context.is_a? {{arg.restriction.id}}
                 context
-              elsif (fa = field.arguments.find { |a| a.name == {{ arg.name.id.stringify.camelcase(lower: true) }} }) && !fa.value.nil?
-                GraphQL::Internal.convert_value {{ type }}, fa.value, {{ arg.name.id.camelcase(lower: true) }}
+              elsif (fa = field.arguments.find { |a| a.name == {{ gql_name }} }) && !fa.value.nil?
+                GraphQL::Internal.convert_value {{ type }}, fa.value, {{ gql_name.id }}
               else
                 {% if !arg.default_value.is_a?(Nop) %}
                   {{ arg.default_value }}.as({{arg.restriction.id}})
                 {% elsif arg.restriction.resolve.nilable? %}
                   nil
                 {% else %}
-                  raise ::GraphQL::TypeError.new("missing required argument {{ arg.name.id.camelcase(lower: true) }}")
+                  raise ::GraphQL::TypeError.new("missing required argument {{ gql_name.id }}")
                 {% end %}
               end
             end,
@@ -105,9 +142,11 @@ module GraphQL::ObjectType
           errors.concat _graphql_serialize(context, field, value, json)
         {% end %}
         when "__typename"
+          raise ::GraphQL::TypeError.new("field __typename must not have a selection since its type has no subfields") unless field.selections.empty?
           json.string _graphql_type
         {% if @type < ::GraphQL::QueryType %}
         when "__schema"
+          raise ::GraphQL::TypeError.new("field __schema must have a selection of subfields") if field.selections.empty?
           json.object do
             introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
             errors.concat introspection._graphql_resolve(context, field.selections, json)
@@ -185,7 +224,10 @@ module GraphQL::ObjectType
     skip = false
 
     directives.each do |directive|
-      next unless directive.name == "skip" || directive.name == "include"
+      unless directive.name == "skip" || directive.name == "include"
+        errors << ::GraphQL::Error.new("unknown directive @#{directive.name}", path)
+        return true
+      end
 
       arg = directive.arguments.find { |a| a.name == "if" }
       if arg.nil?

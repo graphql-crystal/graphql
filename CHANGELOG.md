@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Argument and input object field names overridden through the `arguments`
+  option of `GraphQL::Field` are now honored at execution time. Before, the
+  schema advertised the override but the resolver only looked up the Crystal
+  name, so renamed arguments were never found
+- Unknown arguments on a field and unknown fields on an input object are
+  reported instead of being silently dropped
+- Unknown directives on a selection are reported instead of being ignored
+- A selection set on a scalar or enum field, and a missing selection set on
+  an object field, are reported instead of being ignored
+- A query without any operation reports "query does not contain an
+  operation" instead of complaining about multiple operations
+
 ## [0.7.1] - 2026-10-09
 
 ### Fixed

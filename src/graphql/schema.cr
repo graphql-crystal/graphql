@@ -190,6 +190,9 @@ module GraphQL
 
       operation = if document.nil?
                     nil
+                  elsif operations.empty?
+                    errors << Error.new("query does not contain an operation", [] of String | Int32)
+                    nil
                   elsif operation_name.nil? && operations.size == 1
                     operations.first
                   else
