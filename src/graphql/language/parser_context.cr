@@ -173,11 +173,11 @@ class GraphQL::Language::ParserContext
       return [] of Language::InputValueDefinition
     end
 
-    many(Token::Kind::PAREN_L, ->{ parse_input_value_def }, Token::Kind::PAREN_R)
+    many(Token::Kind::PAREN_L, -> { parse_input_value_def }, Token::Kind::PAREN_R)
   end
 
   private def parse_arguments
-    peek(Token::Kind::PAREN_L) ? many(Token::Kind::PAREN_L, ->{ parse_argument }, Token::Kind::PAREN_R) : [] of Language::Argument
+    peek(Token::Kind::PAREN_L) ? many(Token::Kind::PAREN_L, -> { parse_argument }, Token::Kind::PAREN_R) : [] of Language::Argument
   end
 
   private def parse_boolean_value(token)
@@ -320,7 +320,7 @@ class GraphQL::Language::ParserContext
     Language::EnumTypeDefinition.new(
       name: get_name!,
       directives: parse_directives,
-      fvalues: many(Token::Kind::BRACE_L, ->{ parse_enum_value_definition }, Token::Kind::BRACE_R),
+      fvalues: many(Token::Kind::BRACE_L, -> { parse_enum_value_definition }, Token::Kind::BRACE_R),
       description: description,
     )
   end
@@ -436,7 +436,7 @@ class GraphQL::Language::ParserContext
     Language::InputObjectTypeDefinition.new(
       name: get_name!,
       directives: parse_directives(),
-      fields: any(Token::Kind::BRACE_L, ->{ parse_input_value_def }, Token::Kind::BRACE_R),
+      fields: any(Token::Kind::BRACE_L, -> { parse_input_value_def }, Token::Kind::BRACE_R),
       description: description,
     )
   end
@@ -468,7 +468,7 @@ class GraphQL::Language::ParserContext
     Language::InterfaceTypeDefinition.new(
       name: get_name!,
       directives: parse_directives,
-      fields: any(Token::Kind::BRACE_L, ->{ parse_field_definition }, Token::Kind::BRACE_R),
+      fields: any(Token::Kind::BRACE_L, -> { parse_field_definition }, Token::Kind::BRACE_R),
       description: description,
     )
   end
@@ -572,7 +572,7 @@ class GraphQL::Language::ParserContext
       description: description,
       interfaces: parse_implements_interfaces,
       directives: parse_directives,
-      fields: any(Token::Kind::BRACE_L, ->{ parse_field_definition }, Token::Kind::BRACE_R),
+      fields: any(Token::Kind::BRACE_L, -> { parse_field_definition }, Token::Kind::BRACE_R),
     )
   end
 
@@ -616,7 +616,7 @@ class GraphQL::Language::ParserContext
   private def parse_schema_definition
     expect_keyword("schema")
     directives = parse_directives
-    definitions = many(Token::Kind::BRACE_L, ->{ parse_operation_type_definition }, Token::Kind::BRACE_R)
+    definitions = many(Token::Kind::BRACE_L, -> { parse_operation_type_definition }, Token::Kind::BRACE_R)
 
     definitions = definitions.as(Array).reduce(Hash(String, String).new) do |memo, pair|
       pair.as(Tuple(String, GraphQL::Language::TypeName)).tap { |p| memo[p[0]] = p[1].name }
@@ -636,7 +636,7 @@ class GraphQL::Language::ParserContext
   end
 
   private def parse_selection_set
-    many(Token::Kind::BRACE_L, ->{ parse_selection }, Token::Kind::BRACE_R)
+    many(Token::Kind::BRACE_L, -> { parse_selection }, Token::Kind::BRACE_R)
   end
 
   private def parse_string(is_constant)
@@ -745,7 +745,7 @@ class GraphQL::Language::ParserContext
 
   private def parse_variable_definitions : Array(Language::VariableDefinition)
     if peek(Token::Kind::PAREN_L)
-      many(Token::Kind::PAREN_L, ->{ parse_variable_definition }, Token::Kind::PAREN_R)
+      many(Token::Kind::PAREN_L, -> { parse_variable_definition }, Token::Kind::PAREN_R)
     else
       [] of Language::VariableDefinition
     end

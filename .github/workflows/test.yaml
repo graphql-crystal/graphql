@@ -3,8 +3,6 @@ name: Test
 on:
   push:
   pull_request:
-  schedule:
-    - cron: "0 18 * * *"
 
 jobs:
   spec:
@@ -16,5 +14,7 @@ jobs:
         uses: actions/checkout@v7
       - name: Install dependencies
         run: shards install
+      - name: Check formatting
+        run: crystal tool format --check src spec
       - name: Run tests
         run: crystal spec
