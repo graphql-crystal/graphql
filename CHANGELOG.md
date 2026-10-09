@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Ameba lint runs in CI with the configuration in `.ameba.yml`, and the code
+  base passes it. Parser errors that used to be nil assertions on malformed
+  input are now raised as `ParserError` with a message
+
 - CI runs the suite on Crystal 1.4.1, the oldest supported compiler, as well
   as on the latest release. The transport spec no longer depends on standard
   library additions newer than the floor

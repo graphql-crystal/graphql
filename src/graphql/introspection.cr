@@ -43,30 +43,29 @@ module GraphQL
 
       @[GraphQL::Field]
       def query_type : GraphQL::Introspection::Type
-        Type.new @document, @document.definitions.find! { |d|
+        definition = @document.definitions.find! do |d|
           d.is_a?(Language::TypeDefinition) && d.name == @query_type
-        }.as(Language::TypeDefinition)
+        end
+        Type.new @document, definition.as(Language::TypeDefinition)
       end
 
       @[GraphQL::Field]
       def mutation_type : GraphQL::Introspection::Type?
         if mt = @mutation_type
-          Type.new @document, @document.definitions.find! { |d|
+          definition = @document.definitions.find! do |d|
             d.is_a?(Language::TypeDefinition) && d.name == mt
-          }.as(Language::TypeDefinition)
-        else
-          nil
+          end
+          Type.new @document, definition.as(Language::TypeDefinition)
         end
       end
 
       @[GraphQL::Field]
       def subscription_type : GraphQL::Introspection::Type?
         if st = @subscription_type
-          Type.new @document, @document.definitions.find! { |d|
+          definition = @document.definitions.find! do |d|
             d.is_a?(Language::TypeDefinition) && d.name == st
-          }.as(Language::TypeDefinition)
-        else
-          nil
+          end
+          Type.new @document, definition.as(Language::TypeDefinition)
         end
       end
 
@@ -168,9 +167,9 @@ module GraphQL
       def self.from_ast(document : Language::Document, type : Language::ASTNode)
         case type
         when Language::TypeName
-          self.new(document, document.definitions.find! { |d| d.is_a? Language::TypeDefinition && d.name == type.name }.as(Language::TypeDefinition))
+          new(document, document.definitions.find! { |d| d.is_a? Language::TypeDefinition && d.name == type.name }.as(Language::TypeDefinition))
         when Language::TypeDefinition, Language::WrapperType
-          self.new(document, type)
+          new(document, type)
         else
           raise GraphQL::TypeError.new("cannot create type from #{type}")
         end
@@ -218,8 +217,6 @@ module GraphQL
           definition.name
         when Language::UnionTypeDefinition
           definition.name
-        else
-          nil
         end
       end
 
@@ -253,8 +250,6 @@ module GraphQL
           if directive = definition.directives.find { |d| d.name == "specifiedBy" }
             directive.arguments.find { |a| a.name == "url" }.try(&.value.as?(String))
           end
-        else
-          nil
         end
       end
 
@@ -270,7 +265,7 @@ module GraphQL
         definitions = case definition = @definition
                       when Language::ObjectTypeDefinition    then definition.fields
                       when Language::InterfaceTypeDefinition then definition.fields
-                      else                                        return nil
+                      else                                        return
                       end
 
         definitions.compact_map do |f|
@@ -287,8 +282,6 @@ module GraphQL
           definition.interfaces.map { |name| Type.from_ast(@document, Language::TypeName.new(name: name)) }
         when Language::InterfaceTypeDefinition
           [] of GraphQL::Introspection::Type
-        else
-          nil
         end
       end
 
@@ -302,8 +295,6 @@ module GraphQL
           end
         when Language::UnionTypeDefinition
           definition.types.map { |t| Type.from_ast(@document, t) }
-        else
-          nil
         end
       end
 
@@ -312,15 +303,10 @@ module GraphQL
       def enum_values(include_deprecated : Bool = false) : Array(GraphQL::Introspection::EnumValue)?
         case definition = @definition
         when Language::EnumTypeDefinition
-          definition.fvalues.select { |v|
-            if include_deprecated
-              true
-            else
-              v.directives.find { |d| d.name == "deprecated" }.nil?
-            end
-          }.map { |v| EnumValue.new(@document, v) }
-        else
-          nil
+          definition.fvalues.compact_map do |v|
+            next if !include_deprecated && Deprecation.deprecated?(v.directives)
+            EnumValue.new(@document, v)
+          end
         end
       end
 
@@ -333,8 +319,6 @@ module GraphQL
             next if !include_deprecated && Deprecation.deprecated?(f.directives)
             GraphQL::Introspection::InputValue.new(@document, f)
           end
-        else
-          nil
         end
       end
 
@@ -344,8 +328,6 @@ module GraphQL
         case definition = @definition
         when Language::NonNullType, Language::ListType
           Type.from_ast(@document, definition.of_type)
-        else
-          nil
         end
       end
     end

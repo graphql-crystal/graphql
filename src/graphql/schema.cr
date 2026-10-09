@@ -99,15 +99,11 @@ module GraphQL
           value.arguments.each do |arg|
             substitute_variables(arg, resolved, variables, errors)
           end
-        else
-          nil
         end
       when Language::InputObject
         node.arguments.each do |arg|
           substitute_variables(arg, resolved, variables, errors)
         end
-      else
-        nil
       end
     end
 
@@ -166,7 +162,7 @@ module GraphQL
         Language.parse(query, max_depth: context.max_depth)
       rescue ex : ParserError
         errors << Error.new(ex.message || "syntax error")
-        return nil
+        return
       end
 
       operations = [] of Language::OperationDefinition
@@ -182,24 +178,22 @@ module GraphQL
           operations << node
         when Language::FragmentDefinition
           context.fragments << node
-        else
-          nil
         end
       })
 
       operation = if operations.empty?
                     errors << Error.new("query does not contain an operation")
-                    return nil
+                    return
                   elsif operation_name.nil? && operations.size == 1
                     operations.first
                   elsif operation_name.nil?
                     errors << Error.new("sent more than one operation but did not set operation name")
-                    return nil
+                    return
                   elsif op = operations.find { |q| q.name == operation_name }
                     op
                   else
                     errors << Error.new("could not find operation with name #{operation_name}")
-                    return nil
+                    return
                   end
 
       resolved = resolve_variables(operation, variables, errors)

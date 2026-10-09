@@ -31,9 +31,9 @@ module GraphQL
 
     # :nodoc:
     def self.locations_of(node : Language::ASTNode?) : Array(Location)?
-      return nil unless node
+      return unless node
       line, column = node.line, node.column
-      return nil unless line && column
+      return unless line && column
       [Location.new(line, column)]
     end
 

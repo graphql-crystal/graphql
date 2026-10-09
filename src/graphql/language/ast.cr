@@ -10,11 +10,11 @@ module GraphQL
       end
 
       macro values(args)
-        property {{args.map { |k, v| "#{k} : #{v}" }.join(",").id}}
+        property {{ args.map { |k, v| "#{k} : #{v}" }.join(",").id }}
 
-        def_equals_and_hash {{args.keys}}
+        def_equals_and_hash {{ args.keys }}
 
-        def initialize({{args.keys.join(",").id}}, **rest)
+        def initialize({{ args.keys.join(",").id }}, **rest)
           {%
             assignments = args.map do |k, v|
               if v.is_a?(Generic) && v.name.id == "Array"
@@ -26,7 +26,7 @@ module GraphQL
             end
           %}
 
-          {{assignments.join("\n").id}}
+          {{ assignments.join("\n").id }}
 
           super(**rest)
         end

@@ -4,7 +4,7 @@ class GraphQL::Language::LexerContext
     @source = source
   end
 
-  def get_token : Token
+  def next_token : Token
     return create_eof_token() if @source.nil?
 
     @current_index = get_position_after_whitespace(@source, @current_index)
@@ -38,7 +38,7 @@ class GraphQL::Language::LexerContext
     code = get_code
     value = ""
 
-    while is_not_at_the_end_of_query() && code.ord != 0x000A && code.ord != 0x000D
+    while more_source? && code.ord != 0x000A && code.ord != 0x000D
       code = process_character(pointerof(value), pointerof(chunk_start))
     end
 
@@ -51,21 +51,21 @@ class GraphQL::Language::LexerContext
     is_float = false
     start = @current_index
     code = @source[start]
-    code = self.next_code if code == '-'
-    next_code_char = code == '0' ? self.next_code : read_digits_from_own_source(code)
+    code = next_code if code == '-'
+    next_code_char = code == '0' ? next_code : read_digits_from_own_source(code)
     raise ParserError.new("Invalid number, unexpected digit after #{code}: #{next_code_char}") if next_code_char.ord >= 48 && next_code_char.ord <= 57
 
     code = next_code_char
     if code == '.'
       is_float = true
-      code = read_digits_from_own_source(self.next_code)
+      code = read_digits_from_own_source(next_code)
     end
 
     if code == 'E' || code == 'e'
       is_float = true
-      code = self.next_code
+      code = next_code
       if code == '+' || code == '-'
-        code = self.next_code
+        code = next_code
       end
       read_digits_from_own_source(code)
     end
@@ -80,7 +80,7 @@ class GraphQL::Language::LexerContext
     Token.new(is_block ? Token::Kind::STRING : Token::Kind::BLOCK_STRING, value, start, @current_index + 1)
   end
 
-  private def is_valid_name_character(code) : Bool
+  private def valid_name_character?(code) : Bool
     code == '_' || code.alphanumeric?
   end
 
@@ -145,8 +145,6 @@ class GraphQL::Language::LexerContext
       create_punctuation_token(Token::Kind::PIPE, 1)
     when '}'
       create_punctuation_token(Token::Kind::BRACE_R, 1)
-    else
-      nil
     end
   end
 
@@ -154,7 +152,7 @@ class GraphQL::Language::LexerContext
     char1 = @source.size > @current_index + 1 ? @source[@current_index + 1] : 0
     char2 = @source.size > @current_index + 2 ? @source[@current_index + 2] : 0
 
-    return create_punctuation_token(Token::Kind::SPREAD, 3) if char1 == '.' && char2 == '.'
+    create_punctuation_token(Token::Kind::SPREAD, 3) if char1 == '.' && char2 == '.'
   end
 
   private def check_string_termination(code)
@@ -218,13 +216,13 @@ class GraphQL::Language::LexerContext
       only_hex_in_string(@source[(@current_index + 2), 4]) ? @source[@current_index, 6] : null
   end
 
-  private def is_not_at_the_end_of_query
+  private def more_source?
     @current_index < @source.size
   end
 
   private def next_code
     @current_index += 1
-    is_not_at_the_end_of_query() ? @source[@current_index] : Char::ZERO
+    more_source? ? @source[@current_index] : Char::ZERO
   end
 
   private def process_character(value_ptr, chunk_start_ptr)
@@ -247,7 +245,7 @@ class GraphQL::Language::LexerContext
     code = get_code
     value = ""
 
-    while is_not_at_the_end_of_query() && (is_block || code.ord != 0x000A && code.ord != 0x000D) && (is_block ? @source[@current_index..@current_index + 2] != %(""") : code != '"')
+    while more_source? && (is_block || code.ord != 0x000A && code.ord != 0x000D) && (is_block ? @source[@current_index..@current_index + 2] != %(""") : code != '"')
       check_for_invalid_characters(code) unless is_block && code.ord == 0x000A
       code = process_character(pointerof(value), pointerof(chunk_start))
     end
@@ -289,7 +287,7 @@ class GraphQL::Language::LexerContext
     loop do
       @current_index += 1
       code = get_code
-      break unless is_not_at_the_end_of_query && is_valid_name_character(code)
+      break unless more_source? && valid_name_character?(code)
     end
 
     create_name_token(start)
@@ -317,6 +315,6 @@ class GraphQL::Language::LexerContext
   end
 
   private def get_code
-    is_not_at_the_end_of_query ? @source[@current_index] : Char::ZERO
+    more_source? ? @source[@current_index] : Char::ZERO
   end
 end

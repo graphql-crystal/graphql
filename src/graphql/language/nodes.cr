@@ -5,16 +5,16 @@ require "./generation"
 module GraphQL
   module Language
     macro define_array_cast(type)
-      def self.to_{{type.id.downcase}}(value : Array) : {{type.id}}
-        _values = [] of {{type.id}}
+      def self.to_{{ type.id.downcase }}(value : Array) : {{ type.id }}
+        _values = [] of {{ type.id }}
         value.each do |val|
-          _values << to_{{type.id.downcase}}(val)
+          _values << to_{{ type.id.downcase }}(val)
         end
         _values
       end
 
-      def self.to_{{type.id.downcase}}(value) {{type.id}}
-        value.as({{type.id}})
+      def self.to_{{ type.id.downcase }}(value) {{ type.id }}
+        value.as({{ type.id }})
       end
 
       def self.to_fvalue(v : NullValue) : Nil
@@ -89,7 +89,7 @@ module GraphQL
 
     # Integer literals that do not fit an `Int32` are kept as `BigInt` so custom
     # scalars can accept them; the `Int` type rejects them during coercion.
-    alias FValue = String | Int32 | BigInt | Float64 | Bool | Nil | AEnum | InputObject | Array(FValue) | Hash(String, FValue)
+    alias FValue = String | Int32 | BigInt | Float64 | Bool | Nil | AEnum | InputObject | Array(FValue) | Hash(String, FValue) # ameba:disable Style/VerboseNilType
 
     define_array_cast(FValue)
 

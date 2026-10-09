@@ -77,7 +77,7 @@ describe "introspection" do
     result = JSON.parse(schema.execute(FULL_INTROSPECTION))
     result["errors"]?.should be_nil
     result["data"]["__schema"]["description"].raw.should be_nil
-    result["data"]["__schema"]["directives"].as_a.map(&.["name"].as_s).sort.should eq ["deprecated", "include", "skip", "specifiedBy"]
+    result["data"]["__schema"]["directives"].as_a.map(&.["name"].as_s).sort!.should eq ["deprecated", "include", "skip", "specifiedBy"]
     result["data"]["__schema"]["directives"].as_a.all? { |d| d["isRepeatable"] == false }.should be_true
   end
 

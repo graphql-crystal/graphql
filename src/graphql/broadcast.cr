@@ -37,15 +37,13 @@ module GraphQL
       closed = [] of Channel(T)
 
       @mutex.synchronize { @subscribers.dup }.each do |channel|
-        begin
-          select
-          when channel.send(value)
-          else
-            # full: the subscriber is not keeping up, skip this value for it
-          end
-        rescue Channel::ClosedError
-          closed << channel
+        select
+        when channel.send(value)
+        else
+          # full: the subscriber is not keeping up, skip this value for it
         end
+      rescue Channel::ClosedError
+        closed << channel
       end
 
       @mutex.synchronize { closed.each { |c| @subscribers.delete(c) } } unless closed.empty?

@@ -21,11 +21,11 @@ module GraphQL::InputObjectType
           {% for arg, i in method.args %}
             {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {% gql_name = arg_names[i] %}
-            {{arg.name}}: begin
+            {{ arg.name }}: begin
               fa = input_object.arguments.find { |i| i.name == {{ gql_name }} }
               if fa.nil? || fa.value.nil?
                 {% if !(arg.default_value.is_a? Nop) %}
-                  {{arg.default_value}}
+                  {{ arg.default_value }}
                 {% elsif arg.restriction.resolve.nilable? %}
                   nil
                 {% else %}

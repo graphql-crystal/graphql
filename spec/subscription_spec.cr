@@ -94,7 +94,7 @@ describe "subscriptions" do
   end
 
   it "reports request errors" do
-    drain(schema.subscribe(%[subscription { countdown(from: 1 }])).should eq [
+    drain(schema.subscribe(%[subscription { countdown(from: 1 }])).should eq [ # ameba:disable Style/PercentLiteralDelimiters
       ({"errors" => [{"message" => "Expected Name, found BRACE_R "}]}).to_json,
     ]
     drain(schema.subscribe(%({ ok }))).should eq [

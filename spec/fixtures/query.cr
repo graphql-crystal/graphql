@@ -67,8 +67,12 @@ module QueryFixture
     @float : Float64?
 
     def initialize(object : NestedInputObject)
-      @object = NestedObject.new(object.object.not_nil!) unless object.object.nil?
-      @array = object.array.not_nil!.map { |io| NestedObject.new(io).as(NestedObject) }.as(Array(NestedObject) | Nil) unless object.array.nil?
+      if inner = object.object
+        @object = NestedObject.new(inner)
+      end
+      if array = object.array
+        @array = array.map { |io| NestedObject.new(io).as(NestedObject) }
+      end
       @str = object.str
       @int = object.int
       @float = object.float

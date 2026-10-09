@@ -11,7 +11,7 @@ module GraphQL::Scalars
     include GraphQL::ScalarType
 
     def self.from_json(string_or_io)
-      self.new(::String.from_json(string_or_io))
+      new(::String.from_json(string_or_io))
     end
 
     def to_json(builder)
@@ -24,7 +24,7 @@ module GraphQL::Scalars
     include GraphQL::ScalarType
 
     def self.from_json(string_or_io)
-      self.new(::Bool.from_json(string_or_io))
+      new(::Bool.from_json(string_or_io))
     end
 
     def to_json(builder)
@@ -37,7 +37,7 @@ module GraphQL::Scalars
     include GraphQL::ScalarType
 
     def self.from_json(string_or_io)
-      self.new(::Int32.from_json(string_or_io))
+      new(::Int32.from_json(string_or_io))
     end
 
     def to_json(builder)
@@ -50,7 +50,7 @@ module GraphQL::Scalars
     include GraphQL::ScalarType
 
     def self.from_json(string_or_io)
-      self.new(::Float64.from_json(string_or_io))
+      new(::Float64.from_json(string_or_io))
     end
 
     def to_json(builder)
@@ -64,8 +64,8 @@ module GraphQL::Scalars
 
     def self.from_json(string_or_io)
       case raw = JSON::Any.from_json(string_or_io).raw
-      when ::String then self.new(raw)
-      when ::Int64  then self.new(raw.to_s)
+      when ::String then new(raw)
+      when ::Int64  then new(raw.to_s)
       else               raise ::GraphQL::TypeError.new("ID must be a String or an Int")
       end
     end
@@ -87,8 +87,8 @@ module GraphQL::Scalars
     def self.from_json(string_or_io)
       pull = JSON::PullParser.new(string_or_io)
       case pull.kind
-      when .int?    then self.new(::BigInt.new(pull.read_raw))
-      when .string? then self.new(::BigInt.new(pull.read_string))
+      when .int?    then new(::BigInt.new(pull.read_raw))
+      when .string? then new(::BigInt.new(pull.read_string))
       else               raise ::GraphQL::TypeError.new("BigInt must be an Int or a String")
       end
     end

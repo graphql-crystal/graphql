@@ -131,19 +131,19 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}") unless {{ arg_names }}.includes?(fa.name)
           {% end %}
         end
-        self.{{method.name.id}}(
+        self.{{ method.name.id }}(
           {% for arg, i in method.args %}
           {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
           {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
           {% gql_name = arg_names[i] %}
           {{ arg.name }}: begin
-            if context.is_a? {{arg.restriction.id}}
+            if context.is_a? {{ arg.restriction.id }}
               context
             elsif (fa = field.arguments.find { |a| a.name == {{ gql_name }} }) && !fa.value.nil?
               GraphQL::Internal.convert_value {{ type }}, fa.value, {{ gql_name.id }}
             else
               {% if !arg.default_value.is_a?(Nop) %}
-                {{ arg.default_value }}.as({{arg.restriction.id}})
+                {{ arg.default_value }}.as({{ arg.restriction.id }})
               {% elsif arg.restriction.resolve.nilable? %}
                 nil
               {% else %}
@@ -192,7 +192,7 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
           {% end %}
           raise ::GraphQL::TypeError.new("unknown argument #{field.arguments.first.name} on field #{field.name}") unless field.arguments.empty?
-          errors.concat _graphql_serialize(context, field, self.{{var.name.id}}, json)
+          errors.concat _graphql_serialize(context, field, self.{{ var.name.id }}, json)
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
@@ -278,8 +278,8 @@ module GraphQL::ObjectType
       json.array do
         pending = value.map_with_index do |v, i|
           _graphql_fork(context) do
-            _graphql_build_json_fragment(context, [i] of String | Int32, field) do |json|
-              _graphql_serialize(context, field, v, json).map &.with_path(i)
+            _graphql_build_json_fragment(context, [i] of String | Int32, field) do |element_json|
+              _graphql_serialize(context, field, v, element_json).map &.with_path(i)
             end
           end
         end
@@ -409,8 +409,8 @@ module GraphQL::ObjectType
     pending = Hash(String, PendingFragment).new
     fields.each do |path, field|
       pending[path] = _graphql_fork(context, serial) do
-        _graphql_build_json_fragment(context, path, field) do |json|
-          _graphql_resolve(context, field, json)
+        _graphql_build_json_fragment(context, path, field) do |field_json|
+          _graphql_resolve(context, field, field_json)
         end
       end
     end

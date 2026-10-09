@@ -34,7 +34,7 @@ private class Client
 
   def await_close : Int32
     Client.wait_until { !@close_code.nil? }
-    @close_code.not_nil!
+    @close_code || raise("the socket did not close")
   end
 
   def close

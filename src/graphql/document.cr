@@ -23,7 +23,7 @@ module GraphQL::Document
   end
 
   # :nodoc:
-  def self._graphql_fvalue(value : String | Int32 | Float64 | Bool | Nil | ::GraphQL::Language::AEnum | ::GraphQL::Language::InputObject) : ::GraphQL::Language::FValue
+  def self._graphql_fvalue(value : String | Int32 | Float64 | Bool | ::GraphQL::Language::AEnum | ::GraphQL::Language::InputObject?) : ::GraphQL::Language::FValue
     value
   end
 
@@ -76,7 +76,7 @@ module GraphQL::Document
   end
 
   # :nodoc:
-  def self._graphql_deprecated(reason : String | Bool | Nil) : Array(::GraphQL::Language::Directive)
+  def self._graphql_deprecated(reason : String | Bool?) : Array(::GraphQL::Language::Directive)
     return [] of ::GraphQL::Language::Directive unless reason
     arguments = reason.is_a?(String) ? [::GraphQL::Language::Argument.new("reason", reason)] : [] of ::GraphQL::Language::Argument
     [::GraphQL::Language::Directive.new(name: "deprecated", arguments: arguments)]
@@ -280,7 +280,7 @@ module GraphQL::Document
             {% if var.annotation(::GraphQL::Field)["deprecated"] %}
               %directives << ::GraphQL::Language::Directive.new(
                 name: "deprecated",
-                arguments: [GraphQL::Language::Argument.new("reason", {{var.annotation(::GraphQL::Field)["deprecated"]}})]
+                arguments: [GraphQL::Language::Argument.new("reason", {{ var.annotation(::GraphQL::Field)["deprecated"] }})]
               )
             {% end %}
             %fields << ::GraphQL::Language::FieldDefinition.new(
@@ -333,7 +333,7 @@ module GraphQL::Document
                 {% if method.annotation(::GraphQL::Field)["deprecated"] %}
                   %directives << ::GraphQL::Language::Directive.new(
                     name: "deprecated",
-                    arguments: [GraphQL::Language::Argument.new("reason", {{method.annotation(::GraphQL::Field)["deprecated"]}})]
+                    arguments: [GraphQL::Language::Argument.new("reason", {{ method.annotation(::GraphQL::Field)["deprecated"] }})]
                   )
                 {% end %}
                 %fields << ::GraphQL::Language::FieldDefinition.new(
