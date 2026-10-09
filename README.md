@@ -512,10 +512,40 @@ class Sheep
 end
 ```
 
+### values
+
+On enums, `values` describes or deprecates members by constant name:
+
+```crystal
+@[GraphQL::Enum(values: {
+  Red:  {description: "Like a rose"},
+  Blue: {deprecated: "Use Navy"},
+})]
+enum Color
+  Red
+  Blue
+  Navy
+end
+```
+
+### specified_by_url
+
+On scalars, `specified_by_url` points at the specification of the scalar's
+format and is reported as `specifiedByURL` in introspection:
+
+```crystal
+@[GraphQL::Scalar(specified_by_url: "https://tools.ietf.org/html/rfc3339")]
+record DateTime, value : Time do
+  # ...
+end
+```
+
 ### arguments
 
 Sets names and descriptions for field arguments. Note that
 arguments cannot be marked as deprecated.
+
+Each argument may set `name`, `description` and `deprecated`:
 
 ```crystal
 class Sheep

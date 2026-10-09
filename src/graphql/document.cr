@@ -75,14 +75,21 @@ module GraphQL::Document
     {% end %}
   end
 
-  private macro _graphql_input_def(t, nilable, default, name, description)
+  # :nodoc:
+  def self._graphql_deprecated(reason : String | Bool | Nil) : Array(::GraphQL::Language::Directive)
+    return [] of ::GraphQL::Language::Directive unless reason
+    arguments = reason.is_a?(String) ? [::GraphQL::Language::Argument.new("reason", reason)] : [] of ::GraphQL::Language::Argument
+    [::GraphQL::Language::Directive.new(name: "deprecated", arguments: arguments)]
+  end
+
+  private macro _graphql_input_def(t, nilable, default, name, description, deprecated = nil)
     {% type = t.resolve %}
     ::GraphQL::Language::InputValueDefinition.new(
       name: {{ name }},
       description: {{ description }},
       type: (_graphql_t {{ type }}, {{ nilable }}),
       default_value: ::GraphQL::Document._graphql_fvalue({{ default }}),
-      directives: [] of ::GraphQL::Language::Directive,
+      directives: ::GraphQL::Document._graphql_deprecated({{ deprecated }}),
     )
   end
 
@@ -314,6 +321,7 @@ module GraphQL::Document
                   {{ arg.default_value.is_a?(Nop) ? nil : arg.default_value }},
                   {{ ann_arg && ann_arg["name"] || arg.name.id.stringify.camelcase(lower: true) }},
                   {{ ann_arg && ann_arg["description"] || nil }},
+                  {{ ann_arg && ann_arg["deprecated"] || nil }},
                 ))
               {% end %}
             {% end %}
@@ -388,16 +396,18 @@ module GraphQL::Document
         {% end %}
 
         {% for e_num in enums %}
+          {% ann_values = e_num.annotation(::GraphQL::Enum)["values"] %}
           %definitions << ::GraphQL::Language::EnumTypeDefinition.new(
             name: {{ e_num.annotation(::GraphQL::Enum)["name"] || e_num.name.split("::").last }},
             description: {{ e_num.annotation(::GraphQL::Enum)["description"] }},
             fvalues: ([
               {% for constant in e_num.resolve.constants %}
+              {% ann_value = ann_values && ann_values[constant] %}
               ::GraphQL::Language::EnumValueDefinition.new(
                 name: {{ constant.stringify }},
-                directives: [] of ::GraphQL::Language::Directive,
+                directives: ::GraphQL::Document._graphql_deprecated({{ ann_value && ann_value["deprecated"] || nil }}),
                 selection: nil,
-                description: nil, # TODO
+                description: {{ ann_value && ann_value["description"] || nil }},
               ),
               {% end %}
           ] of ::GraphQL::Language::EnumValueDefinition).sort {|a, b| a.name <=> b.name },
@@ -406,10 +416,17 @@ module GraphQL::Document
         {% end %}
 
         {% for scalar in scalars %}
+          %scalar_directives = [] of ::GraphQL::Language::Directive
+          {% if url = scalar.annotation(::GraphQL::Scalar)["specified_by_url"] %}
+            %scalar_directives << ::GraphQL::Language::Directive.new(
+              name: "specifiedBy",
+              arguments: [::GraphQL::Language::Argument.new("url", {{ url }})],
+            )
+          {% end %}
           %definitions << ::GraphQL::Language::ScalarTypeDefinition.new(
             name: {{ scalar.annotation(::GraphQL::Scalar)["name"] || scalar.name.split("::").last }},
             description: {{ scalar.annotation(::GraphQL::Scalar)["description"] }},
-            directives: [] of ::GraphQL::Language::Directive
+            directives: %scalar_directives
           )
         {% end %}
 
