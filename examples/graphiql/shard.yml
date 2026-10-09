@@ -1,8 +1,9 @@
 name: graphql-example-graphiql
 version: 1.0.0
 license: MIT
+crystal: ">= 1.20.0" # for subprotocol negotiation in HTTP::WebSocketHandler
 dependencies:
   kemal:
     github: kemalcr/kemal
   graphql:
-    github: graphql-crystal/graphql
+    path: ../..

@@ -14,40 +14,34 @@
       height: 100vh;
     }
   </style>
-  <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/graphiql/graphiql.min.css" />
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/graphiql@3.8.3/graphiql.min.css" />
 </head>
 
 <body>
   <div id="graphiql">Loading...</div>
-  <script src="https://unpkg.com/graphiql/graphiql.min.js" type="application/javascript"></script>
+  <script src="https://unpkg.com/graphiql@3.8.3/graphiql.min.js" type="application/javascript"></script>
   <script>
-    function graphQLFetcher(graphQLParams) {
-      return fetch(
-        'http://localhost:3000/graphql',
-        {
-          method: 'post',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(graphQLParams),
-          credentials: 'omit',
-        },
-      ).then(function (response) {
-        return response.json().catch(function () {
-          return response.text();
-        });
-      });
-    }
+    // Queries and mutations go over HTTP; subscriptions open a WebSocket
+    // speaking graphql-transport-ws, which the server implements.
+    const fetcher = GraphiQL.createFetcher({
+      url: 'http://localhost:3000/graphql',
+      subscriptionUrl: 'ws://localhost:3000/graphql',
+    });
 
-    ReactDOM.render(
-      React.createElement(GraphiQL, {
-        fetcher: graphQLFetcher,
-        defaultVariableEditorOpen: true,
-      }),
-      document.getElementById('graphiql'),
+    const defaultQuery = `# Run this, then post a message from another tab:
+#   mutation { post(text: "hello") { id } }
+subscription {
+  messageAdded {
+    id
+    text
+  }
+}
+`;
+
+    ReactDOM.createRoot(document.getElementById('graphiql')).render(
+      React.createElement(GraphiQL, { fetcher, defaultQuery }),
     );
   </script>
 </body>
