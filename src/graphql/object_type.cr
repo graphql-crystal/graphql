@@ -46,7 +46,7 @@ module GraphQL::ObjectType
             {{ arg.name }}: begin
               if context.is_a? {{arg.restriction.id}}
                 context
-              elsif fa = field.arguments.find {|a| a.name == {{ arg.name.id.stringify.camelcase(lower: true) }}}
+              elsif (fa = field.arguments.find { |a| a.name == {{ arg.name.id.stringify.camelcase(lower: true) }} }) && !fa.value.nil?
                 GraphQL::Internal.convert_value {{ type }}, fa.value, {{ arg.name.id.camelcase(lower: true) }}
               else
                 {% if !arg.default_value.is_a?(Nop) %}
@@ -68,15 +68,13 @@ module GraphQL::ObjectType
         when "__schema"
           json.object do
             introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
-            introspection._graphql_resolve(context, field.selections, json).each do |error|
-              errors << error.with_path(path)
-            end
+            errors.concat introspection._graphql_resolve(context, field.selections, json)
           end
         {% end %}
         else
           raise ::GraphQL::TypeError.new("Field is not defined: #{field.name}")
         end
-        errors
+        errors.map &.with_path(path)
 
         {% end %}
       end
@@ -87,6 +85,8 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
+  # Serializes `value` into `json`. Error paths are relative to the field:
+  # the caller prepends the field's response key.
   private def _graphql_serialize(context, field : ::GraphQL::Language::Field, value, json : ::JSON::Builder) : Array(::GraphQL::Error)
     errors = [] of ::GraphQL::Error
     path = field._alias || field.name
@@ -94,18 +94,14 @@ module GraphQL::ObjectType
     case value
     when ::GraphQL::ObjectType
       json.object do
-        value._graphql_resolve(context, field.selections, json).each do |error|
-          errors << error.with_path(path)
-        end
+        errors.concat value._graphql_resolve(context, field.selections, json)
       end
     when Array
       json.array do
         pending = value.map_with_index do |v, i|
           _graphql_fork(context) do
-            _graphql_build_json_fragment(context, [path, i]) do |json|
-              _graphql_serialize(context, field, v, json).map do |error|
-                error.with_path(i).with_path(path)
-              end
+            _graphql_build_json_fragment(context, [i] of String | Int32) do |json|
+              _graphql_serialize(context, field, v, json).map &.with_path(i)
             end
           end
         end
@@ -147,39 +143,55 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
-  protected def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder) : Array(::GraphQL::Error)
-    errors = [] of ::GraphQL::Error
-    pending = Hash(String, PendingFragment).new
-
+  # Collects the fields selected by `selections` in query order, following
+  # fragment spreads and inline fragments. Fields that share a response key
+  # are merged into one entry, as the spec's CollectFields requires.
+  private def _graphql_collect_fields(context, selections : Array(::GraphQL::Language::Selection), fields : Hash(String, ::GraphQL::Language::Field), errors : Array(::GraphQL::Error)) : Nil
     selections.each do |selection|
       case selection
       when ::GraphQL::Language::Field
         next if _graphql_skip?(selection)
         path = selection._alias || selection.name
-
-        pending[path] = _graphql_fork(context) do
-          _graphql_build_json_fragment(context, path) do |json|
-            _graphql_resolve(context, selection, json)
-          end
+        if existing = fields[path]?
+          next if selection.selections.empty?
+          merged = existing.dup
+          merged.selections = existing.selections + selection.selections
+          fields[path] = merged
+        else
+          fields[path] = selection
         end
       when ::GraphQL::Language::FragmentSpread
         next if _graphql_skip?(selection)
-
-        begin
-          errors.concat _graphql_resolve(context, selection, json)
-        rescue e
-          if message = context.handle_exception(e)
-            errors << ::GraphQL::Error.new(message, selection.name)
-          end
+        if fragment = context.fragments.find { |f| f.name == selection.name }
+          _graphql_collect_fields(context, fragment.selections, fields, errors)
+        else
+          errors << ::GraphQL::Error.new("no fragment #{selection.name}", selection.name)
         end
       when ::GraphQL::Language::InlineFragment
         next if _graphql_skip?(selection)
-
-        errors.concat _graphql_resolve(context, selection.selections, json)
+        _graphql_collect_fields(context, selection.selections, fields, errors)
       else
         # this never happens, only required due to Selection being turned into ASTNode
         # https://crystal-lang.org/reference/1.3/syntax_and_semantics/virtual_and_abstract_types.html
         raise ::GraphQL::TypeError.new("invalid selection type")
+      end
+    end
+  end
+
+  # :nodoc:
+  # With `serial` each field is fully resolved before the next one starts,
+  # as the spec requires for the root fields of a mutation.
+  protected def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder, serial : Bool = false) : Array(::GraphQL::Error)
+    errors = [] of ::GraphQL::Error
+    fields = Hash(String, ::GraphQL::Language::Field).new
+    _graphql_collect_fields(context, selections, fields, errors)
+
+    pending = Hash(String, PendingFragment).new
+    fields.each do |path, field|
+      pending[path] = _graphql_fork(context, serial) do
+        _graphql_build_json_fragment(context, path) do |json|
+          _graphql_resolve(context, field, json)
+        end
       end
     end
 
@@ -199,8 +211,8 @@ module GraphQL::ObjectType
   # allows it, otherwise right here in the calling fiber. Either way the
   # result (or the exception it raised) is handed back to `_graphql_await`,
   # so ordering and error semantics are identical on both paths.
-  private def _graphql_fork(context, &block : -> JSONFragment) : PendingFragment
-    if context._graphql_acquire?
+  private def _graphql_fork(context, serial : Bool = false, &block : -> JSONFragment) : PendingFragment
+    if !serial && context._graphql_acquire?
       # Capacity 1 lets the fiber deliver its result and exit even when the
       # receiver gave up early because a sibling raised. With an unbuffered
       # channel such fibers would block on `send` forever.
@@ -230,18 +242,6 @@ module GraphQL::ObjectType
     fragment = pending.is_a?(Channel) ? pending.receive : pending
     raise fragment if fragment.is_a?(::Exception)
     fragment
-  end
-
-  # :nodoc:
-  private def _graphql_resolve(context, fragment : ::GraphQL::Language::FragmentSpread, json : JSON::Builder) : Array(::GraphQL::Error)
-    errors = [] of ::GraphQL::Error
-    f = context.fragments.find { |f| f.name == fragment.name }
-    if f.nil?
-      errors << ::GraphQL::Error.new("no fragment #{fragment.name}", fragment.name)
-    else
-      errors.concat _graphql_resolve(context, f.selections, json)
-    end
-    errors
   end
 
   # :nodoc:

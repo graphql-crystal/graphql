@@ -47,6 +47,24 @@ module ConcurrencyApi
     end
   end
 
+  @[GraphQL::Object]
+  class Mutation < GraphQL::BaseMutation
+    class_property log = [] of Int32
+
+    # Later steps sleep less, so concurrent execution would finish them first.
+    @[GraphQL::Field]
+    def step(n : Int32) : Int32
+      (4 - n).times { Fiber.yield }
+      Mutation.log << n
+      n
+    end
+
+    @[GraphQL::Field]
+    def items(count : Int32) : Array(Item)
+      Array.new(count) { |i| Item.new(i) }
+    end
+  end
+
   class RaisingContext < GraphQL::Context
     def handle_exception(ex : ::Exception) : String?
       raise ex
@@ -84,6 +102,30 @@ describe "concurrency" do
     ctx.max_concurrency = 64
 
     schema.execute(query, context: ctx).should eq expected
+  end
+
+  it "resolves root mutation fields one after another" do
+    ConcurrencyApi::Mutation.log.clear
+    ctx = GraphQL::Context.new
+    ctx.max_concurrency = 8
+    mutation_schema = GraphQL::Schema.new(ConcurrencyApi::Query.new, ConcurrencyApi::Mutation.new)
+
+    mutation_schema.execute(%(mutation { a: step(n: 1) b: step(n: 2) c: step(n: 3) }), context: ctx).should eq (
+      {"data" => {"a" => 1, "b" => 2, "c" => 3}}
+    ).to_json
+    ConcurrencyApi::Mutation.log.should eq [1, 2, 3]
+    ctx.in_flight.should eq 0
+  end
+
+  it "still resolves nested mutation fields concurrently" do
+    ConcurrencyApi::Stats.reset
+    ctx = GraphQL::Context.new
+    ctx.max_concurrency = 4
+    mutation_schema = GraphQL::Schema.new(ConcurrencyApi::Query.new, ConcurrencyApi::Mutation.new)
+
+    mutation_schema.execute(%(mutation { items(count: 20) { value } }), context: ctx).should eq expected
+    ConcurrencyApi::Stats.peak.should be >= 2
+    ctx.in_flight.should eq 0
   end
 
   it "does not leak fibers when an element raises" do

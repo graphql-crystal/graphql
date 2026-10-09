@@ -27,39 +27,77 @@ module GraphQL
       end
     end
 
-    private def subtitute_variables(node, variables, errors)
+    # Resolves the value of every variable the operation declares: the value
+    # sent by the client, else the default from the declaration, else `nil`
+    # for nullable variables. Variables the operation uses without declaring
+    # them are looked up directly in `variables` when substituted.
+    private def resolve_variables(operation : Language::OperationDefinition, variables : Hash(String, JSON::Any)?, errors) : Hash(String, Language::FValue)
+      resolved = Hash(String, Language::FValue).new
+
+      operation.variables.each do |definition|
+        name = definition.name
+        if variables && variables.has_key?(name)
+          begin
+            resolved[name] = to_fvalue(variables[name])
+          rescue ex
+            errors << Error.new("invalid value for variable #{name}: #{ex.message}", [] of String | Int32)
+            resolved[name] = nil
+          end
+        elsif !definition.default_value.nil?
+          resolved[name] = definition.default_value
+        elsif definition.type.is_a?(Language::NonNullType)
+          errors << Error.new("missing required variable #{name}", [] of String | Int32)
+          resolved[name] = nil
+        else
+          resolved[name] = nil
+        end
+      end
+
+      resolved
+    end
+
+    private def variable_value(identifier : Language::VariableIdentifier, resolved, variables, errors) : Language::FValue
+      name = identifier.name
+      if resolved.has_key?(name)
+        resolved[name]
+      elsif variables && variables.has_key?(name)
+        begin
+          to_fvalue(variables[name])
+        rescue ex
+          errors << Error.new("invalid value for variable #{name}: #{ex.message}", [] of String | Int32)
+          nil
+        end
+      else
+        errors << Error.new("missing variable #{name}", [] of String | Int32)
+        nil
+      end
+    end
+
+    private def substitute_variables(node, resolved, variables, errors)
       case node
       when Language::Argument
         case value = node.value
         when Language::VariableIdentifier
-          begin
-            node.value = to_fvalue(variables.not_nil![value.name])
-          rescue
-            errors << Error.new("missing variable #{value.name}", [] of String | Int32)
-          end
+          node.value = variable_value(value, resolved, variables, errors)
         when Array
           value.each_with_index do |val, i|
             case val
             when Language::VariableIdentifier
-              begin
-                value[i] = to_fvalue(variables.not_nil![val.name])
-              rescue
-                errors << Error.new("missing variable #{val.name}", [] of String | Int32)
-              end
+              value[i] = variable_value(val, resolved, variables, errors)
             else
-              subtitute_variables(val, variables, errors)
+              substitute_variables(val, resolved, variables, errors)
             end
           end
         when Language::InputObject
           value.arguments.each do |arg|
-            subtitute_variables(arg, variables, errors)
+            substitute_variables(arg, resolved, variables, errors)
           end
         else
           nil
         end
       when Language::InputObject
         node.arguments.each do |arg|
-          subtitute_variables(arg, variables, errors)
+          substitute_variables(arg, resolved, variables, errors)
         end
       else
         nil
@@ -85,28 +123,33 @@ module GraphQL
     end
 
     def execute(io : IO, query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new) : Nil
-      document = Language.parse(query)
-      operations = [] of Language::OperationDefinition
       errors = [] of GraphQL::Error
+
+      document = begin
+        Language.parse(query)
+      rescue ex : ParserError
+        errors << Error.new(ex.message || "syntax error", [] of String | Int32)
+        nil
+      end
+
+      operations = [] of Language::OperationDefinition
 
       context.query_type = @query._graphql_type
       context.mutation_type = @mutation.try &._graphql_type
       context.document = @document
 
-      document.visit(->(node : Language::ASTNode) {
+      document.try &.visit(->(node : Language::ASTNode) {
         case node
         when Language::OperationDefinition
           operations << node
         when Language::FragmentDefinition
           context.fragments << node
-        when Language::Argument
-          subtitute_variables(node, variables, errors)
         else
           nil
         end
       })
 
-      operation = if !errors.empty?
+      operation = if document.nil?
                     nil
                   elsif operation_name.nil? && operations.size == 1
                     operations.first
@@ -122,6 +165,17 @@ module GraphQL
                     end
                   end
 
+      if operation
+        resolved = resolve_variables(operation, variables, errors)
+        substitute = ->(node : Language::ASTNode) {
+          substitute_variables(node, resolved, variables, errors) if node.is_a?(Language::Argument)
+          nil
+        }
+        operation.visit(substitute)
+        context.fragments.each &.visit(substitute)
+        operation = nil unless errors.empty?
+      end
+
       JSON.build(io) do |json|
         json.object do
           if !operation.nil? && operation.operation_type == "query"
@@ -134,12 +188,14 @@ module GraphQL
             if mutation = @mutation
               json.field "data" do
                 json.object do
-                  errors.concat mutation._graphql_resolve(context, operation.selections, json)
+                  errors.concat mutation._graphql_resolve(context, operation.selections, json, serial: true)
                 end
               end
             else
               errors << Error.new("mutation operations are not supported", [] of String | Int32)
             end
+          elsif !operation.nil?
+            errors << Error.new("#{operation.operation_type} operations are not supported", [] of String | Int32)
           end
           unless errors.empty?
             json.field "errors" do
