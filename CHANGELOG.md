@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Objects implementing several interfaces are printed as
+  `implements A & B`, the syntax the spec has used since 2018 and the only
+  one current graphql-js accepts. The parser accepts `&` too, and still
+  accepts the old comma form
+
 ### Changed
 
 - The library's built-in scalars (`ID`, `BigInt` and the rest) take the same

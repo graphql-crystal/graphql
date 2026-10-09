@@ -85,3 +85,51 @@ describe "interfaces and unions" do
     ).to_json
   end
 end
+
+module MultiInterface
+  @[GraphQL::Interface]
+  abstract class Named < GraphQL::BaseObject
+    @[GraphQL::Field]
+    abstract def name : String
+  end
+
+  @[GraphQL::Interface]
+  module Timestamped
+    @[GraphQL::Field]
+    abstract def created_at : String
+  end
+
+  @[GraphQL::Object]
+  class Thing < Named
+    include Timestamped
+
+    @[GraphQL::Field]
+    def name : String
+      "thing"
+    end
+
+    @[GraphQL::Field]
+    def created_at : String
+      "now"
+    end
+  end
+
+  @[GraphQL::Object]
+  class Query < GraphQL::BaseQuery
+    @[GraphQL::Field]
+    def thing : Thing
+      Thing.new
+    end
+  end
+end
+
+describe "objects implementing several interfaces" do
+  it "lists them with the current syntax and reports both in introspection" do
+    schema = GraphQL::Schema.new(MultiInterface::Query.new)
+    schema.document.to_s.should contain "type Thing implements Timestamped & Named {"
+    GraphQL::Language.parse(schema.document.to_s).to_s.should eq schema.document.to_s
+    schema.execute(%({ __type(name: "Thing") { interfaces { name } } })).should eq (
+      {"data" => {"__type" => {"interfaces" => [{"name" => "Timestamped"}, {"name" => "Named"}]}}}
+    ).to_json
+  end
+end

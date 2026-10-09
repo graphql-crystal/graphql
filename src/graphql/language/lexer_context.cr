@@ -143,6 +143,8 @@ class GraphQL::Language::LexerContext
       create_punctuation_token(Token::Kind::BRACE_L, 1)
     when '|'
       create_punctuation_token(Token::Kind::PIPE, 1)
+    when '&'
+      create_punctuation_token(Token::Kind::AMP, 1)
     when '}'
       create_punctuation_token(Token::Kind::BRACE_R, 1)
     end

@@ -449,14 +449,17 @@ class GraphQL::Language::ParserContext
     parse_name
   end
 
+  # `implements A & B` per the current spec; the pre-2018 `implements A, B`
+  # form still parses because commas are insignificant.
   private def parse_implements_interfaces
     types = [] of String?
     if @current_token.value == "implements"
       advance
+      skip(Token::Kind::AMP)
 
       loop do
         types.push(parse_name)
-        break unless peek(Token::Kind::NAME)
+        break unless skip(Token::Kind::AMP) || peek(Token::Kind::NAME)
       end
     end
 

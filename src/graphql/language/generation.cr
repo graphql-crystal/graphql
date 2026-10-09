@@ -135,7 +135,7 @@ module GraphQL
         out = generate_description(node)
         out += "type #{node.name}"
         out += generate_directives(node.directives)
-        out += " implements " + node.interfaces.map { |i| i.as(String) }.join(", ") unless node.interfaces.empty?
+        out += " implements " + node.interfaces.map { |i| i.as(String) }.join(" & ") unless node.interfaces.empty?
         out + generate_field_definitions(node.fields)
       end
 
