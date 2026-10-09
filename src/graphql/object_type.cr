@@ -92,7 +92,8 @@ module GraphQL::ObjectType
       # :nodoc:
       # Whether the named field's value is a scalar, enum, or list of those,
       # which the sequential path writes straight into the parent builder.
-      # Custom scalars are excluded because their `to_json` is user code.
+      # The library's own scalars qualify; custom scalars are excluded
+      # because their `to_json` is user code.
       def _graphql_leaf_field?(name : String) : Bool
         {% begin %}
         {%
@@ -118,7 +119,7 @@ module GraphQL::ObjectType
             {% end %}
           {% end %}
           {% leaf = parse_type(leaf.name.stringify).resolve %}
-          {{ leaf == String || leaf == Int32 || leaf == Float64 || leaf == Bool || leaf < ::Enum }}
+          {{ leaf == String || leaf == Int32 || leaf == Float64 || leaf == Bool || leaf < ::Enum || (leaf < ::GraphQL::ScalarType && leaf.name.stringify.starts_with?("GraphQL::Scalars::")) }}
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
@@ -133,7 +134,7 @@ module GraphQL::ObjectType
             {% end %}
           {% end %}
           {% leaf = parse_type(leaf.name.stringify).resolve %}
-          {{ leaf == String || leaf == Int32 || leaf == Float64 || leaf == Bool || leaf < ::Enum }}
+          {{ leaf == String || leaf == Int32 || leaf == Float64 || leaf == Bool || leaf < ::Enum || (leaf < ::GraphQL::ScalarType && leaf.name.stringify.starts_with?("GraphQL::Scalars::")) }}
           {% end %}
         {% end %}
         when "__typename"
@@ -433,6 +434,9 @@ module GraphQL::ObjectType
     when Float64
       raise ::GraphQL::TypeError.new("Float cannot represent non-finite value") unless value.finite?
       value.to_json(json)
+    when ::GraphQL::Scalars::Float
+      raise ::GraphQL::TypeError.new("Float cannot represent non-finite value") unless value.value.finite?
+      value.to_json(json)
     when Bool, String, Int32, Nil, ::GraphQL::ScalarType
       value.to_json(json)
     when Channel
@@ -632,9 +636,10 @@ module GraphQL::ObjectType
   # so leaf values are checked before their key is emitted.
   private def _graphql_finite?(value) : Bool
     case value
-    when Float64 then value.finite?
-    when Array   then value.all? { |v| _graphql_finite?(v) }
-    else              true
+    when Float64                   then value.finite?
+    when ::GraphQL::Scalars::Float then value.value.finite?
+    when Array                     then value.all? { |v| _graphql_finite?(v) }
+    else                                true
     end
   end
 
@@ -642,7 +647,10 @@ module GraphQL::ObjectType
   # Whether every element of the list is a built-in scalar, enum or nil,
   # whose serialization cannot fail once started.
   private def _graphql_leaf_elements?(value : Array) : Bool
-    value.all? { |v| v.is_a?(String | Int32 | Float64 | Bool?) || v.is_a?(::Enum) }
+    value.all? do |v|
+      v.is_a?(String | Int32 | Float64 | Bool?) || v.is_a?(::Enum) ||
+        v.is_a?(::GraphQL::Scalars::String | ::GraphQL::Scalars::Boolean | ::GraphQL::Scalars::Int | ::GraphQL::Scalars::Float | ::GraphQL::Scalars::ID | ::GraphQL::Scalars::BigInt)
+    end
   end
 
   # :nodoc:

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The library's built-in scalars (`ID`, `BigInt` and the rest) take the same
+  direct write path as other leaves; only custom scalars are still buffered.
+  About 10 to 20 percent more throughput on responses carrying ids
+
 ### Added
 
 - `bench/bench.cr`, an end-to-end benchmark with realistic scenarios and a

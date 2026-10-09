@@ -61,6 +61,26 @@ module SerializationFixture
     def boom : Int32?
       raise "boom"
     end
+
+    @[GraphQL::Field]
+    def id : GraphQL::Scalars::ID
+      GraphQL::Scalars::ID.new("x1")
+    end
+
+    @[GraphQL::Field]
+    def ids : Array(GraphQL::Scalars::ID?)
+      [GraphQL::Scalars::ID.new("x1"), nil] of GraphQL::Scalars::ID?
+    end
+
+    @[GraphQL::Field]
+    def big : GraphQL::Scalars::BigInt
+      GraphQL::Scalars::BigInt.new(BigInt.new("123456789012345678901234567890"))
+    end
+
+    @[GraphQL::Field]
+    def wrapped_nan : GraphQL::Scalars::Float?
+      GraphQL::Scalars::Float.new(Float64::NAN)
+    end
   end
 end
 
@@ -75,6 +95,17 @@ describe "serialization" do
     expected = ({"data" => {"a" => "a", "thing" => {"name" => "thing"}, "b" => 2, "colors" => ["Red", nil, "Blue"]}}).to_json
     schema.execute(%({ a thing { name } b colors })).should eq expected
     schema.execute(%({ a thing { name } b colors }), context: concurrent.call).should eq expected
+  end
+
+  it "writes built-in scalars like other leaves" do
+    expected = (
+      {
+        "data"   => {"id" => "x1", "ids" => ["x1", nil], "big" => "123456789012345678901234567890", "wrappedNan" => nil},
+        "errors" => [{"message" => "Float cannot represent non-finite value", "locations" => [{"line" => 1, "column" => 14}], "path" => ["wrappedNan"]}],
+      }
+    ).to_json
+    schema.execute(%({ id ids big wrappedNan })).should eq expected
+    schema.execute(%({ id ids big wrappedNan }), context: concurrent.call).should eq expected
   end
 
   it "reports a failed leaf next to the leaves around it" do
