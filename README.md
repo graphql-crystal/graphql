@@ -460,7 +460,8 @@ end
 ```
 
 With the standard library's `HTTP::Server`, pass the protocol name so the
-handshake negotiates it, which browsers require:
+handshake negotiates it, which browsers require. The subprotocol argument
+needs Crystal 1.20 or later:
 
 ```crystal
 HTTP::WebSocketHandler.new([GraphQL::Transport::WebSocket::PROTOCOL]) do |socket, http|

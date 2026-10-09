@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- CI runs the suite on Crystal 1.4.1, the oldest supported compiler, as well
+  as on the latest release. The transport spec no longer depends on standard
+  library additions newer than the floor
+
 ## [0.9.2] - 2026-10-09
 
 ### Fixed

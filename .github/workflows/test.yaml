@@ -6,15 +6,27 @@ on:
 
 jobs:
   spec:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # the oldest supported compiler, see `crystal:` in shard.yml
+          - crystal: "1.4.1"
+            format: false
+          - crystal: latest
+            format: true
+    name: spec (crystal ${{ matrix.crystal }})
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:latest-alpine
+      image: crystallang/crystal:${{ matrix.crystal }}-alpine
     steps:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Install dependencies
-        run: shards install
+        # ameba's postinstall builds it, which needs a current compiler
+        run: shards install --skip-postinstall
       - name: Check formatting
+        if: ${{ matrix.format }}
         run: crystal tool format --check src spec
       - name: Run tests
         run: crystal spec

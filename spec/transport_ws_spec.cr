@@ -18,20 +18,22 @@ private class Client
     @socket.send(message.to_json)
   end
 
-  def await(count : Int32) : Array(JSON::Any)
-    deadline = Time.instant + 2.seconds
-    until @messages.size >= count || Time.instant > deadline
+  # Polls up to two seconds, in 5 ms steps.
+  def self.wait_until(&) : Nil
+    400.times do
+      return if yield
       sleep 5.milliseconds
     end
+  end
+
+  def await(count : Int32) : Array(JSON::Any)
+    Client.wait_until { @messages.size >= count }
     @messages.size.should be >= count
     @messages
   end
 
   def await_close : Int32
-    deadline = Time.instant + 2.seconds
-    until @close_code || Time.instant > deadline
-      sleep 5.milliseconds
-    end
+    Client.wait_until { !@close_code.nil? }
     @close_code.not_nil!
   end
 
@@ -42,8 +44,11 @@ end
 
 describe GraphQL::Transport::WebSocket do
   schema = GraphQL::Schema.new(SubscriptionFixture::Query.new, SubscriptionFixture::Mutation.new, SubscriptionFixture::Subscription.new)
+  # Subprotocol negotiation (`HTTP::WebSocketHandler.new([PROTOCOL])`) needs
+  # Crystal 1.20; the handler is created without it so the suite runs on the
+  # oldest supported compiler. The client here does not request one.
   server = HTTP::Server.new([
-    HTTP::WebSocketHandler.new([GraphQL::Transport::WebSocket::PROTOCOL]) do |socket, _http|
+    HTTP::WebSocketHandler.new do |socket, _http|
       GraphQL::Transport::WebSocket.new(schema, socket)
     end,
   ])
@@ -88,17 +93,11 @@ describe GraphQL::Transport::WebSocket do
     client.send({type: "connection_init"})
     client.send({id: "s", type: "subscribe", payload: {query: "subscription { messageAdded { text } }"}})
     client.await(1)
-    deadline = Time.instant + 2.seconds
-    until SubscriptionFixture::MESSAGES.size == before + 1 || Time.instant > deadline
-      sleep 5.milliseconds
-    end
+    Client.wait_until { SubscriptionFixture::MESSAGES.size == before + 1 }
     SubscriptionFixture::MESSAGES.size.should eq before + 1
 
     client.send({id: "s", type: "complete"})
-    deadline = Time.instant + 2.seconds
-    until SubscriptionFixture::MESSAGES.size == before || Time.instant > deadline
-      sleep 5.milliseconds
-    end
+    Client.wait_until { SubscriptionFixture::MESSAGES.size == before }
     SubscriptionFixture::MESSAGES.size.should eq before
 
     schema.execute(%(mutation { post(text: "after") }))
