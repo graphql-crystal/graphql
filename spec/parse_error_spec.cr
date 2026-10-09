@@ -17,7 +17,7 @@ describe "parse errors" do
 
   it "rejects unsupported operation types" do
     schema.execute(%(subscription { human(id: "1000") { name } })).should eq (
-      {"errors" => [{"message" => "subscription operations are not supported"}]}
+      {"errors" => [{"message" => "subscription operations must be started with Schema#subscribe"}]}
     ).to_json
   end
 end

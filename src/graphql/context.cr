@@ -14,6 +14,7 @@ module GraphQL
     property fragments : Array(Language::FragmentDefinition) = [] of Language::FragmentDefinition
     property query_type : String = ""
     property mutation_type : String? = nil
+    property subscription_type : String? = nil
     property document : Language::Document?
 
     # Maximum number of fibers this execution may spawn at once to resolve

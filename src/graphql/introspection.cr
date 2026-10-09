@@ -11,8 +11,9 @@ module GraphQL
       @document : Language::Document
       @query_type : String
       @mutation_type : String?
+      @subscription_type : String?
 
-      def initialize(@document, @query_type, @mutation_type)
+      def initialize(@document, @query_type, @mutation_type, @subscription_type = nil)
       end
 
       @[GraphQL::Field]
@@ -40,7 +41,13 @@ module GraphQL
 
       @[GraphQL::Field]
       def subscription_type : GraphQL::Introspection::Type?
-        nil
+        if st = @subscription_type
+          Type.new @document, @document.definitions.find! { |d|
+            d.is_a?(Language::TypeDefinition) && d.name == st
+          }.as(Language::TypeDefinition)
+        else
+          nil
+        end
       end
 
       @[GraphQL::Field]

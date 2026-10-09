@@ -54,22 +54,32 @@ module GraphQL::ObjectType
       # whole parent down with it.
       def _graphql_field_nullable?(name : String) : Bool
         {% begin %}
+        {%
+          methods = @type.methods.select(&.annotation(::GraphQL::Field))
+          @type.ancestors.each do |ancestor|
+            ancestor.methods.select(&.annotation(::GraphQL::Field)).each { |m| methods << m }
+          end
+          # an override and the method it overrides describe one field
+          seen = [] of String
+          methods = methods.select do |m|
+            n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true)
+            seen.includes?(n) ? false : (seen << n; true)
+          end
+        %}
         case name
         {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
         when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
           {{ var.type.nilable? }}
         {% end %}
-        {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
-        {% for ancestor in @type.ancestors %}
-          {% for method in ancestor.methods.select(&.annotation(::GraphQL::Field)) %}
-            {% methods << method %}
-          {% end %}
-        {% end %}
-        {% seen = [] of String %}
-        {% methods = methods.select { |m| n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true); seen.includes?(n) ? false : (seen << n; true) } %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          {{ method.return_type.is_a?(Nop) ? true : method.return_type.resolve.nilable? }}
+          {% if method.return_type.is_a?(Nop) %}
+          true
+          {% else %}
+          {% rt = method.return_type.resolve %}
+          {% rt = rt.type_vars.first if rt < Channel %}
+          {{ rt.nilable? }}
+          {% end %}
         {% end %}
         when "__typename", "__schema"
           false
@@ -79,9 +89,89 @@ module GraphQL::ObjectType
         {% end %}
       end
 
+      {% begin %}
+      {%
+        methods = @type.methods.select(&.annotation(::GraphQL::Field))
+        @type.ancestors.each do |ancestor|
+          ancestor.methods.select(&.annotation(::GraphQL::Field)).each { |m| methods << m }
+        end
+        # an override and the method it overrides describe one field
+        seen = [] of String
+        methods = methods.select do |m|
+          n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true)
+          seen.includes?(n) ? false : (seen << n; true)
+        end
+      %}
+      {% for method in methods %}
+      {% ann_args = method.annotation(::GraphQL::Field)["arguments"] %}
+      {% arg_names = method.args.map { |a| (ann_args && ann_args[a.name.id] && ann_args[a.name.id]["name"]) || a.name.id.stringify.camelcase(lower: true) } %}
+      # :nodoc:
+      # Validates `field` against the declaration of `{{ method.name }}` and
+      # calls it with the coerced arguments.
+      private def _graphql_call_{{ method.name.id }}(context, field : ::GraphQL::Language::Field)
+        {% unless method.return_type.is_a?(Nop) %}
+        {% leaf = method.return_type.resolve %}
+        {% for _ in 0..7 %}
+          {% leaf = leaf.union_types.find { |u| u != Nil } %}
+          {% if leaf < Array || leaf < Channel %}
+            {% leaf = leaf.type_vars.first %}
+          {% end %}
+        {% end %}
+        {% leaf = parse_type(leaf.name.stringify).resolve %} # a virtual type (abstract class element) carries no annotations
+        {% if leaf.annotation(::GraphQL::Object) || leaf.annotation(::GraphQL::Interface) || leaf.annotation(::GraphQL::Union) %}
+        raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
+        {% else %}
+        raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
+        {% end %}
+        {% end %}
+        field.arguments.each do |fa|
+          {% if arg_names.empty? %}
+          raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}")
+          {% else %}
+          raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}") unless {{ arg_names }}.includes?(fa.name)
+          {% end %}
+        end
+        self.{{method.name.id}}(
+          {% for arg, i in method.args %}
+          {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
+          {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
+          {% gql_name = arg_names[i] %}
+          {{ arg.name }}: begin
+            if context.is_a? {{arg.restriction.id}}
+              context
+            elsif (fa = field.arguments.find { |a| a.name == {{ gql_name }} }) && !fa.value.nil?
+              GraphQL::Internal.convert_value {{ type }}, fa.value, {{ gql_name.id }}
+            else
+              {% if !arg.default_value.is_a?(Nop) %}
+                {{ arg.default_value }}.as({{arg.restriction.id}})
+              {% elsif arg.restriction.resolve.nilable? %}
+                nil
+              {% else %}
+                raise ::GraphQL::TypeError.new("missing required argument {{ gql_name.id }}")
+              {% end %}
+            end
+          end,
+          {% end %}
+        )
+      end
+      {% end %}
+      {% end %}
+
       # :nodoc:
       def _graphql_resolve(context, field : ::GraphQL::Language::Field, json : JSON::Builder) : Array(::GraphQL::Error)
         {% begin %}
+        {%
+          methods = @type.methods.select(&.annotation(::GraphQL::Field))
+          @type.ancestors.each do |ancestor|
+            ancestor.methods.select(&.annotation(::GraphQL::Field)).each { |m| methods << m }
+          end
+          # an override and the method it overrides describe one field
+          seen = [] of String
+          methods = methods.select do |m|
+            n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true)
+            seen.includes?(n) ? false : (seen << n; true)
+          end
+        %}
         errors = [] of ::GraphQL::Error
         path = field._alias || field.name
 
@@ -104,63 +194,9 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("unknown argument #{field.arguments.first.name} on field #{field.name}") unless field.arguments.empty?
           errors.concat _graphql_serialize(context, field, self.{{var.name.id}}, json)
         {% end %}
-        {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
-        {% for ancestor in @type.ancestors %}
-          {% for method in ancestor.methods.select(&.annotation(::GraphQL::Field)) %}
-            {% methods << method %}
-          {% end %}
-        {% end %}
-        {% seen = [] of String %}
-        {% methods = methods.select { |m| n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true); seen.includes?(n) ? false : (seen << n; true) } %}
         {% for method in methods %}
-        {% ann_args = method.annotation(::GraphQL::Field)["arguments"] %}
-        {% arg_names = method.args.map { |a| (ann_args && ann_args[a.name.id] && ann_args[a.name.id]["name"]) || a.name.id.stringify.camelcase(lower: true) } %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          {% unless method.return_type.is_a?(Nop) %}
-          {% leaf = method.return_type.resolve %}
-          {% for _ in 0..7 %}
-            {% leaf = leaf.union_types.find { |u| u != Nil } %}
-            {% if leaf < Array %}
-              {% leaf = leaf.type_vars.first %}
-            {% end %}
-          {% end %}
-          {% leaf = parse_type(leaf.name.stringify).resolve %} # a virtual type (abstract class element) carries no annotations
-          {% if leaf.annotation(::GraphQL::Object) || leaf.annotation(::GraphQL::Interface) || leaf.annotation(::GraphQL::Union) %}
-          raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
-          {% else %}
-          raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
-          {% end %}
-          {% end %}
-          field.arguments.each do |fa|
-            {% if arg_names.empty? %}
-            raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}")
-            {% else %}
-            raise ::GraphQL::TypeError.new("unknown argument #{fa.name} on field #{field.name}") unless {{ arg_names }}.includes?(fa.name)
-            {% end %}
-          end
-          value = self.{{method.name.id}}(
-            {% for arg, i in method.args %}
-            {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
-            {% type = arg.restriction.resolve.union_types.find { |t| t != Nil }.resolve %}
-            {% gql_name = arg_names[i] %}
-            {{ arg.name }}: begin
-              if context.is_a? {{arg.restriction.id}}
-                context
-              elsif (fa = field.arguments.find { |a| a.name == {{ gql_name }} }) && !fa.value.nil?
-                GraphQL::Internal.convert_value {{ type }}, fa.value, {{ gql_name.id }}
-              else
-                {% if !arg.default_value.is_a?(Nop) %}
-                  {{ arg.default_value }}.as({{arg.restriction.id}})
-                {% elsif arg.restriction.resolve.nilable? %}
-                  nil
-                {% else %}
-                  raise ::GraphQL::TypeError.new("missing required argument {{ gql_name.id }}")
-                {% end %}
-              end
-            end,
-            {% end %}
-          )
-          errors.concat _graphql_serialize(context, field, value, json)
+          errors.concat _graphql_serialize(context, field, _graphql_call_{{ method.name.id }}(context, field), json)
         {% end %}
         when "__typename"
           raise ::GraphQL::TypeError.new("field __typename must not have a selection since its type has no subfields") unless field.selections.empty?
@@ -169,7 +205,7 @@ module GraphQL::ObjectType
         when "__schema"
           raise ::GraphQL::TypeError.new("field __schema must have a selection of subfields") if field.selections.empty?
           json.object do
-            introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type)
+            introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type, context.subscription_type)
             errors.concat introspection._graphql_resolve(context, field.selections, json)
           end
         when "__type"
@@ -189,9 +225,37 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("Field is not defined: #{field.name}")
         end
         errors.map &.with_path(path)
-
         {% end %}
       end
+
+      {% if @type < ::GraphQL::SubscriptionType %}
+      # :nodoc:
+      # Starts the event stream of one root subscription field.
+      def _graphql_subscribe_field(context, field : ::GraphQL::Language::Field) : ::GraphQL::Subscription
+        {% begin %}
+        {%
+          methods = @type.methods.select(&.annotation(::GraphQL::Field))
+          @type.ancestors.each do |ancestor|
+            ancestor.methods.select(&.annotation(::GraphQL::Field)).each { |m| methods << m }
+          end
+          # an override and the method it overrides describe one field
+          seen = [] of String
+          methods = methods.select do |m|
+            n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true)
+            seen.includes?(n) ? false : (seen << n; true)
+          end
+        %}
+        case field.name
+        {% for method in methods %}
+        when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
+          _graphql_forward(context, field, _graphql_call_{{ method.name.id }}(context, field))
+        {% end %}
+        else
+          raise ::GraphQL::TypeError.new("Field is not defined: #{field.name}")
+        end
+        {% end %}
+      end
+      {% end %}
 
       {% end %}
       {% end %}
@@ -242,6 +306,8 @@ module GraphQL::ObjectType
       json.string value
     when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
       value.to_json(json)
+    when Channel
+      raise ::GraphQL::TypeError.new("field #{path} on #{_graphql_type} returns a Channel; only subscription root fields may")
     else
       raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
     end
@@ -455,6 +521,59 @@ module GraphQL::ObjectType
       error.with_path(path)
     else
       path.reverse_each { |segment| error.with_path(segment) }
+    end
+  end
+end
+
+module GraphQL::ObjectType
+  # :nodoc:
+  # Forwards each value from `source` as one response document. The
+  # subscription ends when `source` closes; closing the subscription closes
+  # `source`, which also wakes the forwarding fiber.
+  protected def _graphql_forward(context, field : ::GraphQL::Language::Field, source : Channel(T)) : ::GraphQL::Subscription forall T
+    output = Channel(String).new
+    path = field._alias || field.name
+    nullable = _graphql_field_nullable?(field.name)
+
+    spawn do
+      loop do
+        value = source.receive
+        output.send _graphql_render_event(context, field, path, nullable, value)
+      end
+    rescue Channel::ClosedError
+      # either side is done
+    rescue ex
+      message = context.handle_exception(ex)
+      output.send({"errors" => [::GraphQL::Error.new(message || "subscription failed", path, field)]}.to_json) rescue nil
+    ensure
+      source.close
+      output.close
+    end
+
+    ::GraphQL::Subscription.new(output) { source.close }
+  end
+
+  # :nodoc:
+  private def _graphql_render_event(context, field : ::GraphQL::Language::Field, path : String, nullable : Bool, value) : String
+    fragment = _graphql_build_json_fragment(context, path, field) do |json|
+      _graphql_serialize(context, field, value, json).map &.with_path(path)
+    end
+
+    JSON.build do |json|
+      json.object do
+        json.field "data" do
+          if fragment.json.empty? && !nullable
+            json.null
+          else
+            json.object do
+              json.field(path) { fragment.json.empty? ? json.null : json.raw(fragment.json) }
+            end
+          end
+        end
+        unless fragment.errors.empty?
+          json.field("errors") { fragment.errors.to_json(json) }
+        end
+      end
     end
   end
 end

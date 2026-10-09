@@ -1,12 +1,15 @@
 require "./language"
 require "./query_type"
 require "./mutation_type"
+require "./subscription_type"
+require "./subscription"
 
 module GraphQL
   class Schema
     getter document : Language::Document
     @query : QueryType
     @mutation : MutationType?
+    @subscription : SubscriptionType?
 
     # convert JSON value to FValue
     private def to_fvalue(any : JSON::Any) : Language::FValue
@@ -143,15 +146,99 @@ module GraphQL
       end
     end
 
-    def initialize(@query : QueryType, @mutation : MutationType? = nil)
+    def initialize(@query : QueryType, @mutation : MutationType? = nil, @subscription : SubscriptionType? = nil)
       @document = @query._graphql_document
-      if mutation = @mutation
-        mutation._graphql_document.definitions.each do |definition|
+      {@mutation, @subscription}.each do |root|
+        next unless root
+        root._graphql_document.definitions.each do |definition|
           next unless definition.is_a?(Language::TypeDefinition)
           unless @document.definitions.find { |d| d.is_a?(Language::TypeDefinition) && d.name == definition.name }
             @document.definitions << definition
           end
         end
+      end
+    end
+
+    # Parses and validates the request and resolves its variables. Returns
+    # the operation to run, or nil after adding the reason to `errors`.
+    private def prepare(query : String, variables : Hash(String, JSON::Any)?, operation_name : String?, context : Context, errors : Array(Error)) : Language::OperationDefinition?
+      document = begin
+        Language.parse(query)
+      rescue ex : ParserError
+        errors << Error.new(ex.message || "syntax error")
+        return nil
+      end
+
+      operations = [] of Language::OperationDefinition
+
+      context.query_type = @query._graphql_type
+      context.mutation_type = @mutation.try &._graphql_type
+      context.subscription_type = @subscription.try &._graphql_type
+      context.document = @document
+
+      document.visit(->(node : Language::ASTNode) {
+        case node
+        when Language::OperationDefinition
+          operations << node
+        when Language::FragmentDefinition
+          context.fragments << node
+        else
+          nil
+        end
+      })
+
+      operation = if operations.empty?
+                    errors << Error.new("query does not contain an operation")
+                    return nil
+                  elsif operation_name.nil? && operations.size == 1
+                    operations.first
+                  elsif operation_name.nil?
+                    errors << Error.new("sent more than one operation but did not set operation name")
+                    return nil
+                  elsif op = operations.find { |q| q.name == operation_name }
+                    op
+                  else
+                    errors << Error.new("could not find operation with name #{operation_name}")
+                    return nil
+                  end
+
+      resolved = resolve_variables(operation, variables, errors)
+      substitute = ->(node : Language::ASTNode) {
+        substitute_variables(node, resolved, variables, errors) if node.is_a?(Language::Argument)
+        nil
+      }
+      operation.visit(substitute)
+      context.fragments.each &.visit(substitute)
+
+      context.complexity = complexity(operation.selections, context.fragments)
+      if (max = context.max_complexity) && context.complexity > max
+        errors << Error.new("operation complexity #{context.complexity} exceeds the maximum of #{max}")
+      end
+
+      errors.empty? ? operation : nil
+    end
+
+    # Starts a subscription. Each value the resolver's channel produces is
+    # delivered as one response document. A request that cannot be started
+    # yields a subscription that delivers a single error response and is
+    # already closed.
+    def subscribe(query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new) : Subscription
+      errors = [] of GraphQL::Error
+      operation = prepare(query, variables, operation_name, context, errors)
+
+      if operation && operation.operation_type != "subscription"
+        errors << Error.new("#{operation.operation_type} operations must be run with Schema#execute")
+      end
+
+      subscription = @subscription
+      if subscription.nil?
+        errors << Error.new("subscription operations are not supported")
+      end
+
+      if operation && subscription && errors.empty?
+        subscription._graphql_subscribe(context, operation.selections)
+      else
+        Subscription.failed(errors)
       end
     end
 
@@ -163,66 +250,7 @@ module GraphQL
 
     def execute(io : IO, query : String, variables : Hash(String, JSON::Any)? = nil, operation_name : String? = nil, context = Context.new) : Nil
       errors = [] of GraphQL::Error
-
-      document = begin
-        Language.parse(query)
-      rescue ex : ParserError
-        errors << Error.new(ex.message || "syntax error")
-        nil
-      end
-
-      operations = [] of Language::OperationDefinition
-
-      context.query_type = @query._graphql_type
-      context.mutation_type = @mutation.try &._graphql_type
-      context.document = @document
-
-      document.try &.visit(->(node : Language::ASTNode) {
-        case node
-        when Language::OperationDefinition
-          operations << node
-        when Language::FragmentDefinition
-          context.fragments << node
-        else
-          nil
-        end
-      })
-
-      operation = if document.nil?
-                    nil
-                  elsif operations.empty?
-                    errors << Error.new("query does not contain an operation")
-                    nil
-                  elsif operation_name.nil? && operations.size == 1
-                    operations.first
-                  else
-                    if operation_name.nil?
-                      errors << Error.new("sent more than one operation but did not set operation name")
-                      nil
-                    elsif op = operations.find { |q| q.name == operation_name }
-                      op
-                    else
-                      errors << Error.new("could not find operation with name #{operation_name}")
-                      nil
-                    end
-                  end
-
-      if operation
-        resolved = resolve_variables(operation, variables, errors)
-        substitute = ->(node : Language::ASTNode) {
-          substitute_variables(node, resolved, variables, errors) if node.is_a?(Language::Argument)
-          nil
-        }
-        operation.visit(substitute)
-        context.fragments.each &.visit(substitute)
-
-        context.complexity = complexity(operation.selections, context.fragments)
-        if (max = context.max_complexity) && context.complexity > max
-          errors << Error.new("operation complexity #{context.complexity} exceeds the maximum of #{max}")
-        end
-
-        operation = nil unless errors.empty?
-      end
+      operation = prepare(query, variables, operation_name, context, errors)
 
       JSON.build(io) do |json|
         json.object do
@@ -234,6 +262,8 @@ module GraphQL
             else
               errors << Error.new("mutation operations are not supported")
             end
+          elsif !operation.nil? && operation.operation_type == "subscription"
+            errors << Error.new("subscription operations must be started with Schema#subscribe")
           elsif !operation.nil?
             errors << Error.new("#{operation.operation_type} operations are not supported")
           end

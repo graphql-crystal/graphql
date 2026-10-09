@@ -390,7 +390,77 @@ Both annotations accept `name` and `description` like `GraphQL::Object`.
 
 ## Subscriptions
 
-Subscriptions are not supported.
+A subscription type inherits `GraphQL::BaseSubscription`. Its fields return a
+`Channel` whose element type is the field's GraphQL type, and every value sent
+on the channel becomes one response. `GraphQL::Broadcast` fans values out to
+any number of subscribers, which is the usual way to publish from a mutation:
+
+```crystal
+MESSAGES = GraphQL::Broadcast(Message).new
+
+@[GraphQL::Object]
+class Mutation < GraphQL::BaseMutation
+  @[GraphQL::Field]
+  def post(text : String) : Message
+    message = Message.new(text)
+    MESSAGES.publish(message)
+    message
+  end
+end
+
+@[GraphQL::Object]
+class Subscription < GraphQL::BaseSubscription
+  @[GraphQL::Field]
+  def message_added : Channel(Message)
+    MESSAGES.subscribe
+  end
+end
+
+schema = GraphQL::Schema.new(Query.new, Mutation.new, Subscription.new)
+```
+
+`schema.subscribe` takes the same arguments as `schema.execute` and returns a
+`GraphQL::Subscription` that yields response documents. It ends when the
+resolver's channel closes. Call `close` to unsubscribe, which also closes the
+resolver's channel:
+
+```crystal
+subscription = schema.subscribe(%(subscription { messageAdded { text } }))
+spawn do
+  subscription.each do |response|
+    puts response # {"data":{"messageAdded":{"text":"hi"}}}
+  end
+end
+```
+
+A request that cannot be started, for example because it selects two root
+fields, yields a single error response and is already closed.
+
+### Over WebSockets
+
+`GraphQL::Transport::WebSocket` speaks the `graphql-transport-ws` protocol
+used by graphql-ws, Apollo Client, urql and Relay. It is not loaded by
+`require "graphql"`. With Kemal:
+
+```crystal
+require "graphql/transport/ws"
+
+ws "/graphql" do |socket, env|
+  GraphQL::Transport::WebSocket.new(schema, socket) { MyContext.new(env) }
+end
+```
+
+With the standard library's `HTTP::Server`, pass the protocol name so the
+handshake negotiates it, which browsers require:
+
+```crystal
+HTTP::WebSocketHandler.new([GraphQL::Transport::WebSocket::PROTOCOL]) do |socket, http|
+  GraphQL::Transport::WebSocket.new(schema, socket) { MyContext.new(http.request) }
+end
+```
+
+The block builds the context for every operation on the connection. Queries
+and mutations sent over the socket are executed once.
 
 ## Annotation Arguments
 

@@ -34,6 +34,11 @@ module GraphQL::Document
 
   private macro _graphql_t(t, nilable)
     {% type = t.resolve %}
+    {% if type < Channel %}
+      {% inner = type.type_vars.first %}
+      {% inner_type = inner.union_types.find { |t| t != Nil } %}
+      _graphql_t({{ inner_type }}, {{ inner.nilable? }})
+    {% else %}
     {% unless nilable %}
     ::GraphQL::Language::NonNullType.new(of_type:
     {% end %}
@@ -66,6 +71,7 @@ module GraphQL::Document
       {% end %}
     {% unless nilable %}
     )
+    {% end %}
     {% end %}
   end
 
@@ -174,7 +180,7 @@ module GraphQL::Document
                     # of unions in either position
                     candidates = [] of TypeNode
                     type.resolve.union_types.each { |u| candidates << u }
-                    if type.resolve < Array
+                    if type.resolve < Array || type.resolve < Channel
                       type.resolve.type_vars.each do |inner_type|
                         inner_type.resolve.union_types.each { |u| candidates << u }
                         if inner_type.resolve < Array

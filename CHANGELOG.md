@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Subscriptions: a `GraphQL::BaseSubscription` type whose fields return a
+  `Channel`, `Schema#subscribe` returning a `GraphQL::Subscription` that
+  yields response documents,
+  `GraphQL::Broadcast` for publishing to many subscribers, and
+  `GraphQL::Transport::WebSocket` implementing the `graphql-transport-ws`
+  protocol, loaded with `require "graphql/transport/ws"` (#4)
+- Introspection reports `subscriptionType`
+
+### Changed
+
+- Running a subscription through `Schema#execute` reports "subscription
+  operations must be started with Schema#subscribe"
+
 ## [0.8.0] - 2026-10-09
 
 ### Added
