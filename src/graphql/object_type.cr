@@ -126,32 +126,43 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
-  private def _graphql_skip?(selection : ::GraphQL::Language::Field | ::GraphQL::Language::FragmentSpread | ::GraphQL::Language::InlineFragment)
-    if skip = selection.directives.find { |d| d.name == "skip" }
-      if arg = skip.arguments.find { |a| a.name == "if" }
-        return true if arg.value.as(Bool)
+  # Evaluates `@skip` and `@include` on a selection. A malformed directive
+  # (the spec requires `if: Boolean!`) is reported under `path` and the
+  # selection is skipped.
+  private def _graphql_skip?(directives : Array(::GraphQL::Language::Directive), path : Array(String | Int32), errors : Array(::GraphQL::Error)) : Bool
+    skip = false
+
+    directives.each do |directive|
+      next unless directive.name == "skip" || directive.name == "include"
+
+      arg = directive.arguments.find { |a| a.name == "if" }
+      if arg.nil?
+        errors << ::GraphQL::Error.new("directive @#{directive.name} requires argument if", path)
+        return true
       end
+
+      value = arg.value
+      unless value.is_a?(Bool)
+        errors << ::GraphQL::Error.new("argument if of directive @#{directive.name} must be a Boolean", path)
+        return true
+      end
+
+      skip ||= directive.name == "skip" ? value : !value
     end
 
-    if inc = selection.directives.find { |d| d.name == "include" }
-      if arg = inc.arguments.find { |a| a.name == "if" }
-        return true if !arg.value.as(Bool)
-      end
-    end
-
-    false
+    skip
   end
 
   # :nodoc:
   # Collects the fields selected by `selections` in query order, following
   # fragment spreads and inline fragments. Fields that share a response key
   # are merged into one entry, as the spec's CollectFields requires.
-  private def _graphql_collect_fields(context, selections : Array(::GraphQL::Language::Selection), fields : Hash(String, ::GraphQL::Language::Field), errors : Array(::GraphQL::Error)) : Nil
+  private def _graphql_collect_fields(context, selections : Array(::GraphQL::Language::Selection), fields : Hash(String, ::GraphQL::Language::Field), errors : Array(::GraphQL::Error), visited_fragments = [] of String) : Nil
     selections.each do |selection|
       case selection
       when ::GraphQL::Language::Field
-        next if _graphql_skip?(selection)
         path = selection._alias || selection.name
+        next if _graphql_skip?(selection.directives, [path] of String | Int32, errors)
         if existing = fields[path]?
           next if selection.selections.empty?
           merged = existing.dup
@@ -161,15 +172,17 @@ module GraphQL::ObjectType
           fields[path] = selection
         end
       when ::GraphQL::Language::FragmentSpread
-        next if _graphql_skip?(selection)
-        if fragment = context.fragments.find { |f| f.name == selection.name }
-          _graphql_collect_fields(context, fragment.selections, fields, errors)
+        next if _graphql_skip?(selection.directives, [selection.name] of String | Int32, errors)
+        if visited_fragments.includes?(selection.name)
+          errors << ::GraphQL::Error.new("fragment #{selection.name} spreads itself", selection.name)
+        elsif fragment = context.fragments.find { |f| f.name == selection.name }
+          _graphql_collect_fields(context, fragment.selections, fields, errors, visited_fragments + [selection.name])
         else
           errors << ::GraphQL::Error.new("no fragment #{selection.name}", selection.name)
         end
       when ::GraphQL::Language::InlineFragment
-        next if _graphql_skip?(selection)
-        _graphql_collect_fields(context, selection.selections, fields, errors)
+        next if _graphql_skip?(selection.directives, [] of String | Int32, errors)
+        _graphql_collect_fields(context, selection.selections, fields, errors, visited_fragments)
       else
         # this never happens, only required due to Selection being turned into ASTNode
         # https://crystal-lang.org/reference/1.3/syntax_and_semantics/virtual_and_abstract_types.html

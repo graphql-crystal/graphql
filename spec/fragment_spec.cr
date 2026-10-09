@@ -74,6 +74,46 @@ describe "fragments" do
     ).to_json
   end
 
+  it "reports a fragment that spreads itself instead of recursing forever" do
+    schema.execute(%(
+      { ...Loop }
+      fragment Loop on Query {
+        luke: human(id: "1000") { name }
+        ...Loop
+      }
+    )).should eq (
+      {
+        "data"   => {"luke" => {"name" => "Luke Skywalker"}},
+        "errors" => [{"message" => "fragment Loop spreads itself", "path" => ["Loop"]}],
+      }
+    ).to_json
+  end
+
+  it "reports a cycle through several fragments" do
+    schema.execute(%(
+      { ...A }
+      fragment A on Query { ...B }
+      fragment B on Query { ...A }
+    )).should eq (
+      {
+        "data"   => {} of String => String,
+        "errors" => [{"message" => "fragment A spreads itself", "path" => ["A"]}],
+      }
+    ).to_json
+  end
+
+  it "allows the same fragment in sibling positions" do
+    schema.execute(%(
+      {
+        luke: human(id: "1000") { ...Name }
+        leia: human(id: "1003") { ...Name }
+      }
+      fragment Name on Human { name }
+    )).should eq (
+      {"data" => {"luke" => {"name" => "Luke Skywalker"}, "leia" => {"name" => "Leia Organa"}}}
+    ).to_json
+  end
+
   it "reports unknown fragments" do
     schema.execute(%({ ...Missing })).should eq (
       {

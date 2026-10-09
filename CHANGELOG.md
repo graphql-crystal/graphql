@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A fragment that spreads itself, directly or through other fragments, now
+  returns a "fragment X spreads itself" error. Previously it recursed until
+  the process died of a stack overflow
+- `@skip` and `@include` with a missing `if` argument, a non-boolean value,
+  or a null variable now return an error for that selection instead of
+  raising a `TypeCastError` out of `Schema#execute`
+
 ## [0.5.2] - 2026-10-09
 
 ### Fixed
