@@ -160,6 +160,21 @@ hostile query cannot exhaust the stack:
 context.max_depth = 30
 ```
 
+## Benchmarking
+
+`bench/bench.cr` runs realistic requests against a schema with an interface, a
+union, an enum, an input object and nesting, and reports throughput per
+scenario. Run it before and after a change, on the same machine, and compare:
+
+```bash
+crystal run --release bench/bench.cr -- --json /tmp/before.json
+# make your changes
+crystal run --release bench/bench.cr -- --compare /tmp/before.json
+```
+
+`--only NAME` runs one scenario and `--seconds N` changes the time budget per
+scenario. Every response is checked for errors before timing starts.
+
 ## Objects
 
 Objects are perhaps the most commonly used type in GraphQL. They are implemented

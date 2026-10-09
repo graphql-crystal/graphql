@@ -35,5 +35,8 @@ jobs:
       - name: Lint
         if: ${{ matrix.format }}
         run: mkdir -p bin && crystal build lib/ameba/src/cli.cr -o bin/ameba && bin/ameba
+      - name: Compile the benchmark
+        if: ${{ matrix.format }}
+        run: crystal build --no-codegen bench/bench.cr
       - name: Run tests
         run: crystal spec

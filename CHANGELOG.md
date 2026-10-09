@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `bench/bench.cr`, an end-to-end benchmark with realistic scenarios and a
+  `--compare` mode, so changes can be measured before and after
+
 ## [0.9.3] - 2026-10-09
 
 ### Changed
