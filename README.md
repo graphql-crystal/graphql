@@ -318,6 +318,11 @@ class ReverseStringScalar < GraphQL::BaseScalar
 end
 ```
 
+A custom scalar's `to_json` is rendered into a buffer, so an exception in it
+only affects that field. The library's built-in scalars are written straight
+into the response instead; if you reopen one of them and its `to_json` raises,
+the enclosing object becomes null and the error is reported there.
+
 ## Interfaces
 
 An interface is an abstract class or a module with a `GraphQL::Interface`
@@ -502,11 +507,11 @@ converted to PascalCase or camelCase. However, `item_id` converts to
 argument.
 
 ```crystal
-@[GraphQL::Object(name: "Sheep")]
-class Wolf
-  @[GraphQL::Field(name: "baa")]
-  def howl : String
-    "baa"
+@[GraphQL::Object(name: "Greeter")]
+class GreetingService
+  @[GraphQL::Field(name: "hello")]
+  def say_hello : String
+    "Hello"
   end
 end
 ```
@@ -519,8 +524,8 @@ Describes the type. Descriptions are available through the introspection interfa
 so it's always a good idea to set this argument.
 
 ```crystal
-@[GraphQL::Object(description: "I'm a sheep, I promise!")]
-class Wolf
+@[GraphQL::Object(description: "Produces greetings in several languages")]
+class Greeter
 end
 ```
 
@@ -531,10 +536,10 @@ Supported on: `Field`
 The deprecated argument marks a type as deprecated.
 
 ```crystal
-class Sheep
-  @[GraphQL::Field(deprecated: "This was a bad idea.")]
-  def fight_wolf : String
-    "Wolf ate sheep"
+class Greeter
+  @[GraphQL::Field(deprecated: "Use greet(lang:) instead")]
+  def hello : String
+    "Hello"
   end
 end
 ```
@@ -573,13 +578,16 @@ Sets names, descriptions and deprecations for field arguments. Each argument
 may set `name`, `description` and `deprecated`:
 
 ```crystal
-class Sheep
-  @[GraphQL::Field(arguments: {weapon: {name: "weaponName", description: "The weapon the sheep should use."}})]
-  def fight_wolf(weapon : String) : String
-    if weapon == "Atomic Bomb"
-      "Sheep killed wolf"
-    else
-      "Wolf ate sheep"
+class Greeter
+  @[GraphQL::Field(arguments: {
+    language: {name: "lang", description: "Language code of the greeting"},
+    formal:   {deprecated: "Greetings are always informal now"},
+  })]
+  def greet(language : String, formal : Bool? = nil) : String
+    case language
+    when "fr" then "Bonjour"
+    when "de" then "Hallo"
+    else           "Hello"
     end
   end
 end

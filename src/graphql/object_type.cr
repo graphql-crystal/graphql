@@ -726,7 +726,8 @@ module GraphQL::ObjectType
     rescue e
       failed = true
       if message = context.handle_exception(e)
-        errors << ::GraphQL::Error.new(message, path.is_a?(String) ? [path] of String | Int32 : path, node)
+        error_path = path.is_a?(String) ? [path] of String | Int32 : path
+        errors << ::GraphQL::Error.new(message, error_path.empty? ? nil : error_path, node)
       end
     end
 

@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   direct write path as other leaves; only custom scalars are still buffered.
   About 10 to 20 percent more throughput on responses carrying ids
 
+### Fixed
+
+- An error that reaches the root of the response carries no empty `path`
+
 ### Added
 
 - `bench/bench.cr`, an end-to-end benchmark with realistic scenarios and a
