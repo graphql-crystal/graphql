@@ -113,7 +113,9 @@ class MyMath < GraphQL::BaseObject
 end
 ```
 
-Context instances must not be reused for multiple executions.
+Context instances must not be reused for multiple executions. A subscription
+is one execution: the context passed to `schema.subscribe` lives for the whole
+subscription and every event is resolved with it.
 
 ## Concurrency
 
@@ -552,10 +554,8 @@ end
 
 ### arguments
 
-Sets names and descriptions for field arguments. Note that
-arguments cannot be marked as deprecated.
-
-Each argument may set `name`, `description` and `deprecated`:
+Sets names, descriptions and deprecations for field arguments. Each argument
+may set `name`, `description` and `deprecated`:
 
 ```crystal
 class Sheep

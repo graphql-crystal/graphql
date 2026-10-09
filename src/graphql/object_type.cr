@@ -89,6 +89,125 @@ module GraphQL::ObjectType
         {% end %}
       end
 
+      # :nodoc:
+      # Whether the named field's value is a scalar, enum, or list of those,
+      # which the sequential path writes straight into the parent builder.
+      # Custom scalars are excluded because their `to_json` is user code.
+      def _graphql_leaf_field?(name : String) : Bool
+        {% begin %}
+        {%
+          methods = @type.methods.select(&.annotation(::GraphQL::Field))
+          @type.ancestors.each do |ancestor|
+            ancestor.methods.select(&.annotation(::GraphQL::Field)).each { |m| methods << m }
+          end
+          # an override and the method it overrides describe one field
+          seen = [] of String
+          methods = methods.select do |m|
+            n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true)
+            seen.includes?(n) ? false : (seen << n; true)
+          end
+        %}
+        case name
+        {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
+        when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
+          {% leaf = var.type %}
+          {% for _ in 0..7 %}
+            {% leaf = leaf.union_types.find { |u| u != Nil } %}
+            {% if leaf < Array || leaf < Channel %}
+              {% leaf = leaf.type_vars.first %}
+            {% end %}
+          {% end %}
+          {% leaf = parse_type(leaf.name.stringify).resolve %}
+          {{ leaf == String || leaf == Int32 || leaf == Float64 || leaf == Bool || leaf < ::Enum }}
+        {% end %}
+        {% for method in methods %}
+        when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
+          {% if method.return_type.is_a?(Nop) %}
+          false
+          {% else %}
+          {% leaf = method.return_type.resolve %}
+          {% for _ in 0..7 %}
+            {% leaf = leaf.union_types.find { |u| u != Nil } %}
+            {% if leaf < Array || leaf < Channel %}
+              {% leaf = leaf.type_vars.first %}
+            {% end %}
+          {% end %}
+          {% leaf = parse_type(leaf.name.stringify).resolve %}
+          {{ leaf == String || leaf == Int32 || leaf == Float64 || leaf == Bool || leaf < ::Enum }}
+          {% end %}
+        {% end %}
+        when "__typename"
+          true
+        else
+          false
+        end
+        {% end %}
+      end
+
+      # :nodoc:
+      # Sequential path for a leaf field: resolves the value, then writes it
+      # straight into `json` under `path`. Each branch keeps the field's
+      # static type, which the serializer needs for element nullability.
+      # Returns whether the field failed.
+      def _graphql_resolve_leaf(context, field : ::GraphQL::Language::Field, path : String, json : JSON::Builder, errors : Array(::GraphQL::Error)) : Bool
+        {% begin %}
+        {%
+          methods = @type.methods.select(&.annotation(::GraphQL::Field))
+          @type.ancestors.each do |ancestor|
+            ancestor.methods.select(&.annotation(::GraphQL::Field)).each { |m| methods << m }
+          end
+          # an override and the method it overrides describe one field
+          seen = [] of String
+          methods = methods.select do |m|
+            n = m.annotation(::GraphQL::Field)["name"] || m.name.id.stringify.camelcase(lower: true)
+            seen.includes?(n) ? false : (seen << n; true)
+          end
+        %}
+        case field.name
+        {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
+        when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
+          {% leaf = var.type %}
+          {% for _ in 0..7 %}
+            {% leaf = leaf.union_types.find { |u| u != Nil } %}
+            {% if leaf < Array %}
+              {% leaf = leaf.type_vars.first %}
+            {% end %}
+          {% end %}
+          {% leaf = parse_type(leaf.name.stringify).resolve %} # a virtual type (abstract class element) carries no annotations
+          {% if leaf.annotation(::GraphQL::Object) || leaf.annotation(::GraphQL::Interface) || leaf.annotation(::GraphQL::Union) %}
+          raise ::GraphQL::TypeError.new("field #{field.name} must have a selection of subfields") if field.selections.empty?
+          {% else %}
+          raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
+          {% end %}
+          value = begin
+            raise ::GraphQL::TypeError.new("unknown argument #{field.arguments.first.name} on field #{field.name}") unless field.arguments.empty?
+            self.{{ var.name.id }}
+          rescue e
+            return _graphql_leaf_failed(context, e, field, path, json, errors)
+          end
+          _graphql_write_leaf(context, field, path, value, json, errors)
+        {% end %}
+        {% for method in methods %}
+        when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
+          value = begin
+            _graphql_call_{{ method.name.id }}(context, field)
+          rescue e
+            return _graphql_leaf_failed(context, e, field, path, json, errors)
+          end
+          _graphql_write_leaf(context, field, path, value, json, errors)
+        {% end %}
+        when "__typename"
+          unless field.selections.empty?
+            return _graphql_leaf_failed(context, ::GraphQL::TypeError.new("field __typename must not have a selection since its type has no subfields"), field, path, json, errors)
+          end
+          json.field(path) { json.string _graphql_type }
+          false
+        else
+          _graphql_leaf_failed(context, ::GraphQL::TypeError.new("Field is not defined: #{field.name}"), field, path, json, errors)
+        end
+        {% end %}
+      end
+
       {% begin %}
       {%
         methods = @type.methods.select(&.annotation(::GraphQL::Field))
@@ -275,6 +394,13 @@ module GraphQL::ObjectType
         errors.concat value._graphql_resolve(context, field.selections, json)
       end
     when Array
+      if context.max_concurrency == 0 && _graphql_leaf_elements?(value) && _graphql_finite?(value)
+        json.array do
+          value.each { |v| errors.concat _graphql_serialize(context, field, v, json) }
+        end
+        return errors
+      end
+
       json.array do
         pending = value.map_with_index do |v, i|
           _graphql_fork(context) do
@@ -304,7 +430,10 @@ module GraphQL::ObjectType
       end
     when ::Enum
       json.string value
-    when Bool, String, Int32, Float64, Nil, ::GraphQL::ScalarType
+    when Float64
+      raise ::GraphQL::TypeError.new("Float cannot represent non-finite value") unless value.finite?
+      value.to_json(json)
+    when Bool, String, Int32, Nil, ::GraphQL::ScalarType
       value.to_json(json)
     when Channel
       raise ::GraphQL::TypeError.new("field #{path} on #{_graphql_type} returns a Channel; only subscription root fields may")
@@ -406,6 +535,8 @@ module GraphQL::ObjectType
     fields = Hash(String, ::GraphQL::Language::Field).new
     _graphql_collect_fields(context, selections, fields, errors)
 
+    return _graphql_resolve_sequentially(context, fields, json, errors) if serial || context.max_concurrency == 0
+
     pending = Hash(String, PendingFragment).new
     fields.each do |path, field|
       pending[path] = _graphql_fork(context, serial) do
@@ -431,6 +562,87 @@ module GraphQL::ObjectType
 
     raise NullPropagation.new(errors) if propagate
     errors
+  end
+
+  # :nodoc:
+  # Resolves every field in this fiber, in order. Leaf values are written
+  # straight into `json` once resolved, since nothing can fail after their
+  # key is emitted; object values still go through a buffer so a failing
+  # non-null descendant can discard the partial output.
+  private def _graphql_resolve_sequentially(context, fields : Hash(String, ::GraphQL::Language::Field), json : JSON::Builder, errors : Array(::GraphQL::Error)) : Array(::GraphQL::Error)
+    propagate = false
+
+    fields.each do |path, field|
+      failed = false
+
+      if _graphql_leaf_field?(field.name)
+        failed = _graphql_resolve_leaf(context, field, path, json, errors)
+      else
+        fragment = _graphql_build_json_fragment(context, path, field) do |field_json|
+          _graphql_resolve(context, field, field_json)
+        end
+        errors.concat fragment.errors
+        failed = fragment.json.empty?
+        json.field(path) { failed ? json.null : json.raw(fragment.json) }
+      end
+
+      propagate = true if failed && !_graphql_field_nullable?(field.name)
+    end
+
+    raise NullPropagation.new(errors) if propagate
+    errors
+  end
+
+  # :nodoc:
+  # Writes an already resolved leaf value under `path`, or null when it
+  # cannot be represented. Returns whether the field failed.
+  private def _graphql_write_leaf(context, field : ::GraphQL::Language::Field, path : String, value, json : JSON::Builder, errors : Array(::GraphQL::Error)) : Bool
+    if value.is_a?(Array) && !_graphql_finite?(value)
+      # the buffered path reports and nulls the offending elements
+      fragment = _graphql_build_json_fragment(context, path, field) do |field_json|
+        _graphql_serialize(context, field, value, field_json).map &.with_path(path)
+      end
+      errors.concat fragment.errors
+      failed = fragment.json.empty?
+      json.field(path) { failed ? json.null : json.raw(fragment.json) }
+      failed
+    elsif !_graphql_finite?(value)
+      errors << ::GraphQL::Error.new("Float cannot represent non-finite value", [path] of String | Int32, field)
+      json.field(path) { json.null }
+      true
+    else
+      json.field(path) { errors.concat _graphql_serialize(context, field, value, json).map(&.with_path(path)) }
+      false
+    end
+  end
+
+  # :nodoc:
+  # A leaf resolver raised before anything was written: record the error
+  # the way the buffered path would and emit null.
+  private def _graphql_leaf_failed(context, error : ::Exception, field : ::GraphQL::Language::Field, path : String, json : JSON::Builder, errors : Array(::GraphQL::Error)) : Bool
+    if message = context.handle_exception(error)
+      errors << ::GraphQL::Error.new(message, [path] of String | Int32, field)
+    end
+    json.field(path) { json.null }
+    true
+  end
+
+  # :nodoc:
+  # JSON cannot represent NaN or infinities; the builder raises mid-write,
+  # so leaf values are checked before their key is emitted.
+  private def _graphql_finite?(value) : Bool
+    case value
+    when Float64 then value.finite?
+    when Array   then value.all? { |v| _graphql_finite?(v) }
+    else              true
+    end
+  end
+
+  # :nodoc:
+  # Whether every element of the list is a built-in scalar, enum or nil,
+  # whose serialization cannot fail once started.
+  private def _graphql_leaf_elements?(value : Array) : Bool
+    value.all? { |v| v.is_a?(String | Int32 | Float64 | Bool?) || v.is_a?(::Enum) }
   end
 
   # :nodoc:

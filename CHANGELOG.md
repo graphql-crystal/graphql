@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Sequential execution, the default, writes scalar and enum values and lists
+  of them straight into the response instead of rendering each field into
+  its own buffer first. Object values keep the buffer so a failing non-null
+  descendant can still discard partial output. Responses are byte-identical
+  and about twice as fast to produce
+
+### Fixed
+
+- A resolver returning NaN or an infinity produces an error for that field
+  instead of invalid JSON
+
+### Changed
+
 - Ameba lint runs in CI with the configuration in `.ameba.yml`, and the code
   base passes it. Parser errors that used to be nil assertions on malformed
   input are now raised as `ParserError` with a message
