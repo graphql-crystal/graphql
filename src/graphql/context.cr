@@ -2,7 +2,14 @@ require "./language"
 
 module GraphQL
   class Context
+    # Maximum number of fields a single operation may select, counted
+    # statically across the whole selection tree with fragments expanded.
+    # `nil` (the default) disables the check. An operation that exceeds the
+    # limit is rejected before any resolver runs.
     property max_complexity : Int32? = nil
+
+    # Number of fields the executed operation selected, filled in by
+    # `Schema#execute` before resolution starts.
     property complexity = 0
     property fragments : Array(Language::FragmentDefinition) = [] of Language::FragmentDefinition
     property query_type : String = ""

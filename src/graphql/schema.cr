@@ -104,6 +104,29 @@ module GraphQL
       end
     end
 
+    # Counts the fields an operation selects, following fragment spreads and
+    # inline fragments. Cyclic fragments are counted once; execution reports
+    # them as errors.
+    private def complexity(selections : Array(Language::Selection), fragments : Array(Language::FragmentDefinition), visited = [] of String) : Int32
+      selections.sum do |selection|
+        case selection
+        when Language::Field
+          1 + complexity(selection.selections, fragments, visited)
+        when Language::FragmentSpread
+          fragment = fragments.find { |f| f.name == selection.name }
+          if fragment.nil? || visited.includes?(selection.name)
+            0
+          else
+            complexity(fragment.selections, fragments, visited + [selection.name])
+          end
+        when Language::InlineFragment
+          complexity(selection.selections, fragments, visited)
+        else
+          0
+        end
+      end
+    end
+
     def initialize(@query : QueryType, @mutation : MutationType? = nil)
       @document = @query._graphql_document
       if mutation = @mutation
@@ -173,6 +196,12 @@ module GraphQL
         }
         operation.visit(substitute)
         context.fragments.each &.visit(substitute)
+
+        context.complexity = complexity(operation.selections, context.fragments)
+        if (max = context.max_complexity) && context.complexity > max
+          errors << Error.new("operation complexity #{context.complexity} exceeds the maximum of #{max}", [] of String | Int32)
+        end
+
         operation = nil unless errors.empty?
       end
 

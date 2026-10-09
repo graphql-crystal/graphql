@@ -154,6 +154,18 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
+  # A fragment only applies to objects of the type it was declared on.
+  # Without interfaces and unions, that means the condition must name this
+  # very type. An absent condition (`... { }`) always applies.
+  private def _graphql_type_condition_matches?(type : ::GraphQL::Language::Type?) : Bool
+    case type
+    when Nil                           then true
+    when ::GraphQL::Language::TypeName then type.name == _graphql_type
+    else                                    false
+    end
+  end
+
+  # :nodoc:
   # Collects the fields selected by `selections` in query order, following
   # fragment spreads and inline fragments. Fields that share a response key
   # are merged into one entry, as the spec's CollectFields requires.
@@ -176,12 +188,14 @@ module GraphQL::ObjectType
         if visited_fragments.includes?(selection.name)
           errors << ::GraphQL::Error.new("fragment #{selection.name} spreads itself", selection.name)
         elsif fragment = context.fragments.find { |f| f.name == selection.name }
+          next unless _graphql_type_condition_matches?(fragment.type)
           _graphql_collect_fields(context, fragment.selections, fields, errors, visited_fragments + [selection.name])
         else
           errors << ::GraphQL::Error.new("no fragment #{selection.name}", selection.name)
         end
       when ::GraphQL::Language::InlineFragment
         next if _graphql_skip?(selection.directives, [] of String | Int32, errors)
+        next unless _graphql_type_condition_matches?(selection.type)
         _graphql_collect_fields(context, selection.selections, fields, errors, visited_fragments)
       else
         # this never happens, only required due to Selection being turned into ASTNode

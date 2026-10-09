@@ -133,6 +133,22 @@ list never fans out into an unbounded number of fibers. Choose a value your
 downstream resources can sustain; resolvers that check out database
 connections should stay below the connection pool size.
 
+## Complexity
+
+To reject operations that select too many fields, set `max_complexity` on the
+context:
+
+```crystal
+context = MyContext.new(Math::PI)
+context.max_complexity = 200
+schema.execute(query, variables, operation_name, context)
+```
+
+Complexity is the number of fields the operation selects, counted across the
+whole selection tree with fragments expanded. It is computed before any
+resolver runs, and an operation over the limit is answered with an error and
+no data. After execution, `context.complexity` holds the count.
+
 ## Objects
 
 Objects are perhaps the most commonly used type in GraphQL. They are implemented

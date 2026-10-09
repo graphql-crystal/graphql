@@ -114,6 +114,28 @@ describe "fragments" do
     ).to_json
   end
 
+  it "applies fragments whose type condition matches" do
+    schema.execute(%(
+      {
+        luke: human(id: "1000") { ...Name ... on Human { homePlanet } }
+      }
+      fragment Name on Human { name }
+    )).should eq (
+      {"data" => {"luke" => {"name" => "Luke Skywalker", "homePlanet" => "Tatooine"}}}
+    ).to_json
+  end
+
+  it "skips fragments whose type condition names another type" do
+    schema.execute(%(
+      {
+        luke: human(id: "1000") { name ...Droid ... on Droid { primaryFunction } }
+      }
+      fragment Droid on Droid { primaryFunction }
+    )).should eq (
+      {"data" => {"luke" => {"name" => "Luke Skywalker"}}}
+    ).to_json
+  end
+
   it "reports unknown fragments" do
     schema.execute(%({ ...Missing })).should eq (
       {

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Context#max_complexity` rejects operations that select more fields than
+  allowed, counted statically with fragments expanded, before any resolver
+  runs. `Context#complexity` reports the count. Both properties existed since
+  the first release but were never read
+
+### Fixed
+
+- Inline fragments and fragment spreads whose type condition names a
+  different type are skipped instead of resolving their fields against the
+  wrong object and reporting "Field is not defined"
+
 ## [0.5.3] - 2026-10-09
 
 ### Fixed
