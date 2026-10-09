@@ -49,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   yields response documents,
   `GraphQL::Broadcast` for publishing to many subscribers, and
   `GraphQL::Transport::WebSocket` implementing the `graphql-transport-ws`
-  protocol, loaded with `require "graphql/transport/ws"` (#4)
+  protocol, loaded with `require "graphql/transport/ws"` (graphql-crystal/graphql#4)
 - Introspection reports `subscriptionType`
 
 ### Changed
@@ -64,9 +64,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Interfaces: annotate an abstract class or module with `GraphQL::Interface`
   and inherit from or include it. Fields may return the interface, fragments
   with a type condition select implementation-specific fields, and
-  introspection reports `interfaces` and `possibleTypes` (#28)
+  introspection reports `interfaces` and `possibleTypes` (graphql-crystal/graphql#28)
 - Unions: annotate a module with `GraphQL::Union` and include it in the
-  member objects (#29)
+  member objects (graphql-crystal/graphql#29)
 - The `__type(name:)` introspection meta-field, which was missing
 
 ### Fixed
@@ -191,7 +191,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Array and array-of-enum default values on field arguments and input object
-  fields no longer fail to compile (#39)
+  fields no longer fail to compile (graphql-crystal/graphql#39)
 
 ## [0.5.0] - 2026-10-09
 
@@ -207,9 +207,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Resolver fibers no longer leak when a sibling field or array element raises
-  an exception that bubbles up (#48, #52)
+  an exception that bubbles up (graphql-crystal/graphql#48, graphql-crystal/graphql#52)
 - Output object types that are only referenced implicitly, such as the element
-  type of a nested array, are now generated in the schema (#41)
+  type of a nested array, are now generated in the schema (graphql-crystal/graphql#41)
 - Introspection now includes fields inherited from parent classes
 - Block strings containing `"` characters are now lexed correctly
 - Quotes in descriptions are escaped in the generated schema
