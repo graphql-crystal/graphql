@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Context - graphql 0.4.0</title>
+  <title>GraphQL::Context - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" current" data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,12 +561,16 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> GraphQL::<wbr>Context
+  <span class="kind">
+    class
+  </span> GraphQL::<wbr>Context
 
 </h1>
 
 
   <ul class="superclass-hierarchy"><li class="superclass"><a href="../GraphQL/Context.html">GraphQL::Context</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
 
 
 
@@ -548,12 +607,13 @@
 
 
 
+  
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -567,10 +627,14 @@
       <li class="entry-summary">
         <a href="#complexity%3AInt32-instance-method" class="signature"><strong>#complexity</strong> : Int32</a>
         
+          <div class="summary"><p>Number of fields the executed operation selected, filled in by <code><a href="../GraphQL/Schema.html#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method">Schema#execute</a></code> before resolution starts.</p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#complexity%3D%28complexity%3AInt32%29-instance-method" class="signature"><strong>#complexity=</strong>(complexity : Int32)</a>
+        
+          <div class="summary"><p>Number of fields the executed operation selected, filled in by <code><a href="../GraphQL/Schema.html#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method">Schema#execute</a></code> before resolution starts.</p></div>
         
       </li>
     
@@ -602,12 +666,51 @@
       </li>
     
       <li class="entry-summary">
+        <a href="#in_flight%3AInt32-instance-method" class="signature"><strong>#in_flight</strong> : Int32</a>
+        
+          <div class="summary"><p>Number of resolver fibers spawned by this execution that have not yet finished.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
         <a href="#max_complexity%3AInt32%7CNil-instance-method" class="signature"><strong>#max_complexity</strong> : Int32 | Nil</a>
+        
+          <div class="summary"><p>Maximum number of fields a single operation may select, counted statically across the whole selection tree with fragments expanded.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#max_complexity%3D%28max_complexity%3AInt32%7CNil%29-instance-method" class="signature"><strong>#max_complexity=</strong>(max_complexity : Int32 | Nil)</a>
+        
+          <div class="summary"><p>Maximum number of fields a single operation may select, counted statically across the whole selection tree with fragments expanded.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#max_concurrency%3AInt32-instance-method" class="signature"><strong>#max_concurrency</strong> : Int32</a>
+        
+          <div class="summary"><p>Maximum number of fibers this execution may spawn at once to resolve fields and array elements concurrently.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#max_concurrency%3D%28max_concurrency%3AInt32%29-instance-method" class="signature"><strong>#max_concurrency=</strong>(max_concurrency : Int32)</a>
+        
+          <div class="summary"><p>Maximum number of fibers this execution may spawn at once to resolve fields and array elements concurrently.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#max_depth%3AInt32-instance-method" class="signature"><strong>#max_depth</strong> : Int32</a>
+        
+          <div class="summary"><p>Maximum nesting of selection sets, lists and input objects a query may have.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#max_depth%3D%28max_depth%3AInt32%29-instance-method" class="signature"><strong>#max_depth=</strong>(max_depth : Int32)</a>
+        
+          <div class="summary"><p>Maximum nesting of selection sets, lists and input objects a query may have.</p></div>
         
       </li>
     
@@ -631,47 +734,57 @@
         
       </li>
     
+      <li class="entry-summary">
+        <a href="#subscription_type%3AString%7CNil-instance-method" class="signature"><strong>#subscription_type</strong> : String | Nil</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#subscription_type%3D%28subscription_type%3AString%7CNil%29-instance-method" class="signature"><strong>#subscription_type=</strong>(subscription_type : String | Nil)</a>
+        
+      </li>
+    
   </ul>
 
 
 
-<div class="methods-inherited">
+  <div class="methods-inherited">
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
+
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-</div>
 
-
-
-
-
-
-
-
+  
   <h2>
     <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -689,6 +802,12 @@
         <a class="method-permalink" href="#complexity%3AInt32-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Number of fields the executed operation selected, filled in by
+<code><a href="../GraphQL/Schema.html#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method">Schema#execute</a></code> before resolution starts.</p>
+        </div>
+      
       <br/>
       <div>
         
@@ -702,6 +821,12 @@
 
         <a class="method-permalink" href="#complexity%3D%28complexity%3AInt32%29-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Number of fields the executed operation selected, filled in by
+<code><a href="../GraphQL/Schema.html#execute%28query%3AString%2Cvariables%3AHash%28String%2CJSON%3A%3AAny%29%7CNil%3Dnil%2Coperation_name%3AString%7CNil%3Dnil%2Ccontext%3DContext.new%29%3AString-instance-method">Schema#execute</a></code> before resolution starts.</p>
+        </div>
       
       <br/>
       <div>
@@ -784,6 +909,26 @@
       </div>
     </div>
   
+    <div class="entry-detail" id="in_flight:Int32-instance-method">
+      <div class="signature">
+        
+        def <strong>in_flight</strong> : Int32
+
+        <a class="method-permalink" href="#in_flight%3AInt32-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Number of resolver fibers spawned by this execution that have not yet
+finished.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
     <div class="entry-detail" id="max_complexity:Int32|Nil-instance-method">
       <div class="signature">
         
@@ -791,6 +936,14 @@
 
         <a class="method-permalink" href="#max_complexity%3AInt32%7CNil-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Maximum number of fields a single operation may select, counted
+statically across the whole selection tree with fragments expanded.
+<code>nil</code> (the default) disables the check. An operation that exceeds the
+limit is rejected before any resolver runs.</p>
+        </div>
       
       <br/>
       <div>
@@ -805,6 +958,114 @@
 
         <a class="method-permalink" href="#max_complexity%3D%28max_complexity%3AInt32%7CNil%29-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Maximum number of fields a single operation may select, counted
+statically across the whole selection tree with fragments expanded.
+<code>nil</code> (the default) disables the check. An operation that exceeds the
+limit is rejected before any resolver runs.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="max_concurrency:Int32-instance-method">
+      <div class="signature">
+        
+        def <strong>max_concurrency</strong> : Int32
+
+        <a class="method-permalink" href="#max_concurrency%3AInt32-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Maximum number of fibers this execution may spawn at once to resolve
+fields and array elements concurrently.</p>
+<p><code>0</code> (the default) resolves everything sequentially in the calling fiber.
+Any higher value lets up to that many resolvers run concurrently; once
+the budget is used up, further work runs inline in the fiber that
+requested it, so nesting can never deadlock and a single query can never
+fan out into an unbounded number of fibers.</p>
+<p>Pick a value that your downstream resources can sustain. For example,
+resolvers that check out database connections should stay below the
+connection pool size.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="max_concurrency=(max_concurrency:Int32)-instance-method">
+      <div class="signature">
+        
+        def <strong>max_concurrency=</strong>(max_concurrency : Int32)
+
+        <a class="method-permalink" href="#max_concurrency%3D%28max_concurrency%3AInt32%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Maximum number of fibers this execution may spawn at once to resolve
+fields and array elements concurrently.</p>
+<p><code>0</code> (the default) resolves everything sequentially in the calling fiber.
+Any higher value lets up to that many resolvers run concurrently; once
+the budget is used up, further work runs inline in the fiber that
+requested it, so nesting can never deadlock and a single query can never
+fan out into an unbounded number of fibers.</p>
+<p>Pick a value that your downstream resources can sustain. For example,
+resolvers that check out database connections should stay below the
+connection pool size.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="max_depth:Int32-instance-method">
+      <div class="signature">
+        
+        def <strong>max_depth</strong> : Int32
+
+        <a class="method-permalink" href="#max_depth%3AInt32-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Maximum nesting of selection sets, lists and input objects a query may
+have. Parsing stops with an error beyond it. The default of 100 is far
+above what real queries use, and protects the process: nesting a few
+thousand levels deep would otherwise overflow the stack.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="max_depth=(max_depth:Int32)-instance-method">
+      <div class="signature">
+        
+        def <strong>max_depth=</strong>(max_depth : Int32)
+
+        <a class="method-permalink" href="#max_depth%3D%28max_depth%3AInt32%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Maximum nesting of selection sets, lists and input objects a query may
+have. Parsing stops with an error beyond it. The default of 100 is far
+above what real queries use, and protects the process: nesting a few
+thousand levels deep would otherwise overflow the stack.</p>
+        </div>
       
       <br/>
       <div>
@@ -868,6 +1129,35 @@
       </div>
     </div>
   
+    <div class="entry-detail" id="subscription_type:String|Nil-instance-method">
+      <div class="signature">
+        
+        def <strong>subscription_type</strong> : String | Nil
+
+        <a class="method-permalink" href="#subscription_type%3AString%7CNil-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="subscription_type=(subscription_type:String|Nil)-instance-method">
+      <div class="signature">
+        
+        def <strong>subscription_type=</strong>(subscription_type : String | Nil)
+
+        <a class="method-permalink" href="#subscription_type%3D%28subscription_type%3AString%7CNil%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+
 
 
 </div>

@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::Token::Kind - graphql 0.4.0</title>
+  <title>GraphQL::Language::Token::Kind - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../../../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../../../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../../../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../../../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../../../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../../../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../../../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../../../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../../../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../../../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../../../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../../../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../../../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,9 +561,13 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">enum</span> GraphQL::<wbr>Language::<wbr>Token::<wbr>Kind
+  <span class="kind">
+    enum
+  </span> GraphQL::<wbr>Language::<wbr>Token::<wbr>Kind
 
 </h1>
+
+
 
 
 
@@ -665,12 +724,13 @@
 
 
 
+  
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -684,105 +744,147 @@
       <li class="entry-summary">
         <a href="#amp%3F-instance-method" class="signature"><strong>#amp?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#AMP">AMP</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#at%3F-instance-method" class="signature"><strong>#at?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#AT">AT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#bang%3F-instance-method" class="signature"><strong>#bang?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BANG">BANG</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#block_string%3F-instance-method" class="signature"><strong>#block_string?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BLOCK_STRING">BLOCK_STRING</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#brace_l%3F-instance-method" class="signature"><strong>#brace_l?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACE_L">BRACE_L</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#brace_r%3F-instance-method" class="signature"><strong>#brace_r?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACE_R">BRACE_R</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#bracket_l%3F-instance-method" class="signature"><strong>#bracket_l?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACKET_L">BRACKET_L</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#bracket_r%3F-instance-method" class="signature"><strong>#bracket_r?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACKET_R">BRACKET_R</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#colon%3F-instance-method" class="signature"><strong>#colon?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#COLON">COLON</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#comment%3F-instance-method" class="signature"><strong>#comment?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#COMMENT">COMMENT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#dollar%3F-instance-method" class="signature"><strong>#dollar?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#DOLLAR">DOLLAR</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#eof%3F-instance-method" class="signature"><strong>#eof?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#EOF">EOF</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#equals%3F-instance-method" class="signature"><strong>#equals?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#EQUALS">EQUALS</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#float%3F-instance-method" class="signature"><strong>#float?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#FLOAT">FLOAT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#int%3F-instance-method" class="signature"><strong>#int?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#INT">INT</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#name%3F-instance-method" class="signature"><strong>#name?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#NAME">NAME</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#paren_l%3F-instance-method" class="signature"><strong>#paren_l?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#PAREN_L">PAREN_L</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#paren_r%3F-instance-method" class="signature"><strong>#paren_r?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#PAREN_R">PAREN_R</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#pipe%3F-instance-method" class="signature"><strong>#pipe?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#PIPE">PIPE</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#spread%3F-instance-method" class="signature"><strong>#spread?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#SPREAD">SPREAD</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#string%3F-instance-method" class="signature"><strong>#string?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#STRING">STRING</a></code></p></div>
         
       </li>
     
@@ -790,69 +892,69 @@
 
 
 
-<div class="methods-inherited">
+  <div class="methods-inherited">
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
+
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-</div>
-
-
-
-
-
-
-
-
   <h2>
     <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -870,6 +972,11 @@
         <a class="method-permalink" href="#amp%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#AMP">AMP</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -883,6 +990,11 @@
 
         <a class="method-permalink" href="#at%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#AT">AT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -898,6 +1010,11 @@
         <a class="method-permalink" href="#bang%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BANG">BANG</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -911,6 +1028,11 @@
 
         <a class="method-permalink" href="#block_string%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BLOCK_STRING">BLOCK_STRING</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -926,6 +1048,11 @@
         <a class="method-permalink" href="#brace_l%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACE_L">BRACE_L</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -939,6 +1066,11 @@
 
         <a class="method-permalink" href="#brace_r%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACE_R">BRACE_R</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -954,6 +1086,11 @@
         <a class="method-permalink" href="#bracket_l%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACKET_L">BRACKET_L</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -967,6 +1104,11 @@
 
         <a class="method-permalink" href="#bracket_r%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#BRACKET_R">BRACKET_R</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -982,6 +1124,11 @@
         <a class="method-permalink" href="#colon%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#COLON">COLON</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -995,6 +1142,11 @@
 
         <a class="method-permalink" href="#comment%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#COMMENT">COMMENT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1010,6 +1162,11 @@
         <a class="method-permalink" href="#dollar%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#DOLLAR">DOLLAR</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1023,6 +1180,11 @@
 
         <a class="method-permalink" href="#eof%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#EOF">EOF</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1038,6 +1200,11 @@
         <a class="method-permalink" href="#equals%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#EQUALS">EQUALS</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1051,6 +1218,11 @@
 
         <a class="method-permalink" href="#float%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#FLOAT">FLOAT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1066,6 +1238,11 @@
         <a class="method-permalink" href="#int%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#INT">INT</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1079,6 +1256,11 @@
 
         <a class="method-permalink" href="#name%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#NAME">NAME</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1094,6 +1276,11 @@
         <a class="method-permalink" href="#paren_l%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#PAREN_L">PAREN_L</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1107,6 +1294,11 @@
 
         <a class="method-permalink" href="#paren_r%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#PAREN_R">PAREN_R</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1122,6 +1314,11 @@
         <a class="method-permalink" href="#pipe%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#PIPE">PIPE</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1135,6 +1332,11 @@
 
         <a class="method-permalink" href="#spread%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#SPREAD">SPREAD</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1150,12 +1352,18 @@
         <a class="method-permalink" href="#string%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../../GraphQL/Language/Token/Kind.html#STRING">STRING</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
       </div>
     </div>
   
+
 
 
 </div>

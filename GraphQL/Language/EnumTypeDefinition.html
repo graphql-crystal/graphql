@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::EnumTypeDefinition - graphql 0.4.0</title>
+  <title>GraphQL::Language::EnumTypeDefinition - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,12 +561,16 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> GraphQL::<wbr>Language::<wbr>EnumTypeDefinition
+  <span class="kind">
+    class
+  </span> GraphQL::<wbr>Language::<wbr>EnumTypeDefinition
 
 </h1>
 
 
   <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Language/EnumTypeDefinition.html">GraphQL::Language::EnumTypeDefinition</a></li><li class="superclass"><a href="../../GraphQL/Language/TypeDefinition.html">GraphQL::Language::TypeDefinition</a></li><li class="superclass"><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
 
 
 
@@ -548,6 +607,7 @@
 
 
 
+  
   <h2>
     <a id="constructors" class="anchor" href="#constructors">
   <svg class="octicon-link" aria-hidden="true">
@@ -566,11 +626,11 @@
   </ul>
 
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -624,9 +684,9 @@
 
 
 
-<div class="methods-inherited">
-  
+  <div class="methods-inherited">
     
+      
 
   <h3>Instance methods inherited from class <code><a href="../../GraphQL/Language/TypeDefinition.html">GraphQL::Language::TypeDefinition</a></code></h3>
   
@@ -636,13 +696,13 @@
     ==</a>, 
     
   
-    <a href="../../GraphQL/Language/TypeDefinition.html#description%3AUnion%28String%2CNil%29-instance-method" class="tooltip">
-      <span>description : Union(String, Nil)</span>
+    <a href="../../GraphQL/Language/TypeDefinition.html#description%3A%3A%3AUnion%28String%2CNil%29-instance-method" class="tooltip">
+      <span>description : ::Union(String, Nil)</span>
     description</a>, 
     
   
-    <a href="../../GraphQL/Language/TypeDefinition.html#description%3D%28description%3AUnion%28String%2CNil%29%29-instance-method" class="tooltip">
-      <span>description=(description : Union(String, Nil))</span>
+    <a href="../../GraphQL/Language/TypeDefinition.html#description%3D%28description%3A%3A%3AUnion%28String%2CNil%29%29-instance-method" class="tooltip">
+      <span>description=(description : ::Union(String, Nil))</span>
     description=</a>, 
     
   
@@ -663,7 +723,7 @@
   
 
 
-    
+      
 
   <h3>Constructor methods inherited from class <code><a href="../../GraphQL/Language/TypeDefinition.html">GraphQL::Language::TypeDefinition</a></code></h3>
   
@@ -675,14 +735,14 @@
   
 
 
-    
+      
+
+
+      
 
 
     
-
-
-  
-    
+      
 
   <h3>Instance methods inherited from class <code><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></code></h3>
   
@@ -692,6 +752,26 @@
     children</a>, 
     
   
+    <a href="../../GraphQL/Language/ASTNode.html#column%3AInt32%7CNil-instance-method" class="tooltip">
+      <span>column : Int32 | Nil</span>
+    column</a>, 
+    
+  
+    <a href="../../GraphQL/Language/ASTNode.html#column%3D%28column%3AInt32%7CNil%29-instance-method" class="tooltip">
+      <span>column=(column : Int32 | Nil)</span>
+    column=</a>, 
+    
+  
+    <a href="../../GraphQL/Language/ASTNode.html#line%3AInt32%7CNil-instance-method" class="tooltip">
+      <span>line : Int32 | Nil</span>
+    line</a>, 
+    
+  
+    <a href="../../GraphQL/Language/ASTNode.html#line%3D%28line%3AInt32%7CNil%29-instance-method" class="tooltip">
+      <span>line=(line : Int32 | Nil)</span>
+    line=</a>, 
+    
+  
     <a href="../../GraphQL/Language/ASTNode.html#visit%28block%3AASTNode-%3E_%29-instance-method" class="tooltip">
       <span>visit(block : ASTNode -> _)</span>
     visit</a>
@@ -699,13 +779,22 @@
   
 
 
+      
+
+  <h3>Constructor methods inherited from class <code><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></code></h3>
+  
+  
+    <a href="../../GraphQL/Language/ASTNode.html#new%28line%3AInt32%7CNil%3Dnil%2Ccolumn%3AInt32%7CNil%3Dnil%29-class-method" class="tooltip">
+      <span>new(line : Int32 | Nil = <span class="n">nil</span>, column : Int32 | Nil = <span class="n">nil</span>)</span>
+    new</a>
     
+  
 
 
-    
+      
 
 
-    
+      
 
   <h3>Macros inherited from class <code><a href="../../GraphQL/Language/ASTNode.html">GraphQL::Language::ASTNode</a></code></h3>
   
@@ -717,36 +806,36 @@
   
 
 
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
+
   
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-</div>
-
-
   <h2>
     <a id="constructor-detail" class="anchor" href="#constructor-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -772,11 +861,11 @@
   
 
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -797,7 +886,7 @@
         <div class="doc">
           
             <div class="doc-inherited">
-              Description copied from class Reference
+              Description copied from class <a href="../../GraphQL/Language/TypeDefinition.html">GraphQL::Language::TypeDefinition</a>
             </div>
           
           <p>Returns <code>true</code> if this reference is the same as <em>other</em>. Invokes <code>same?</code>.</p>
@@ -890,7 +979,7 @@
         <div class="doc">
           
             <div class="doc-inherited">
-              Description copied from class Reference
+              Description copied from class <a href="../../GraphQL/Language/TypeDefinition.html">GraphQL::Language::TypeDefinition</a>
             </div>
           
           <p>See <code>Object#hash(hasher)</code></p>
@@ -902,6 +991,7 @@
       </div>
     </div>
   
+
 
 
 </div>

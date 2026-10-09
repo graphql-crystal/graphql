@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language - graphql 0.4.0</title>
+  <title>GraphQL::Language - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,9 +561,13 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">module</span> GraphQL::<wbr>Language
+  <span class="kind">
+    module
+  </span> GraphQL::<wbr>Language
 
 </h1>
+
+
 
 
 
@@ -564,10 +623,35 @@
 
 
 
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="DEFAULT_MAX_DEPTH">
+        <strong>DEFAULT_MAX_DEPTH</strong> = <code><span class="n">100</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Nesting depth of selection sets, lists and input objects beyond which
+<code><a href="../GraphQL/Language.html#parse%28query_string%3AString%2Cmax_depth%3AInt32%3DDEFAULT_MAX_DEPTH%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method">.parse</a></code> raises. See <code><a href="../GraphQL/Context.html#max_depth%3AInt32-instance-method">Context#max_depth</a></code>.</p>
+      </dd>
+      
+    
+  </dl>
 
 
 
+  
 
+  
   <h2>
     <a id="class-method-summary" class="anchor" href="#class-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -579,7 +663,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#parse%28query_string%2Coptions%3DNamedTuple.new%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method" class="signature"><strong>.parse</strong>(query_string, options = <span class="t">NamedTuple</span>.new) : GraphQL::Language::Document</a>
+        <a href="#parse%28query_string%3AString%2Cmax_depth%3AInt32%3DDEFAULT_MAX_DEPTH%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method" class="signature"><strong>.parse</strong>(query_string : String, max_depth : Int32 = <span class="t">DEFAULT_MAX_DEPTH</span>) : GraphQL::Language::Document</a>
         
           <div class="summary"><p>Parse a query string and return the Document</p></div>
         
@@ -618,7 +702,7 @@
   </ul>
 
 
-
+  
   <h2>
     <a id="macro-summary" class="anchor" href="#macro-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -637,16 +721,16 @@
   </ul>
 
 
-
-
-
-<div class="methods-inherited">
   
-</div>
 
 
+  <div class="methods-inherited">
+    
+  </div>
 
+  
 
+  
   <h2>
     <a id="class-method-detail" class="anchor" href="#class-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -656,12 +740,12 @@
     Class Method Detail
   </h2>
   
-    <div class="entry-detail" id="parse(query_string,options=NamedTuple.new):GraphQL::Language::Document-class-method">
+    <div class="entry-detail" id="parse(query_string:String,max_depth:Int32=DEFAULT_MAX_DEPTH):GraphQL::Language::Document-class-method">
       <div class="signature">
         
-        def self.<strong>parse</strong>(query_string, options = <span class="t">NamedTuple</span>.new) : <a href="../GraphQL/Language/Document.html">GraphQL::Language::Document</a>
+        def self.<strong>parse</strong>(query_string : String, max_depth : Int32 = <span class="t">DEFAULT_MAX_DEPTH</span>) : <a href="../GraphQL/Language/Document.html">GraphQL::Language::Document</a>
 
-        <a class="method-permalink" href="#parse%28query_string%2Coptions%3DNamedTuple.new%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method">#</a>
+        <a class="method-permalink" href="#parse%28query_string%3AString%2Cmax_depth%3AInt32%3DDEFAULT_MAX_DEPTH%29%3AGraphQL%3A%3ALanguage%3A%3ADocument-class-method">#</a>
       </div>
       
         <div class="doc">
@@ -761,7 +845,7 @@
   
 
 
-
+  
   <h2>
     <a id="macro-detail" class="anchor" href="#macro-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -787,6 +871,7 @@
   
 
 
+  
 
 
 </div>

@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>graphql 0.4.0</title>
+  <title>graphql 0.9.3</title>
   <script type="text/javascript">
   CrystalDocs.base_path = "";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -586,7 +641,57 @@ schema.execute(query, variables, operation_name, context)
     context.pi
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
-<p>Context instances must not be reused for multiple executions.</p>
+<p>Context instances must not be reused for multiple executions. A subscription
+is one execution: the context passed to <code>schema.subscribe</code> lives for the whole
+subscription and every event is resolved with it.</p>
+<h2><a id="concurrency" class="anchor" href="#concurrency">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Concurrency</h2>
+<p>By default, a query is resolved sequentially in the fiber that called
+<code>schema.execute</code>. To resolve fields and array elements concurrently, set
+<code>max_concurrency</code> on the context:</p>
+<pre><code class="language-crystal">context <span class="o">=</span> <span class="t">MyContext</span>.new(<span class="t">Math</span><span class="t">::</span><span class="t">PI</span>)
+context.max_concurrency <span class="o">=</span> <span class="n">8</span>
+schema.execute(query, variables, operation_name, context)</code></pre>
+<p>This is the maximum number of fibers a single execution may have running at
+once. When the budget is used up, remaining work runs inline, so a large
+list never fans out into an unbounded number of fibers. Choose a value your
+downstream resources can sustain; resolvers that check out database
+connections should stay below the connection pool size.</p>
+<h2><a id="complexity" class="anchor" href="#complexity">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Complexity</h2>
+<p>To reject operations that select too many fields, set <code>max_complexity</code> on the
+context:</p>
+<pre><code class="language-crystal">context <span class="o">=</span> <span class="t">MyContext</span>.new(<span class="t">Math</span><span class="t">::</span><span class="t">PI</span>)
+context.max_complexity <span class="o">=</span> <span class="n">200</span>
+schema.execute(query, variables, operation_name, context)</code></pre>
+<p>Complexity is the number of fields the operation selects, counted across the
+whole selection tree with fragments expanded. It is computed before any
+resolver runs, and an operation over the limit is answered with an error and
+no data. After execution, <code>context.complexity</code> holds the count.</p>
+<p>Nesting depth is limited separately. Selection sets, lists and input objects
+may nest <code>max_depth</code> levels, 100 by default, and a deeper query is rejected
+while parsing. Real queries rarely pass twenty levels; the limit exists so a
+hostile query cannot exhaust the stack:</p>
+<pre><code class="language-crystal">context.max_depth <span class="o">=</span> <span class="n">30</span></code></pre>
+<h2><a id="benchmarking" class="anchor" href="#benchmarking">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Benchmarking</h2>
+<p><code>bench/bench.cr</code> runs realistic requests against a schema with an interface, a
+union, an enum, an input object and nesting, and reports throughput per
+scenario. Run it before and after a change, on the same machine, and compare:</p>
+<pre><code class="language-bash">crystal run --release bench/bench.cr -- --json /tmp/before.json
+# make your changes
+crystal run --release bench/bench.cr -- --compare /tmp/before.json</code></pre>
+<p><code>--only NAME</code> runs one scenario and <code>--seconds N</code> changes the time budget per
+scenario. Every response is checked for errors before timing starts.</p>
 <h2><a id="objects" class="anchor" href="#objects">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -720,18 +825,159 @@ It must define a constructor with a <code><a href="GraphQL/Field.html">GraphQL::
     builder.scalar(@value.reverse)
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
+<p>A custom scalar's <code>to_json</code> is rendered into a buffer, so an exception in it
+only affects that field. The library's built-in scalars are written straight
+into the response instead; if you reopen one of them and its <code>to_json</code> raises,
+the enclosing object becomes null and the error is reported there.</p>
 <h2><a id="interfaces" class="anchor" href="#interfaces">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Interfaces</h2>
-<p>Interfaces are not supported.</p>
+<p>An interface is an abstract class or a module with a <code><a href="GraphQL/Interface.html">GraphQL::Interface</a></code>
+annotation. Its fields are <code><a href="GraphQL/Field.html">GraphQL::Field</a></code> methods, abstract or not. Objects
+that inherit from the class or include the module implement the interface,
+and fields may return the interface type:</p>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Interface</span>]
+<span class="k">abstract</span> <span class="k">class</span> <span class="t">Character</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseObject</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">abstract</span> <span class="k">def</span> <span class="m">name</span> : <span class="t">String</span>
+<span class="k">end</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Human</span> <span class="o">&lt;</span> <span class="t">Character</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">name</span> : <span class="t">String</span>
+    <span class="s">&quot;Luke&quot;</span>
+  <span class="k">end</span>
+
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">home_planet</span> : <span class="t">String</span>
+    <span class="s">&quot;Tatooine&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Query</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseQuery</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">hero</span> : <span class="t">Character</span>
+    <span class="t">Human</span>.new
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+<p>Every object implementing an interface is part of the schema as soon as the
+interface is. Fields specific to one implementation are selected through
+fragments with a type condition, and <code>__typename</code> reports the concrete type:</p>
+<pre><code class="language-graphql">{
+  hero {
+    __typename
+    name
+    ... on Human {
+      homePlanet
+    }
+  }
+}</code></pre>
+<h2><a id="unions" class="anchor" href="#unions">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Unions</h2>
+<p>A union is a module with a <code><a href="GraphQL/Union.html">GraphQL::Union</a></code> annotation. Objects that include
+the module are its member types. A union has no fields of its own, so
+selections on it must go through type conditions:</p>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Union</span>]
+<span class="k">module</span> <span class="t">SearchResult</span>
+<span class="k">end</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Human</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseObject</span>
+  <span class="k">include</span> <span class="t">SearchResult</span>
+  <span class="c"># ...</span>
+<span class="k">end</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Starship</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseObject</span>
+  <span class="k">include</span> <span class="t">SearchResult</span>
+  <span class="c"># ...</span>
+<span class="k">end</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Query</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseQuery</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">search</span>(text : <span class="t">String</span>) : <span class="t">Array</span>(<span class="t">SearchResult</span>)
+    [<span class="t">Human</span>.new, <span class="t">Starship</span>.new] <span class="k">of</span> <span class="t">SearchResult</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+<pre><code class="language-graphql">{
+  search(text: &quot;a&quot;) {
+    __typename
+    ... on Human { name }
+    ... on Starship { length }
+  }
+}</code></pre>
+<p>Both annotations accept <code>name</code> and <code>description</code> like <code><a href="GraphQL/Object.html">GraphQL::Object</a></code>.</p>
 <h2><a id="subscriptions" class="anchor" href="#subscriptions">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Subscriptions</h2>
-<p>Subscriptions are not supported.</p>
+<p>A subscription type inherits <code><a href="GraphQL/BaseSubscription.html">GraphQL::BaseSubscription</a></code>. Its fields return a
+<code>Channel</code> whose element type is the field's GraphQL type, and every value sent
+on the channel becomes one response. <code><a href="GraphQL/Broadcast.html">GraphQL::Broadcast</a></code> fans values out to
+any number of subscribers, which is the usual way to publish from a mutation:</p>
+<pre><code class="language-crystal"><span class="t">MESSAGES</span> <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Broadcast</span>(<span class="t">Message</span>).new
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Mutation</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseMutation</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">post</span>(text : <span class="t">String</span>) : <span class="t">Message</span>
+    message <span class="o">=</span> <span class="t">Message</span>.new(text)
+    <span class="t">MESSAGES</span>.publish(message)
+    message
+  <span class="k">end</span>
+<span class="k">end</span>
+
+@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>]
+<span class="k">class</span> <span class="t">Subscription</span> <span class="o">&lt;</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">BaseSubscription</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>]
+  <span class="k">def</span> <span class="m">message_added</span> : <span class="t">Channel</span>(<span class="t">Message</span>)
+    <span class="t">MESSAGES</span>.subscribe
+  <span class="k">end</span>
+<span class="k">end</span>
+
+schema <span class="o">=</span> <span class="t">GraphQL</span><span class="t">::</span><span class="t">Schema</span>.new(<span class="t">Query</span>.new, <span class="t">Mutation</span>.new, <span class="t">Subscription</span>.new)</code></pre>
+<p><code>schema.subscribe</code> takes the same arguments as <code>schema.execute</code> and returns a
+<code><a href="GraphQL/Subscription.html">GraphQL::Subscription</a></code> that yields response documents. It ends when the
+resolver's channel closes. Call <code>close</code> to unsubscribe, which also closes the
+resolver's channel:</p>
+<pre><code class="language-crystal">subscription <span class="o">=</span> schema.subscribe(<span class="s">%(subscription { messageAdded { text } })</span>)
+spawn <span class="k">do</span>
+  subscription.each <span class="k">do</span> <span class="o">|</span>response<span class="o">|</span>
+    puts response <span class="c"># {&quot;data&quot;:{&quot;messageAdded&quot;:{&quot;text&quot;:&quot;hi&quot;}}}</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+<p>A request that cannot be started, for example because it selects two root
+fields, yields a single error response and is already closed.</p>
+<h3><a id="over-web-sockets" class="anchor" href="#over-web-sockets">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Over WebSockets</h3>
+<p><code><a href="GraphQL/Transport/WebSocket.html">GraphQL::Transport::WebSocket</a></code> speaks the <code>graphql-transport-ws</code> protocol
+used by graphql-ws, Apollo Client, urql and Relay. It is not loaded by
+<code>require &quot;graphql&quot;</code>. With Kemal:</p>
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;graphql/transport/ws&quot;</span>
+
+ws <span class="s">&quot;/graphql&quot;</span> <span class="k">do</span> <span class="o">|</span>socket, env<span class="o">|</span>
+  <span class="t">GraphQL</span><span class="t">::</span><span class="t">Transport</span><span class="t">::</span><span class="t">WebSocket</span>.new(schema, socket) { <span class="t">MyContext</span>.new(env) }
+<span class="k">end</span></code></pre>
+<p>With the standard library's <code>HTTP::Server</code>, pass the protocol name so the
+handshake negotiates it, which browsers require. The subprotocol argument
+needs Crystal 1.20 or later:</p>
+<pre><code class="language-crystal"><span class="t">HTTP</span><span class="t">::</span><span class="t">WebSocketHandler</span>.new([<span class="t">GraphQL</span><span class="t">::</span><span class="t">Transport</span><span class="t">::</span><span class="t">WebSocket</span><span class="t">::</span><span class="t">PROTOCOL</span>]) <span class="k">do</span> <span class="o">|</span>socket, http<span class="o">|</span>
+  <span class="t">GraphQL</span><span class="t">::</span><span class="t">Transport</span><span class="t">::</span><span class="t">WebSocket</span>.new(schema, socket) { <span class="t">MyContext</span>.new(http.request) }
+<span class="k">end</span></code></pre>
+<p>The block builds the context for every operation on the connection. Queries
+and mutations sent over the socket are executed once.</p>
 <h2><a id="annotation-arguments" class="anchor" href="#annotation-arguments">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
@@ -748,11 +994,11 @@ type. This is not needed in most situations because type names are automatically
 converted to PascalCase or camelCase. However, <code>item_id</code> converts to
 <code>itemId</code>, but we might want to use <code>itemID</code>. For this, we can use the <code>name</code>
 argument.</p>
-<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(name: <span class="s">&quot;Sheep&quot;</span>)]
-<span class="k">class</span> <span class="t">Wolf</span>
-  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(name: <span class="s">&quot;baa&quot;</span>)]
-  <span class="k">def</span> <span class="m">howl</span> : <span class="t">String</span>
-    <span class="s">&quot;baa&quot;</span>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(name: <span class="s">&quot;Greeter&quot;</span>)]
+<span class="k">class</span> <span class="t">GreetingService</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(name: <span class="s">&quot;hello&quot;</span>)]
+  <span class="k">def</span> <span class="m">say_hello</span> : <span class="t">String</span>
+    <span class="s">&quot;Hello&quot;</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 <h3><a id="description" class="anchor" href="#description">
@@ -763,8 +1009,8 @@ argument.</p>
 <p>Supported on: <code>Object</code>, <code>InputObject</code>, <code>Field</code>, <code>Enum</code>, <code>Scalar</code></p>
 <p>Describes the type. Descriptions are available through the introspection interface
 so it's always a good idea to set this argument.</p>
-<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(description: <span class="s">&quot;I&#39;m a sheep, I promise!&quot;</span>)]
-<span class="k">class</span> <span class="t">Wolf</span>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Object</span>(description: <span class="s">&quot;Produces greetings in several languages&quot;</span>)]
+<span class="k">class</span> <span class="t">Greeter</span>
 <span class="k">end</span></code></pre>
 <h3><a id="deprecated" class="anchor" href="#deprecated">
   <svg class="octicon-link" aria-hidden="true">
@@ -773,26 +1019,55 @@ so it's always a good idea to set this argument.</p>
 </a>deprecated</h3>
 <p>Supported on: <code>Field</code></p>
 <p>The deprecated argument marks a type as deprecated.</p>
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Sheep</span>
-  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(deprecated: <span class="s">&quot;This was a bad idea.&quot;</span>)]
-  <span class="k">def</span> <span class="m">fight_wolf</span> : <span class="t">String</span>
-    <span class="s">&quot;Wolf ate sheep&quot;</span>
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Greeter</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(deprecated: <span class="s">&quot;Use greet(lang:) instead&quot;</span>)]
+  <span class="k">def</span> <span class="m">hello</span> : <span class="t">String</span>
+    <span class="s">&quot;Hello&quot;</span>
   <span class="k">end</span>
+<span class="k">end</span></code></pre>
+<h3><a id="values" class="anchor" href="#values">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>values</h3>
+<p>On enums, <code>values</code> describes or deprecates members by constant name:</p>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Enum</span>(values: {
+  <span class="t">Red</span>:  {description: <span class="s">&quot;Like a rose&quot;</span>},
+  <span class="t">Blue</span>: {deprecated: <span class="s">&quot;Use Navy&quot;</span>},
+})]
+<span class="k">enum</span> <span class="t">Color</span>
+  <span class="t">Red</span>
+  <span class="t">Blue</span>
+  <span class="t">Navy</span>
+<span class="k">end</span></code></pre>
+<h3><a id="specified-by-url" class="anchor" href="#specified-by-url">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>specified_by_url</h3>
+<p>On scalars, <code>specified_by_url</code> points at the specification of the scalar's
+format and is reported as <code>specifiedByURL</code> in introspection:</p>
+<pre><code class="language-crystal">@[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Scalar</span>(specified_by_url: <span class="s">&quot;https://tools.ietf.org/html/rfc3339&quot;</span>)]
+record <span class="t">DateTime</span>, value : <span class="t">Time</span> <span class="k">do</span>
+  <span class="c"># ...</span>
 <span class="k">end</span></code></pre>
 <h3><a id="arguments" class="anchor" href="#arguments">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>arguments</h3>
-<p>Sets names and descriptions for field arguments. Note that
-arguments cannot be marked as deprecated.</p>
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Sheep</span>
-  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(arguments: {weapon: {name: <span class="s">&quot;weaponName&quot;</span>, description: <span class="s">&quot;The weapon the sheep should use.&quot;</span>}})]
-  <span class="k">def</span> <span class="m">fight_wolf</span>(weapon : <span class="t">String</span>) : <span class="t">String</span>
-    <span class="k">if</span> weapon <span class="o">==</span> <span class="s">&quot;Atomic Bomb&quot;</span>
-      <span class="s">&quot;Sheep killed wolf&quot;</span>
-    <span class="k">else</span>
-      <span class="s">&quot;Wolf ate sheep&quot;</span>
+<p>Sets names, descriptions and deprecations for field arguments. Each argument
+may set <code>name</code>, <code>description</code> and <code>deprecated</code>:</p>
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Greeter</span>
+  @[<span class="t">GraphQL</span><span class="t">::</span><span class="t">Field</span>(arguments: {
+    language: {name: <span class="s">&quot;lang&quot;</span>, description: <span class="s">&quot;Language code of the greeting&quot;</span>},
+    formal:   {deprecated: <span class="s">&quot;Greetings are always informal now&quot;</span>},
+  })]
+  <span class="k">def</span> <span class="m">greet</span>(language : <span class="t">String</span>, formal : <span class="t">Bool</span>? <span class="o">=</span> <span class="n">nil</span>) : <span class="t">String</span>
+    <span class="k">case</span> language
+    <span class="k">when</span> <span class="s">&quot;fr&quot;</span> <span class="k">then</span> <span class="s">&quot;Bonjour&quot;</span>
+    <span class="k">when</span> <span class="s">&quot;de&quot;</span> <span class="k">then</span> <span class="s">&quot;Hallo&quot;</span>
+    <span class="k">else</span>           <span class="s">&quot;Hello&quot;</span>
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>

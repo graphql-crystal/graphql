@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::Lexer - graphql 0.9.3</title>
+  <title>GraphQL::Transport::WebSocket - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -207,7 +207,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="graphql/GraphQL/Language" data-name="graphql::language">
+  <li class="parent " data-id="graphql/GraphQL/Language" data-name="graphql::language">
       <a href="../../GraphQL/Language.html">Language</a>
       
         <ul>
@@ -312,7 +312,7 @@
       
     </li>
   
-  <li class=" current" data-id="graphql/GraphQL/Language/Lexer" data-name="graphql::language::lexer">
+  <li class=" " data-id="graphql/GraphQL/Language/Lexer" data-name="graphql::language::lexer">
       <a href="../../GraphQL/Language/Lexer.html">Lexer</a>
       
     </li>
@@ -522,12 +522,12 @@
       
     </li>
   
-  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+  <li class="parent open current" data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
       <a href="../../GraphQL/Transport.html">Transport</a>
       
         <ul>
   
-  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+  <li class=" current" data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
       <a href="../../GraphQL/Transport/WebSocket.html">WebSocket</a>
       
     </li>
@@ -563,15 +563,37 @@
 
   <span class="kind">
     class
-  </span> GraphQL::<wbr>Language::<wbr>Lexer
+  </span> GraphQL::<wbr>Transport::<wbr>WebSocket
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Language/Lexer.html">GraphQL::Language::Lexer</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Transport/WebSocket.html">GraphQL::Transport::WebSocket</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>Serves a schema over a WebSocket with the <code>graphql-transport-ws</code>
+protocol used by graphql-ws, Apollo Client, urql and Relay. Not
+required by <code>require &quot;graphql&quot;</code>; load it with
+<code>require &quot;graphql/transport/ws&quot;</code>.</p>
+<p>Hand each accepted socket to a new instance. The block builds the
+<code><a href="../../GraphQL/Context.html">GraphQL::Context</a></code> for every operation on the connection:</p>
+<pre><code class="language-crystal">handler <span class="o">=</span> <span class="t">HTTP</span><span class="t">::</span><span class="t">WebSocketHandler</span>.new([<span class="t">GraphQL</span><span class="t">::</span><span class="t">Transport</span><span class="t">::</span><span class="t">WebSocket</span><span class="t">::</span><span class="t">PROTOCOL</span>]) <span class="k">do</span> <span class="o">|</span>socket, http<span class="o">|</span>
+  <span class="t">GraphQL</span><span class="t">::</span><span class="t">Transport</span><span class="t">::</span><span class="t">WebSocket</span>.new(schema, socket) { <span class="t">MyContext</span>.new(http.request) }
+<span class="k">end</span></code></pre>
+<p>Subscriptions stream until the client sends <code>complete</code> or disconnects.
+Queries and mutations sent over the socket are executed once and
+answered with <code>next</code> and <code>complete</code>.</p>
 
 
 
@@ -598,30 +620,52 @@
   </h2>
   
     
-      graphql/language/lexer.cr
+      graphql/transport/ws.cr
     
     <br/>
   
 
 
 
-
-
   
-
-  
-  <h2>
-    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Class Method Summary
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="PROTOCOL">
+        <strong>PROTOCOL</strong> = <code><span class="s">&quot;graphql-transport-ws&quot;</span></code>
+      </dt>
+      
+    
+  </dl>
+
+
+
+  
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
   </h2>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#lex%28source%3AString%7CIO%29-class-method" class="signature"><strong>.lex</strong>(source : String | IO)</a>
+        <a href="#new%28schema%3AGraphQL%3A%3ASchema%2Csocket%3AHTTP%3A%3AWebSocket%2C%26context%3A-%3EGraphQL%3A%3AContext%29-class-method" class="signature"><strong>.new</strong>(schema : GraphQL::Schema, socket : HTTP::WebSocket, &context :  -> GraphQL::Context)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28schema%3AGraphQL%3A%3ASchema%2Csocket%3AHTTP%3A%3AWebSocket%29-class-method" class="signature"><strong>.new</strong>(schema : GraphQL::Schema, socket : HTTP::WebSocket)</a>
         
       </li>
     
@@ -631,28 +675,8 @@
   
 
   
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#lex%28source%3AString%7CIO%2Cstart_position%3AInt32%29%3AToken-instance-method" class="signature"><strong>#lex</strong>(source : String | IO, start_position : Int32) : Token</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#lex%28source%3AString%7CIO%29-instance-method" class="signature"><strong>#lex</strong>(source : String | IO)</a>
-        
-      </li>
-    
-  </ul>
 
+  
 
 
   <div class="methods-inherited">
@@ -686,23 +710,35 @@
   </div>
 
   
-
-  
   <h2>
-    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Class Method Detail
+    Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="lex(source:String|IO)-class-method">
+    <div class="entry-detail" id="new(schema:GraphQL::Schema,socket:HTTP::WebSocket,&amp;context:-&gt;GraphQL::Context)-class-method">
       <div class="signature">
         
-        def self.<strong>lex</strong>(source : String | IO)
+        def self.<strong>new</strong>(schema : <a href="../../GraphQL/Schema.html">GraphQL::Schema</a>, socket : HTTP::WebSocket, &context :  -> <a href="../../GraphQL/Context.html">GraphQL::Context</a>)
 
-        <a class="method-permalink" href="#lex%28source%3AString%7CIO%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28schema%3AGraphQL%3A%3ASchema%2Csocket%3AHTTP%3A%3AWebSocket%2C%26context%3A-%3EGraphQL%3A%3AContext%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(schema:GraphQL::Schema,socket:HTTP::WebSocket)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(schema : <a href="../../GraphQL/Schema.html">GraphQL::Schema</a>, socket : HTTP::WebSocket)
+
+        <a class="method-permalink" href="#new%28schema%3AGraphQL%3A%3ASchema%2Csocket%3AHTTP%3A%3AWebSocket%29-class-method">#</a>
       </div>
       
       <br/>
@@ -716,44 +752,8 @@
   
 
   
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="lex(source:String|IO,start_position:Int32):Token-instance-method">
-      <div class="signature">
-        
-        def <strong>lex</strong>(source : String | IO, start_position : Int32) : <a href="../../GraphQL/Language/Token.html">Token</a>
 
-        <a class="method-permalink" href="#lex%28source%3AString%7CIO%2Cstart_position%3AInt32%29%3AToken-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
   
-    <div class="entry-detail" id="lex(source:String|IO)-instance-method">
-      <div class="signature">
-        
-        def <strong>lex</strong>(source : String | IO)
-
-        <a class="method-permalink" href="#lex%28source%3AString%7CIO%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-
 
 
 </div>

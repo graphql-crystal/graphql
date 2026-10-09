@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Introspection::TypeKind - graphql 0.4.0</title>
+  <title>GraphQL::Introspection::TypeKind - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,9 +561,13 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">enum</span> GraphQL::<wbr>Introspection::<wbr>TypeKind
+  <span class="kind">
+    enum
+  </span> GraphQL::<wbr>Introspection::<wbr>TypeKind
 
 </h1>
+
+
 
 
 
@@ -600,12 +659,13 @@
 
 
 
+  
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -619,40 +679,56 @@
       <li class="entry-summary">
         <a href="#enum%3F-instance-method" class="signature"><strong>#enum?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#ENUM">ENUM</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#input_object%3F-instance-method" class="signature"><strong>#input_object?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#INPUT_OBJECT">INPUT_OBJECT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#interface%3F-instance-method" class="signature"><strong>#interface?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#INTERFACE">INTERFACE</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#list%3F-instance-method" class="signature"><strong>#list?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#LIST">LIST</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#non_null%3F-instance-method" class="signature"><strong>#non_null?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#NON_NULL">NON_NULL</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#object%3F-instance-method" class="signature"><strong>#object?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#OBJECT">OBJECT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#scalar%3F-instance-method" class="signature"><strong>#scalar?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#SCALAR">SCALAR</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#union%3F-instance-method" class="signature"><strong>#union?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#UNION">UNION</a></code></p></div>
         
       </li>
     
@@ -660,69 +736,69 @@
 
 
 
-<div class="methods-inherited">
+  <div class="methods-inherited">
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
+
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-</div>
-
-
-
-
-
-
-
-
   <h2>
     <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -740,6 +816,11 @@
         <a class="method-permalink" href="#enum%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#ENUM">ENUM</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -753,6 +834,11 @@
 
         <a class="method-permalink" href="#input_object%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#INPUT_OBJECT">INPUT_OBJECT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -768,6 +854,11 @@
         <a class="method-permalink" href="#interface%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#INTERFACE">INTERFACE</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -781,6 +872,11 @@
 
         <a class="method-permalink" href="#list%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#LIST">LIST</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -796,6 +892,11 @@
         <a class="method-permalink" href="#non_null%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#NON_NULL">NON_NULL</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -809,6 +910,11 @@
 
         <a class="method-permalink" href="#object%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#OBJECT">OBJECT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -824,6 +930,11 @@
         <a class="method-permalink" href="#scalar%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#SCALAR">SCALAR</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -838,12 +949,18 @@
         <a class="method-permalink" href="#union%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/TypeKind.html#UNION">UNION</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
       </div>
     </div>
   
+
 
 
 </div>

@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::Lexer - graphql 0.9.3</title>
+  <title>GraphQL::Error::Location - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -112,12 +112,12 @@
       
     </li>
   
-  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent open current" data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../../GraphQL/Error.html">Error</a>
       
         <ul>
   
-  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+  <li class=" current" data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
       <a href="../../GraphQL/Error/Location.html">Location</a>
       
     </li>
@@ -207,7 +207,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="graphql/GraphQL/Language" data-name="graphql::language">
+  <li class="parent " data-id="graphql/GraphQL/Language" data-name="graphql::language">
       <a href="../../GraphQL/Language.html">Language</a>
       
         <ul>
@@ -312,7 +312,7 @@
       
     </li>
   
-  <li class=" current" data-id="graphql/GraphQL/Language/Lexer" data-name="graphql::language::lexer">
+  <li class=" " data-id="graphql/GraphQL/Language/Lexer" data-name="graphql::language::lexer">
       <a href="../../GraphQL/Language/Lexer.html">Lexer</a>
       
     </li>
@@ -562,13 +562,13 @@
 <h1 class="type-name">
 
   <span class="kind">
-    class
-  </span> GraphQL::<wbr>Language::<wbr>Lexer
+    struct
+  </span> GraphQL::<wbr>Error::<wbr>Location
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Language/Lexer.html">GraphQL::Language::Lexer</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Error/Location.html">GraphQL::Error::Location</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
@@ -578,6 +578,20 @@
 
 
 
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">JSON::Serializable</li>
+    
+  </ul>
 
 
 
@@ -598,7 +612,7 @@
   </h2>
   
     
-      graphql/language/lexer.cr
+      graphql/error.cr
     
     <br/>
   
@@ -608,25 +622,35 @@
 
 
   
-
-  
   <h2>
-    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+    <a id="constructors" class="anchor" href="#constructors">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Class Method Summary
+    Constructors
   </h2>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#lex%28source%3AString%7CIO%29-class-method" class="signature"><strong>.lex</strong>(source : String | IO)</a>
+        <a href="#new%28line%3AInt32%2Ccolumn%3AInt32%29-class-method" class="signature"><strong>.new</strong>(line : Int32, column : Int32)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28%2A%2C__pull_for_json_serializablepull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(*, __pull_for_json_serializable pull : JSON::PullParser)</a>
         
       </li>
     
   </ul>
 
+
+  
 
   
 
@@ -642,12 +666,22 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#lex%28source%3AString%7CIO%2Cstart_position%3AInt32%29%3AToken-instance-method" class="signature"><strong>#lex</strong>(source : String | IO, start_position : Int32) : Token</a>
+        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#lex%28source%3AString%7CIO%29-instance-method" class="signature"><strong>#lex</strong>(source : String | IO)</a>
+        <a href="#column%3AInt32-instance-method" class="signature"><strong>#column</strong> : Int32</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#copy_with%28line_line%3D%40line%2Ccolumn_column%3D%40column%29-instance-method" class="signature"><strong>#copy_with</strong>(line _line = @line, column _column = @column)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#line%3AInt32-instance-method" class="signature"><strong>#line</strong> : Int32</a>
         
       </li>
     
@@ -683,26 +717,78 @@
 
 
     
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
   </div>
 
   
-
-  
   <h2>
-    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>
-    Class Method Detail
+    Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="lex(source:String|IO)-class-method">
+    <div class="entry-detail" id="new(line:Int32,column:Int32)-class-method">
       <div class="signature">
         
-        def self.<strong>lex</strong>(source : String | IO)
+        def self.<strong>new</strong>(line : Int32, column : Int32)
 
-        <a class="method-permalink" href="#lex%28source%3AString%7CIO%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28line%3AInt32%2Ccolumn%3AInt32%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(pull : JSON::PullParser)
+
+        <a class="method-permalink" href="#new%28pull%3AJSON%3A%3APullParser%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(*,__pull_for_json_serializablepull:JSON::PullParser)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(*, __pull_for_json_serializable pull : JSON::PullParser)
+
+        <a class="method-permalink" href="#new%28%2A%2C__pull_for_json_serializablepull%3AJSON%3A%3APullParser%29-class-method">#</a>
       </div>
       
       <br/>
@@ -712,6 +798,8 @@
     </div>
   
 
+
+  
 
   
 
@@ -725,12 +813,12 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="lex(source:String|IO,start_position:Int32):Token-instance-method">
+    <div class="entry-detail" id="clone-instance-method">
       <div class="signature">
         
-        def <strong>lex</strong>(source : String | IO, start_position : Int32) : <a href="../../GraphQL/Language/Token.html">Token</a>
+        def <strong>clone</strong>
 
-        <a class="method-permalink" href="#lex%28source%3AString%7CIO%2Cstart_position%3AInt32%29%3AToken-instance-method">#</a>
+        <a class="method-permalink" href="#clone-instance-method">#</a>
       </div>
       
       <br/>
@@ -739,12 +827,40 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="lex(source:String|IO)-instance-method">
+    <div class="entry-detail" id="column:Int32-instance-method">
       <div class="signature">
         
-        def <strong>lex</strong>(source : String | IO)
+        def <strong>column</strong> : Int32
 
-        <a class="method-permalink" href="#lex%28source%3AString%7CIO%29-instance-method">#</a>
+        <a class="method-permalink" href="#column%3AInt32-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="copy_with(line_line=@line,column_column=@column)-instance-method">
+      <div class="signature">
+        
+        def <strong>copy_with</strong>(line _line = @line, column _column = @column)
+
+        <a class="method-permalink" href="#copy_with%28line_line%3D%40line%2Ccolumn_column%3D%40column%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="line:Int32-instance-method">
+      <div class="signature">
+        
+        def <strong>line</strong> : Int32
+
+        <a class="method-permalink" href="#line%3AInt32-instance-method">#</a>
       </div>
       
       <br/>

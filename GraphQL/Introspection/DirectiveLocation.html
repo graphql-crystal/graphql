@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Introspection::DirectiveLocation - graphql 0.4.0</title>
+  <title>GraphQL::Introspection::DirectiveLocation - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,9 +561,13 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">enum</span> GraphQL::<wbr>Introspection::<wbr>DirectiveLocation
+  <span class="kind">
+    enum
+  </span> GraphQL::<wbr>Introspection::<wbr>DirectiveLocation
 
 </h1>
+
+
 
 
 
@@ -650,12 +709,13 @@
 
 
 
+  
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -669,90 +729,126 @@
       <li class="entry-summary">
         <a href="#argument_definition%3F-instance-method" class="signature"><strong>#argument_definition?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#ARGUMENT_DEFINITION">ARGUMENT_DEFINITION</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#enum%3F-instance-method" class="signature"><strong>#enum?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#ENUM">ENUM</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#enum_value%3F-instance-method" class="signature"><strong>#enum_value?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#ENUM_VALUE">ENUM_VALUE</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#field%3F-instance-method" class="signature"><strong>#field?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FIELD">FIELD</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#field_definition%3F-instance-method" class="signature"><strong>#field_definition?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FIELD_DEFINITION">FIELD_DEFINITION</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#fragment_definition%3F-instance-method" class="signature"><strong>#fragment_definition?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FRAGMENT_DEFINITION">FRAGMENT_DEFINITION</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#fragment_spread%3F-instance-method" class="signature"><strong>#fragment_spread?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FRAGMENT_SPREAD">FRAGMENT_SPREAD</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#inline_fragment%3F-instance-method" class="signature"><strong>#inline_fragment?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INLINE_FRAGMENT">INLINE_FRAGMENT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#input_field_definition%3F-instance-method" class="signature"><strong>#input_field_definition?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INPUT_FIELD_DEFINITION">INPUT_FIELD_DEFINITION</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#input_object%3F-instance-method" class="signature"><strong>#input_object?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INPUT_OBJECT">INPUT_OBJECT</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#interface%3F-instance-method" class="signature"><strong>#interface?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INTERFACE">INTERFACE</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#mutation%3F-instance-method" class="signature"><strong>#mutation?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#MUTATION">MUTATION</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#object%3F-instance-method" class="signature"><strong>#object?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#OBJECT">OBJECT</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#query%3F-instance-method" class="signature"><strong>#query?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#QUERY">QUERY</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#scalar%3F-instance-method" class="signature"><strong>#scalar?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#SCALAR">SCALAR</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#schema%3F-instance-method" class="signature"><strong>#schema?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#SCHEMA">SCHEMA</a></code></p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#subscription%3F-instance-method" class="signature"><strong>#subscription?</strong></a>
         
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#SUBSCRIPTION">SUBSCRIPTION</a></code></p></div>
+        
       </li>
     
       <li class="entry-summary">
         <a href="#union%3F-instance-method" class="signature"><strong>#union?</strong></a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#UNION">UNION</a></code></p></div>
         
       </li>
     
@@ -760,69 +856,69 @@
 
 
 
-<div class="methods-inherited">
+  <div class="methods-inherited">
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
+
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
 
   
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-</div>
-
-
-
-
-
-
-
-
   <h2>
     <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -840,6 +936,11 @@
         <a class="method-permalink" href="#argument_definition%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#ARGUMENT_DEFINITION">ARGUMENT_DEFINITION</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -853,6 +954,11 @@
 
         <a class="method-permalink" href="#enum%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#ENUM">ENUM</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -868,6 +974,11 @@
         <a class="method-permalink" href="#enum_value%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#ENUM_VALUE">ENUM_VALUE</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -881,6 +992,11 @@
 
         <a class="method-permalink" href="#field%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FIELD">FIELD</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -896,6 +1012,11 @@
         <a class="method-permalink" href="#field_definition%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FIELD_DEFINITION">FIELD_DEFINITION</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -909,6 +1030,11 @@
 
         <a class="method-permalink" href="#fragment_definition%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FRAGMENT_DEFINITION">FRAGMENT_DEFINITION</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -924,6 +1050,11 @@
         <a class="method-permalink" href="#fragment_spread%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#FRAGMENT_SPREAD">FRAGMENT_SPREAD</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -937,6 +1068,11 @@
 
         <a class="method-permalink" href="#inline_fragment%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INLINE_FRAGMENT">INLINE_FRAGMENT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -952,6 +1088,11 @@
         <a class="method-permalink" href="#input_field_definition%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INPUT_FIELD_DEFINITION">INPUT_FIELD_DEFINITION</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -965,6 +1106,11 @@
 
         <a class="method-permalink" href="#input_object%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INPUT_OBJECT">INPUT_OBJECT</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -980,6 +1126,11 @@
         <a class="method-permalink" href="#interface%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#INTERFACE">INTERFACE</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -993,6 +1144,11 @@
 
         <a class="method-permalink" href="#mutation%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#MUTATION">MUTATION</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1008,6 +1164,11 @@
         <a class="method-permalink" href="#object%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#OBJECT">OBJECT</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1021,6 +1182,11 @@
 
         <a class="method-permalink" href="#query%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#QUERY">QUERY</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1036,6 +1202,11 @@
         <a class="method-permalink" href="#scalar%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#SCALAR">SCALAR</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1049,6 +1220,11 @@
 
         <a class="method-permalink" href="#schema%3F-instance-method">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#SCHEMA">SCHEMA</a></code></p>
+        </div>
       
       <br/>
       <div>
@@ -1064,6 +1240,11 @@
         <a class="method-permalink" href="#subscription%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#SUBSCRIPTION">SUBSCRIPTION</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
@@ -1078,12 +1259,18 @@
         <a class="method-permalink" href="#union%3F-instance-method">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Returns <code>true</code> if this enum value equals <code><a href="../../GraphQL/Introspection/DirectiveLocation.html#UNION">UNION</a></code></p>
+        </div>
+      
       <br/>
       <div>
         
       </div>
     </div>
   
+
 
 
 </div>

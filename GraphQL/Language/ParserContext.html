@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Crystal Docs 1.14.0">
-<meta name="crystal_docs.project_version" content="0.4.0">
+<meta name="generator" content="Crystal Docs 1.20.3">
+<meta name="crystal_docs.project_version" content="0.9.3">
 <meta name="crystal_docs.project_name" content="graphql">
 
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="graphql">
-  <title>GraphQL::Language::ParserContext - graphql 0.4.0</title>
+  <title>GraphQL::Language::ParserContext - graphql 0.9.3</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -45,7 +45,7 @@
       </h1>
 
       <span class="project-version">
-        0.4.0
+        0.9.3
       </span>
     </div>
   </div>
@@ -87,6 +87,16 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/BaseSubscription" data-name="graphql::basesubscription">
+      <a href="../../GraphQL/BaseSubscription.html">BaseSubscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Broadcast" data-name="graphql::broadcast(t)">
+      <a href="../../GraphQL/Broadcast.html">Broadcast</a>
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/Context" data-name="graphql::context">
       <a href="../../GraphQL/Context.html">Context</a>
       
@@ -102,8 +112,18 @@
       
     </li>
   
-  <li class=" " data-id="graphql/GraphQL/Error" data-name="graphql::error">
+  <li class="parent " data-id="graphql/GraphQL/Error" data-name="graphql::error">
       <a href="../../GraphQL/Error.html">Error</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Error/Location" data-name="graphql::error::location">
+      <a href="../../GraphQL/Error/Location.html">Location</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -124,6 +144,11 @@
   
   <li class=" " data-id="graphql/GraphQL/InputObjectType" data-name="graphql::inputobjecttype">
       <a href="../../GraphQL/InputObjectType.html">InputObjectType</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Interface" data-name="graphql::interface">
+      <a href="../../GraphQL/Interface.html">Interface</a>
       
     </li>
   
@@ -487,8 +512,38 @@
       
     </li>
   
+  <li class=" " data-id="graphql/GraphQL/Subscription" data-name="graphql::subscription">
+      <a href="../../GraphQL/Subscription.html">Subscription</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/SubscriptionType" data-name="graphql::subscriptiontype">
+      <a href="../../GraphQL/SubscriptionType.html">SubscriptionType</a>
+      
+    </li>
+  
+  <li class="parent " data-id="graphql/GraphQL/Transport" data-name="graphql::transport">
+      <a href="../../GraphQL/Transport.html">Transport</a>
+      
+        <ul>
+  
+  <li class=" " data-id="graphql/GraphQL/Transport/WebSocket" data-name="graphql::transport::websocket">
+      <a href="../../GraphQL/Transport/WebSocket.html">WebSocket</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class=" " data-id="graphql/GraphQL/TypeError" data-name="graphql::typeerror">
       <a href="../../GraphQL/TypeError.html">TypeError</a>
+      
+    </li>
+  
+  <li class=" " data-id="graphql/GraphQL/Union" data-name="graphql::union">
+      <a href="../../GraphQL/Union.html">Union</a>
       
     </li>
   
@@ -506,12 +561,16 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> GraphQL::<wbr>Language::<wbr>ParserContext
+  <span class="kind">
+    class
+  </span> GraphQL::<wbr>Language::<wbr>ParserContext
 
 </h1>
 
 
   <ul class="superclass-hierarchy"><li class="superclass"><a href="../../GraphQL/Language/ParserContext.html">GraphQL::Language::ParserContext</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
 
 
 
@@ -548,6 +607,7 @@
 
 
 
+  
   <h2>
     <a id="constructors" class="anchor" href="#constructors">
   <svg class="octicon-link" aria-hidden="true">
@@ -559,18 +619,18 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28source%3AString%2Clexer%3ALanguage%3A%3ALexer%29-class-method" class="signature"><strong>.new</strong>(source : String, lexer : Language::Lexer)</a>
+        <a href="#new%28source%3AString%2Clexer%3ALanguage%3A%3ALexer%2Cmax_depth%3AInt32%3DLanguage%3A%3ADEFAULT_MAX_DEPTH%29-class-method" class="signature"><strong>.new</strong>(source : String, lexer : Language::Lexer, max_depth : Int32 = <span class="t">Language</span><span class="t">::</span><span class="t">DEFAULT_MAX_DEPTH</span>)</a>
         
       </li>
     
   </ul>
 
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
@@ -595,37 +655,37 @@
 
 
 
-<div class="methods-inherited">
+  <div class="methods-inherited">
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+      
+
+
+      
+
+
+      
+
+
+      
+
+
+    
+  </div>
+
   
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-  
-</div>
-
-
   <h2>
     <a id="constructor-detail" class="anchor" href="#constructor-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -635,12 +695,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(source:String,lexer:Language::Lexer)-class-method">
+    <div class="entry-detail" id="new(source:String,lexer:Language::Lexer,max_depth:Int32=Language::DEFAULT_MAX_DEPTH)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(source : String, lexer : <a href="../../GraphQL/Language/Lexer.html">Language::Lexer</a>)
+        def self.<strong>new</strong>(source : String, lexer : <a href="../../GraphQL/Language/Lexer.html">Language::Lexer</a>, max_depth : Int32 = <span class="t">Language</span><span class="t">::</span><span class="t">DEFAULT_MAX_DEPTH</span>)
 
-        <a class="method-permalink" href="#new%28source%3AString%2Clexer%3ALanguage%3A%3ALexer%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28source%3AString%2Clexer%3ALanguage%3A%3ALexer%2Cmax_depth%3AInt32%3DLanguage%3A%3ADEFAULT_MAX_DEPTH%29-class-method">#</a>
       </div>
       
       <br/>
@@ -651,11 +711,11 @@
   
 
 
+  
 
+  
 
-
-
-
+  
   <h2>
     <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
   <svg class="octicon-link" aria-hidden="true">
@@ -693,6 +753,7 @@
       </div>
     </div>
   
+
 
 
 </div>
