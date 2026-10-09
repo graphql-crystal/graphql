@@ -10,15 +10,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # the oldest supported compiler, see `crystal:` in shard.yml
+          # the oldest supported compiler, see `crystal:` in shard.yml; its
+          # Alpine image is too old for the Node runtime Actions injects, so
+          # the Ubuntu-based image is used
           - crystal: "1.4.1"
+            image: "1.4.1"
             format: false
           - crystal: latest
+            image: latest-alpine
             format: true
     name: spec (crystal ${{ matrix.crystal }})
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:${{ matrix.crystal }}-alpine
+      image: crystallang/crystal:${{ matrix.image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
