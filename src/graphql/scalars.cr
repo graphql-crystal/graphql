@@ -63,7 +63,11 @@ module GraphQL::Scalars
     include GraphQL::ScalarType
 
     def self.from_json(string_or_io)
-      self.new(::String.from_json(string_or_io))
+      case raw = JSON::Any.from_json(string_or_io).raw
+      when ::String then self.new(raw)
+      when ::Int64  then self.new(raw.to_s)
+      else               raise ::GraphQL::TypeError.new("ID must be a String or an Int")
+      end
     end
 
     def to_json(builder)

@@ -54,8 +54,9 @@ module GraphQL::Document
       {% elsif type == Bool %}
         ::GraphQL::Language::TypeName.new(name: "Boolean")
       {% elsif type < Array %}
-        {% inner = type.type_vars.find { |t| t != Nil } %}
-        ::GraphQL::Language::ListType.new(of_type: _graphql_t({{ inner }}, {{ inner.nilable? }}))
+        {% inner = type.type_vars.first %}
+        {% inner_type = inner.union_types.find { |t| t != Nil } %}
+        ::GraphQL::Language::ListType.new(of_type: _graphql_t({{ inner_type }}, {{ inner.nilable? }}))
       {% else %}
         {% raise "GraphQL: #{type} is not a GraphQL type" %}
       {% end %}

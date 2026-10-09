@@ -154,7 +154,7 @@ describe GraphQL::MutationType do
       }
     )).should eq (
       {
-        "data"   => {} of Nil => Nil,
+        "data"   => nil,
         "errors" => [
           {"message" => "missing required argument io", "path" => ["value"]},
         ],

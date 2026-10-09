@@ -42,7 +42,7 @@ describe "error paths" do
   it "names the field and the alias" do
     schema.execute(%({ it: item { index boom } })).should eq (
       {
-        "data"   => {"it" => {"index" => 0}},
+        "data"   => {"it" => {"index" => 0, "boom" => nil}},
         "errors" => [{"message" => "boom 0", "path" => ["it", "boom"]}],
       }
     ).to_json
@@ -51,7 +51,7 @@ describe "error paths" do
   it "includes the index of a list element once" do
     schema.execute(%({ items { index boom } })).should eq (
       {
-        "data"   => {"items" => [{"index" => 0}, {"index" => 1}]},
+        "data"   => {"items" => [{"index" => 0, "boom" => nil}, {"index" => 1, "boom" => nil}]},
         "errors" => [
           {"message" => "boom 0", "path" => ["items", 0, "boom"]},
           {"message" => "boom 1", "path" => ["items", 1, "boom"]},
@@ -63,7 +63,7 @@ describe "error paths" do
   it "includes every index of a nested list" do
     schema.execute(%({ nested { boom } })).should eq (
       {
-        "data"   => {"nested" => [[{} of String => String], [{} of String => String]]},
+        "data"   => {"nested" => [[{"boom" => nil}], [{"boom" => nil}]]},
         "errors" => [
           {"message" => "boom 0", "path" => ["nested", 0, 0, "boom"]},
           {"message" => "boom 1", "path" => ["nested", 1, 0, "boom"]},

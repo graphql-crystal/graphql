@@ -10,6 +10,19 @@ module GraphQL::ObjectType
   # :nodoc:
   alias PendingFragment = Channel(JSONFragment | ::Exception) | JSONFragment | ::Exception
 
+  # :nodoc:
+  # Raised when a non-null field or list element failed to resolve. It
+  # carries every error collected so far in the enclosing fragment, and the
+  # enclosing fragment's builder turns it into a failed fragment, so the
+  # failure travels up to the nearest nullable ancestor as the spec requires.
+  class NullPropagation < ::Exception
+    getter errors : Array(::GraphQL::Error)
+
+    def initialize(@errors)
+      super("non-null field resolved to null")
+    end
+  end
+
   macro included
     macro finished
       {% verbatim do %}
@@ -18,6 +31,35 @@ module GraphQL::ObjectType
       # :nodoc:
       def _graphql_type : String
         {{ @type.annotation(::GraphQL::Object)["name"] || @type.name.split("::").last }}
+      end
+
+      # :nodoc:
+      # Whether the named field may be null in the response. Unknown fields
+      # count as nullable, so their "not defined" error does not take the
+      # whole parent down with it.
+      def _graphql_field_nullable?(name : String) : Bool
+        {% begin %}
+        case name
+        {% for var in @type.instance_vars.select(&.annotation(::GraphQL::Field)) %}
+        when {{ var.annotation(::GraphQL::Field)["name"] || var.name.id.stringify.camelcase(lower: true) }}
+          {{ var.type.nilable? }}
+        {% end %}
+        {% methods = @type.methods.select(&.annotation(::GraphQL::Field)) %}
+        {% for ancestor in @type.ancestors %}
+          {% for method in ancestor.methods.select(&.annotation(::GraphQL::Field)) %}
+            {% methods << method %}
+          {% end %}
+        {% end %}
+        {% for method in methods %}
+        when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
+          {{ method.return_type.is_a?(Nop) ? true : method.return_type.resolve.nilable? }}
+        {% end %}
+        when "__typename", "__schema"
+          false
+        else
+          true
+        end
+        {% end %}
       end
 
       # :nodoc:
@@ -106,13 +148,23 @@ module GraphQL::ObjectType
           end
         end
 
+        # `first` is never called; `typeof` only inspects the element type.
+        element_nullable = typeof(value.first).nilable?
+        propagate = false
+
         pending.each do |item|
           fragment = _graphql_await(item)
           errors.concat fragment.errors
 
-          next if fragment.json.empty?
-          json.raw fragment.json
+          if fragment.json.empty?
+            propagate = true unless element_nullable
+            json.null
+          else
+            json.raw fragment.json
+          end
         end
+
+        raise NullPropagation.new(errors) if propagate
       end
     when ::Enum
       json.string value
@@ -222,15 +274,36 @@ module GraphQL::ObjectType
       end
     end
 
+    propagate = false
+
     pending.each do |path, item|
       fragment = _graphql_await(item)
       errors.concat fragment.errors
-      next if fragment.json.empty?
 
-      json.field(path) { json.raw fragment.json }
+      if fragment.json.empty?
+        propagate = true unless _graphql_field_nullable?(fields[path].name)
+        json.field(path) { json.null }
+      else
+        json.field(path) { json.raw fragment.json }
+      end
     end
 
+    raise NullPropagation.new(errors) if propagate
     errors
+  end
+
+  # :nodoc:
+  # Resolves a root selection set into a JSON fragment. The fragment's JSON
+  # is empty when a non-null root field failed, in which case `data` must be
+  # null.
+  def _graphql_execute(context, selections : Array(::GraphQL::Language::Selection), serial : Bool = false) : JSONFragment
+    _graphql_build_json_fragment(context, [] of String | Int32) do |json|
+      errors = [] of ::GraphQL::Error
+      json.object do
+        errors = _graphql_resolve(context, selections, json, serial)
+      end
+      errors
+    end
   end
 
   # :nodoc:
@@ -272,21 +345,42 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
+  # Builds one value into its own JSON string. An empty string marks a failed
+  # fragment, which the caller renders as null or propagates further up.
+  # `path` is the prefix the caller would otherwise add to the block's
+  # errors, so exceptions can be reported at the same place.
   private def _graphql_build_json_fragment(context, path : String | Array(Int32 | String), & : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
     errors = [] of ::GraphQL::Error
+    failed = false
 
     json = String.build do |io|
       builder = JSON::Builder.new(io)
       builder.document do
         errors.concat yield builder
       end
+    rescue e : NullPropagation
+      failed = true
+      e.errors.each { |error| _graphql_prefix_path(error, path) }
+      errors.concat e.errors
     rescue e
+      failed = true
       if message = context.handle_exception(e)
         errors << ::GraphQL::Error.new(message, path)
       end
     end
 
-    JSONFragment.new(json, errors)
+    # whatever was written before the exception is discarded
+    JSONFragment.new(failed ? "" : json, errors)
+  end
+
+  # :nodoc:
+  private def _graphql_prefix_path(error : ::GraphQL::Error, path : String | Array(Int32 | String)) : Nil
+    case path
+    when String
+      error.with_path(path)
+    else
+      path.reverse_each { |segment| error.with_path(segment) }
+    end
   end
 end
 

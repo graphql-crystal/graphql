@@ -62,7 +62,7 @@ describe "variables" do
   it "rejects a null literal for a non-null argument" do
     schema.execute(%({ double(n: null) })).should eq (
       {
-        "data"   => {} of String => String,
+        "data"   => nil,
         "errors" => [{"message" => "missing required argument n", "path" => ["double"]}],
       }
     ).to_json

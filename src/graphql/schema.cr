@@ -127,6 +127,18 @@ module GraphQL
       end
     end
 
+    # `data` is null when a non-null root field failed to resolve.
+    private def write_data(json : JSON::Builder, errors, result : ObjectType::JSONFragment) : Nil
+      errors.concat result.errors
+      json.field "data" do
+        if result.json.empty?
+          json.null
+        else
+          json.raw result.json
+        end
+      end
+    end
+
     def initialize(@query : QueryType, @mutation : MutationType? = nil)
       @document = @query._graphql_document
       if mutation = @mutation
@@ -208,18 +220,10 @@ module GraphQL
       JSON.build(io) do |json|
         json.object do
           if !operation.nil? && operation.operation_type == "query"
-            json.field "data" do
-              json.object do
-                errors.concat @query._graphql_resolve(context, operation.selections, json)
-              end
-            end
+            write_data(json, errors, @query._graphql_execute(context, operation.selections))
           elsif !operation.nil? && operation.operation_type == "mutation"
             if mutation = @mutation
-              json.field "data" do
-                json.object do
-                  errors.concat mutation._graphql_resolve(context, operation.selections, json, serial: true)
-                end
-              end
+              write_data(json, errors, mutation._graphql_execute(context, operation.selections, serial: true))
             else
               errors << Error.new("mutation operations are not supported", [] of String | Int32)
             end

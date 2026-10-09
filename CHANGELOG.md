@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fields whose resolver raises are now `null` in the response instead of
+  being left out. When the field is non-null, the null propagates to the
+  nearest nullable ancestor, up to `"data": null`, as the spec requires.
+  Lists behave the same way per element
+
+### Fixed
+
+- Integer literals outside the 32-bit range are rejected with
+  "Int cannot represent non 32-bit signed integer value" instead of being
+  reported as a missing argument
+- `ID` arguments accept integer literals and variables, as the scalar's
+  description already promised
+- Fields returning lists with nullable elements, such as `Array(Thing?)`,
+  no longer fail to compile
+
 ## [0.6.0] - 2026-10-09
 
 ### Added

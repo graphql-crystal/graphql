@@ -27,7 +27,7 @@ describe Exception do
       context: ExceptionFixture::Context.new
     ).should eq (
       {
-        "data"   => {} of Nil => Nil,
+        "data"   => {"err" => nil},
         "errors" => [
           {
             "message" => "handled",
