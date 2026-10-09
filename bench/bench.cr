@@ -229,8 +229,13 @@ module Bench
     Scenario.new("introspection", GraphQL::INTROSPECTION_QUERY),
   ]
 
-  record Result, name : String, bytes : Int32, requests : Int32, seconds : Float64 do
+  record Result, name : String, bytes : Int32, requests : Int32, seconds : Float64, allocated : Int64 do
     include JSON::Serializable
+
+    # heap bytes allocated per request, as reported by the GC
+    def allocated_per_request : Float64
+      allocated.to_f / requests
+    end
 
     def per_second : Float64
       requests / seconds
@@ -255,12 +260,15 @@ module Bench
 
     requests = 0
     elapsed = Time::Span.zero
+    GC.collect
+    allocated_before = GC.stats.total_bytes
     while elapsed < budget
       elapsed += Time.measure { SCHEMA.execute(scenario.query, scenario.variables, nil, scenario.context) }
       requests += 1
     end
+    allocated = (GC.stats.total_bytes - allocated_before).to_i64
 
-    Result.new(scenario.name, response.bytesize, requests, elapsed.total_seconds)
+    Result.new(scenario.name, response.bytesize, requests, elapsed.total_seconds, allocated)
   end
 
   def self.main
@@ -284,17 +292,18 @@ module Bench
 
     puts "crystal #{Crystal::VERSION}, #{budget.total_seconds}s per scenario, release build: #{{{ flag?(:release) }}}"
     puts
-    header = "%-18s %10s %10s %10s %8s" % ["scenario", "bytes", "req/s", "ms/req", "MB/s"]
-    header += " %10s" % "vs before" if baseline
+    header = "%-18s %10s %10s %10s %8s %12s" % ["scenario", "bytes", "req/s", "ms/req", "MB/s", "alloc/req"]
+    header += " %10s %10s" % ["req/s Δ", "alloc Δ"] if baseline
     puts header
     puts "-" * header.size
 
     results = scenarios.map do |scenario|
       result = run(scenario, budget)
-      line = "%-18s %10d %10.1f %10.3f %8.1f" % [result.name, result.bytes, result.per_second, result.ms_per_request, result.mb_per_second]
+      line = "%-18s %10d %10.1f %10.3f %8.1f %12s" % [result.name, result.bytes, result.per_second, result.ms_per_request, result.mb_per_second, result.allocated_per_request.round.to_i64.humanize_bytes]
       if baseline && (before = baseline[result.name]?)
-        change = (result.per_second / before.per_second - 1) * 100
-        line += " %+9.1f%%" % change
+        speed = (result.per_second / before.per_second - 1) * 100
+        alloc = (result.allocated_per_request / before.allocated_per_request - 1) * 100
+        line += " %+9.1f%% %+9.1f%%" % [speed, alloc]
       end
       puts line
       result

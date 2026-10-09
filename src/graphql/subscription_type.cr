@@ -11,7 +11,7 @@ module GraphQL::SubscriptionType
   # subscription that is already closed.
   def _graphql_subscribe(context, selections : Array(::GraphQL::Language::Selection)) : ::GraphQL::Subscription
     errors = [] of ::GraphQL::Error
-    fields = Hash(String, ::GraphQL::Language::Field).new
+    fields = [] of ::GraphQL::Language::Field
     _graphql_collect_fields(context, selections, fields, errors)
 
     return ::GraphQL::Subscription.failed(errors) unless errors.empty?
@@ -20,7 +20,7 @@ module GraphQL::SubscriptionType
       return ::GraphQL::Subscription.failed([::GraphQL::Error.new("subscription operations must select exactly one root field")])
     end
 
-    field = fields.first_value
+    field = fields.first
     begin
       _graphql_subscribe_field(context, field)
     rescue ex : ::GraphQL::Exception

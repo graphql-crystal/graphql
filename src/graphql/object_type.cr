@@ -8,6 +8,11 @@ module GraphQL::ObjectType
   record JSONFragment, json : String, errors : Array(::GraphQL::Error)
 
   # :nodoc:
+  # Returned where nothing went wrong, so leaf fields allocate no error
+  # array. Never mutated: callers only read it or concat it elsewhere.
+  NO_ERRORS = [] of ::GraphQL::Error
+
+  # :nodoc:
   alias PendingFragment = Channel(JSONFragment | ::Exception) | JSONFragment | ::Exception
 
   # :nodoc:
@@ -292,7 +297,7 @@ module GraphQL::ObjectType
             seen.includes?(n) ? false : (seen << n; true)
           end
         %}
-        errors = [] of ::GraphQL::Error
+        errors = NO_ERRORS
         path = field._alias || field.name
 
         case field.name
@@ -312,11 +317,11 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("field #{field.name} must not have a selection since its type has no subfields") unless field.selections.empty?
           {% end %}
           raise ::GraphQL::TypeError.new("unknown argument #{field.arguments.first.name} on field #{field.name}") unless field.arguments.empty?
-          errors.concat _graphql_serialize(context, field, self.{{ var.name.id }}, json)
+          errors = _graphql_serialize(context, field, self.{{ var.name.id }}, json)
         {% end %}
         {% for method in methods %}
         when {{ method.annotation(::GraphQL::Field)["name"] || method.name.id.stringify.camelcase(lower: true) }}
-          errors.concat _graphql_serialize(context, field, _graphql_call_{{ method.name.id }}(context, field), json)
+          errors = _graphql_serialize(context, field, _graphql_call_{{ method.name.id }}(context, field), json)
         {% end %}
         when "__typename"
           raise ::GraphQL::TypeError.new("field __typename must not have a selection since its type has no subfields") unless field.selections.empty?
@@ -326,7 +331,7 @@ module GraphQL::ObjectType
           raise ::GraphQL::TypeError.new("field __schema must have a selection of subfields") if field.selections.empty?
           json.object do
             introspection = ::GraphQL::Introspection::Schema.new(context.document.not_nil!, _graphql_type, context.mutation_type, context.subscription_type)
-            errors.concat introspection._graphql_resolve(context, field.selections, json)
+            errors = introspection._graphql_resolve(context, field.selections, json)
           end
         when "__type"
           raise ::GraphQL::TypeError.new("field __type must have a selection of subfields") if field.selections.empty?
@@ -335,7 +340,7 @@ module GraphQL::ObjectType
           document = context.document.not_nil!
           if definition = document.definitions.find { |d| d.is_a?(::GraphQL::Language::TypeDefinition) && d.name == type_name }
             json.object do
-              errors.concat ::GraphQL::Introspection::Type.new(document, definition.as(::GraphQL::Language::TypeDefinition))._graphql_resolve(context, field.selections, json)
+              errors = ::GraphQL::Introspection::Type.new(document, definition.as(::GraphQL::Language::TypeDefinition))._graphql_resolve(context, field.selections, json)
             end
           else
             json.null
@@ -344,7 +349,8 @@ module GraphQL::ObjectType
         else
           raise ::GraphQL::TypeError.new("Field is not defined: #{field.name}")
         end
-        errors.map &.with_path(path)
+        errors.each &.with_path(path)
+        errors
         {% end %}
       end
 
@@ -386,49 +392,73 @@ module GraphQL::ObjectType
   # Serializes `value` into `json`. Error paths are relative to the field:
   # the caller prepends the field's response key.
   private def _graphql_serialize(context, field : ::GraphQL::Language::Field, value, json : ::JSON::Builder) : Array(::GraphQL::Error)
-    errors = [] of ::GraphQL::Error
     path = field._alias || field.name
 
     case value
     when ::GraphQL::ObjectType
+      errors = NO_ERRORS
       json.object do
-        errors.concat value._graphql_resolve(context, field.selections, json)
+        errors = value._graphql_resolve(context, field.selections, json)
       end
+      return errors
     when Array
       if context.max_concurrency == 0 && _graphql_leaf_elements?(value) && _graphql_finite?(value)
         json.array do
-          value.each { |v| errors.concat _graphql_serialize(context, field, v, json) }
+          value.each { |v| _graphql_serialize(context, field, v, json) }
         end
-        return errors
+        return NO_ERRORS
       end
 
+      errors = [] of ::GraphQL::Error
       json.array do
-        pending = value.map_with_index do |v, i|
-          _graphql_fork(context) do
-            _graphql_build_json_fragment(context, [i] of String | Int32, field) do |element_json|
-              _graphql_serialize(context, field, v, element_json).map &.with_path(i)
-            end
-          end
-        end
-
         # `first` is never called; `typeof` only inspects the element type.
         element_nullable = typeof(value.first).nilable?
         propagate = false
 
-        pending.each do |item|
-          fragment = _graphql_await(item)
-          errors.concat fragment.errors
+        if context.max_concurrency == 0
+          # one buffer per element, nothing else
+          value.each_with_index do |v, i|
+            fragment = _graphql_build_json_fragment(context, i, field) do |element_json|
+              element_errors = _graphql_serialize(context, field, v, element_json)
+              element_errors.each &.with_path(i)
+              element_errors
+            end
+            errors.concat fragment.errors
 
-          if fragment.json.empty?
-            propagate = true unless element_nullable
-            json.null
-          else
-            json.raw fragment.json
+            if fragment.json.empty?
+              propagate = true unless element_nullable
+              json.null
+            else
+              json.raw fragment.json
+            end
+          end
+        else
+          pending = value.map_with_index do |v, i|
+            _graphql_fork(context) do
+              _graphql_build_json_fragment(context, i, field) do |element_json|
+                element_errors = _graphql_serialize(context, field, v, element_json)
+                element_errors.each &.with_path(i)
+                element_errors
+              end
+            end
+          end
+
+          pending.each do |item|
+            fragment = _graphql_await(item)
+            errors.concat fragment.errors
+
+            if fragment.json.empty?
+              propagate = true unless element_nullable
+              json.null
+            else
+              json.raw fragment.json
+            end
           end
         end
 
         raise NullPropagation.new(errors) if propagate
       end
+      return errors
     when ::Enum
       json.string value
     when Float64
@@ -445,7 +475,7 @@ module GraphQL::ObjectType
       raise ::GraphQL::TypeError.new("no serialization found for field #{path} on #{_graphql_type}")
     end
 
-    errors
+    NO_ERRORS
   end
 
   # :nodoc:
@@ -495,19 +525,19 @@ module GraphQL::ObjectType
   # Collects the fields selected by `selections` in query order, following
   # fragment spreads and inline fragments. Fields that share a response key
   # are merged into one entry, as the spec's CollectFields requires.
-  private def _graphql_collect_fields(context, selections : Array(::GraphQL::Language::Selection), fields : Hash(String, ::GraphQL::Language::Field), errors : Array(::GraphQL::Error), visited_fragments = [] of String) : Nil
+  private def _graphql_collect_fields(context, selections : Array(::GraphQL::Language::Selection), fields : Array(::GraphQL::Language::Field), errors : Array(::GraphQL::Error), visited_fragments = [] of String) : Nil
     selections.each do |selection|
       case selection
       when ::GraphQL::Language::Field
         path = selection._alias || selection.name
         next if _graphql_skip?(selection, selection.directives, [path] of String | Int32, errors)
-        if existing = fields[path]?
+        if index = fields.index { |f| (f._alias || f.name) == path }
           next if selection.selections.empty?
-          merged = existing.dup
-          merged.selections = existing.selections + selection.selections
-          fields[path] = merged
+          merged = fields[index].dup
+          merged.selections = fields[index].selections + selection.selections
+          fields[index] = merged
         else
-          fields[path] = selection
+          fields << selection
         end
       when ::GraphQL::Language::FragmentSpread
         next if _graphql_skip?(selection, selection.directives, [selection.name] of String | Int32, errors)
@@ -534,16 +564,43 @@ module GraphQL::ObjectType
   # :nodoc:
   # With `serial` each field is fully resolved before the next one starts,
   # as the spec requires for the root fields of a mutation.
+  # :nodoc:
+  # Whether `selections` can be used as the field list as is: only fields,
+  # no directives, no two fields sharing a response key. Most selection
+  # sets qualify, and skipping the collection step saves an array per
+  # object.
+  private def _graphql_plain_fields?(selections : Array(::GraphQL::Language::Selection)) : Bool
+    return false if selections.size > 8
+
+    selections.each_with_index do |selection, i|
+      return false unless selection.is_a?(::GraphQL::Language::Field) && selection.directives.empty?
+      key = selection._alias || selection.name
+      i.times do |j|
+        earlier = selections[j].as(::GraphQL::Language::Field)
+        return false if (earlier._alias || earlier.name) == key
+      end
+    end
+
+    true
+  end
+
   protected def _graphql_resolve(context, selections : Array(::GraphQL::Language::Selection), json : JSON::Builder, serial : Bool = false) : Array(::GraphQL::Error)
     errors = [] of ::GraphQL::Error
-    fields = Hash(String, ::GraphQL::Language::Field).new
-    _graphql_collect_fields(context, selections, fields, errors)
+    fields = if _graphql_plain_fields?(selections)
+               selections
+             else
+               collected = [] of ::GraphQL::Language::Field
+               _graphql_collect_fields(context, selections, collected, errors)
+               collected
+             end
 
     return _graphql_resolve_sequentially(context, fields, json, errors) if serial || context.max_concurrency == 0
 
-    pending = Hash(String, PendingFragment).new
-    fields.each do |path, field|
-      pending[path] = _graphql_fork(context, serial) do
+    pending = Array(PendingFragment).new(fields.size)
+    fields.each do |selection|
+      field = selection.as(::GraphQL::Language::Field)
+      path = field._alias || field.name
+      pending << _graphql_fork(context, serial) do
         _graphql_build_json_fragment(context, path, field) do |field_json|
           _graphql_resolve(context, field, field_json)
         end
@@ -552,12 +609,14 @@ module GraphQL::ObjectType
 
     propagate = false
 
-    pending.each do |path, item|
-      fragment = _graphql_await(item)
+    fields.each_with_index do |selection, i|
+      field = selection.as(::GraphQL::Language::Field)
+      path = field._alias || field.name
+      fragment = _graphql_await(pending[i])
       errors.concat fragment.errors
 
       if fragment.json.empty?
-        propagate = true unless _graphql_field_nullable?(fields[path].name)
+        propagate = true unless _graphql_field_nullable?(field.name)
         json.field(path) { json.null }
       else
         json.field(path) { json.raw fragment.json }
@@ -573,10 +632,12 @@ module GraphQL::ObjectType
   # straight into `json` once resolved, since nothing can fail after their
   # key is emitted; object values still go through a buffer so a failing
   # non-null descendant can discard the partial output.
-  private def _graphql_resolve_sequentially(context, fields : Hash(String, ::GraphQL::Language::Field), json : JSON::Builder, errors : Array(::GraphQL::Error)) : Array(::GraphQL::Error)
+  private def _graphql_resolve_sequentially(context, fields : Array(::GraphQL::Language::Selection) | Array(::GraphQL::Language::Field), json : JSON::Builder, errors : Array(::GraphQL::Error)) : Array(::GraphQL::Error)
     propagate = false
 
-    fields.each do |path, field|
+    fields.each do |selection|
+      field = selection.as(::GraphQL::Language::Field)
+      path = field._alias || field.name
       failed = false
 
       if _graphql_leaf_field?(field.name)
@@ -604,7 +665,9 @@ module GraphQL::ObjectType
     if value.is_a?(Array) && !_graphql_finite?(value)
       # the buffered path reports and nulls the offending elements
       fragment = _graphql_build_json_fragment(context, path, field) do |field_json|
-        _graphql_serialize(context, field, value, field_json).map &.with_path(path)
+        list_errors = _graphql_serialize(context, field, value, field_json)
+        list_errors.each &.with_path(path)
+        list_errors
       end
       errors.concat fragment.errors
       failed = fragment.json.empty?
@@ -615,7 +678,13 @@ module GraphQL::ObjectType
       json.field(path) { json.null }
       true
     else
-      json.field(path) { errors.concat _graphql_serialize(context, field, value, json).map(&.with_path(path)) }
+      json.field(path) do
+        leaf_errors = _graphql_serialize(context, field, value, json)
+        unless leaf_errors.empty?
+          leaf_errors.each &.with_path(path)
+          errors.concat leaf_errors
+        end
+      end
       false
     end
   end
@@ -659,7 +728,7 @@ module GraphQL::ObjectType
   # null.
   def _graphql_execute(context, selections : Array(::GraphQL::Language::Selection), serial : Bool = false) : JSONFragment
     _graphql_build_json_fragment(context, [] of String | Int32) do |json|
-      errors = [] of ::GraphQL::Error
+      errors = NO_ERRORS
       json.object do
         errors = _graphql_resolve(context, selections, json, serial)
       end
@@ -710,24 +779,24 @@ module GraphQL::ObjectType
   # fragment, which the caller renders as null or propagates further up.
   # `path` is the prefix the caller would otherwise add to the block's
   # errors, so exceptions can be reported at the same place.
-  private def _graphql_build_json_fragment(context, path : String | Array(Int32 | String), node : ::GraphQL::Language::ASTNode? = nil, & : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
-    errors = [] of ::GraphQL::Error
+  private def _graphql_build_json_fragment(context, path : String | Int32 | Array(Int32 | String), node : ::GraphQL::Language::ASTNode? = nil, & : JSON::Builder -> Array(::GraphQL::Error)) : JSONFragment
+    errors = NO_ERRORS
     failed = false
 
     json = String.build do |io|
       builder = JSON::Builder.new(io)
       builder.document do
-        errors.concat yield builder
+        errors = yield builder
       end
     rescue e : NullPropagation
       failed = true
       e.errors.each { |error| _graphql_prefix_path(error, path) }
-      errors.concat e.errors
+      errors = e.errors
     rescue e
       failed = true
       if message = context.handle_exception(e)
-        error_path = path.is_a?(String) ? [path] of String | Int32 : path
-        errors << ::GraphQL::Error.new(message, error_path.empty? ? nil : error_path, node)
+        error_path = path.is_a?(Array) ? path : [path] of String | Int32
+        errors = [::GraphQL::Error.new(message, error_path.empty? ? nil : error_path, node)]
       end
     end
 
@@ -736,9 +805,9 @@ module GraphQL::ObjectType
   end
 
   # :nodoc:
-  private def _graphql_prefix_path(error : ::GraphQL::Error, path : String | Array(Int32 | String)) : Nil
+  private def _graphql_prefix_path(error : ::GraphQL::Error, path : String | Int32 | Array(Int32 | String)) : Nil
     case path
-    when String
+    when String, Int32
       error.with_path(path)
     else
       path.reverse_each { |segment| error.with_path(segment) }
