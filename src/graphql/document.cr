@@ -2,6 +2,36 @@ require "./introspection"
 require "./scalars"
 
 module GraphQL::Document
+  # :nodoc:
+  # Converts a Crystal default value into the AST value type used by the
+  # schema. Arrays need an element-wise copy because `Array(String)` is not
+  # an `Array(FValue)`, and enums become enum value nodes.
+  def self._graphql_fvalue(value : ::Enum) : ::GraphQL::Language::FValue
+    ::GraphQL::Language::AEnum.new(name: value.to_s)
+  end
+
+  # :nodoc:
+  def self._graphql_fvalue(value : Array) : ::GraphQL::Language::FValue
+    value.map { |v| _graphql_fvalue(v).as(::GraphQL::Language::FValue) }
+  end
+
+  # :nodoc:
+  def self._graphql_fvalue(value : Hash) : ::GraphQL::Language::FValue
+    value.each_with_object({} of String => ::GraphQL::Language::FValue) do |(k, v), hash|
+      hash[k.to_s] = _graphql_fvalue(v)
+    end
+  end
+
+  # :nodoc:
+  def self._graphql_fvalue(value : String | Int32 | Float64 | Bool | Nil | ::GraphQL::Language::AEnum | ::GraphQL::Language::InputObject) : ::GraphQL::Language::FValue
+    value
+  end
+
+  # :nodoc:
+  def self._graphql_fvalue(value : T) : ::GraphQL::Language::FValue forall T
+    {% raise "GraphQL: #{T} cannot be used as a default value" %}
+  end
+
   private macro _graphql_t(t, nilable)
     {% type = t.resolve %}
     {% unless nilable %}
@@ -40,11 +70,7 @@ module GraphQL::Document
       name: {{ name }},
       description: {{ description }},
       type: (_graphql_t {{ type }}, {{ nilable }}),
-      {% if type.annotation(::GraphQL::Enum) %}
-      default_value: {{default}}.nil? ? nil : ::GraphQL::Language::AEnum.new(name: {{default}}.to_s),
-      {% else %}
-      default_value: {{default}},
-      {% end %}
+      default_value: ::GraphQL::Document._graphql_fvalue({{ default }}),
       directives: [] of ::GraphQL::Language::Directive,
     )
   end

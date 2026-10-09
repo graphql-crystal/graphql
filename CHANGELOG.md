@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Array and array-of-enum default values on field arguments and input object
+  fields no longer fail to compile (#39)
+
 ## [0.5.0] - 2026-10-09
 
 ### Added
