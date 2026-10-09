@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fewer allocations per request: positions for error locations are derived
+  on demand, nodes without arguments or directives share empty arrays, plain
+  selection sets are resolved without an intermediate field map, requests
+  without variables skip variable resolution, leaf fields and list elements
+  allocate no error arrays, and sequential list elements no longer create a
+  closure each. The benchmark reports 25 to 45 percent fewer bytes per request
+  and 18 to 46 percent more throughput across its scenarios
+
+## [0.9.4] - 2026-10-09
+
 ### Fixed
 
 - Objects implementing several interfaces are printed as

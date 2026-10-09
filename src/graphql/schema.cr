@@ -39,6 +39,8 @@ module GraphQL
     # for nullable variables. Variables the operation uses without declaring
     # them are looked up directly in `variables` when substituted.
     private def resolve_variables(operation : Language::OperationDefinition, variables : Hash(String, JSON::Any)?, errors) : Hash(String, Language::FValue)
+      return EMPTY_VARIABLES if operation.variables.empty?
+
       resolved = Hash(String, Language::FValue).new
 
       operation.variables.each do |definition|
@@ -142,6 +144,9 @@ module GraphQL
       end
     end
 
+    # For operations that declare no variables; never mutated.
+    EMPTY_VARIABLES = {} of String => Language::FValue
+
     def initialize(@query : QueryType, @mutation : MutationType? = nil, @subscription : SubscriptionType? = nil)
       @document = @query._graphql_document
       {@mutation, @subscription}.each do |root|
@@ -165,44 +170,51 @@ module GraphQL
         return
       end
 
-      operations = [] of Language::OperationDefinition
-
       context.query_type = @query._graphql_type
       context.mutation_type = @mutation.try &._graphql_type
       context.subscription_type = @subscription.try &._graphql_type
       context.document = @document
 
-      document.visit(->(node : Language::ASTNode) {
-        case node
-        when Language::OperationDefinition
-          operations << node
-        when Language::FragmentDefinition
-          context.fragments << node
-        end
-      })
+      first_operation = nil
+      named_operation = nil
+      operation_count = 0
 
-      operation = if operations.empty?
+      document.definitions.each do |definition|
+        case definition
+        when Language::OperationDefinition
+          operation_count += 1
+          first_operation ||= definition
+          named_operation = definition if operation_name && definition.name == operation_name
+        when Language::FragmentDefinition
+          context.fragments << definition
+        end
+      end
+
+      operation = if operation_count == 0
                     errors << Error.new("query does not contain an operation")
                     return
-                  elsif operation_name.nil? && operations.size == 1
-                    operations.first
+                  elsif (single = first_operation) && operation_name.nil? && operation_count == 1
+                    single
                   elsif operation_name.nil?
                     errors << Error.new("sent more than one operation but did not set operation name")
                     return
-                  elsif op = operations.find { |q| q.name == operation_name }
-                    op
+                  elsif named_operation
+                    named_operation
                   else
                     errors << Error.new("could not find operation with name #{operation_name}")
                     return
                   end
 
-      resolved = resolve_variables(operation, variables, errors)
-      substitute = ->(node : Language::ASTNode) {
-        substitute_variables(node, resolved, variables, errors) if node.is_a?(Language::Argument)
-        nil
-      }
-      operation.visit(substitute)
-      context.fragments.each &.visit(substitute)
+      # a query without a `$` cannot reference a variable
+      if query.includes?('$')
+        resolved = resolve_variables(operation, variables, errors)
+        substitute = ->(node : Language::ASTNode) {
+          substitute_variables(node, resolved, variables, errors) if node.is_a?(Language::Argument)
+          nil
+        }
+        operation.visit(substitute)
+        context.fragments.each &.visit(substitute)
+      end
 
       context.complexity = complexity(operation.selections, context.fragments)
       if (max = context.max_complexity) && context.complexity > max
