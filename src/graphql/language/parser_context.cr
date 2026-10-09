@@ -455,11 +455,11 @@ class GraphQL::Language::ParserContext
     )
   end
 
-  private def parse_int(is_constant) : Int32
+  private def parse_int(is_constant) : Int32 | BigInt
     token = @current_token
     advance
     value = token.value.not_nil!
-    value.to_i32? || raise ParserError.new("Int cannot represent non 32-bit signed integer value: #{value}")
+    value.to_i32? || BigInt.new(value)
   end
 
   private def parse_interface_type_definition

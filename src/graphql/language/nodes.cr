@@ -1,3 +1,4 @@
+require "big"
 require "./ast"
 require "./generation"
 
@@ -86,7 +87,9 @@ module GraphQL
       end
     end
 
-    alias FValue = String | Int32 | Float64 | Bool | Nil | AEnum | InputObject | Array(FValue) | Hash(String, FValue)
+    # Integer literals that do not fit an `Int32` are kept as `BigInt` so custom
+    # scalars can accept them; the `Int` type rejects them during coercion.
+    alias FValue = String | Int32 | BigInt | Float64 | Bool | Nil | AEnum | InputObject | Array(FValue) | Hash(String, FValue)
 
     define_array_cast(FValue)
 

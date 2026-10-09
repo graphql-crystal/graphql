@@ -9,6 +9,7 @@ module GraphQL::InputObjectType
         {% method = @type.methods.find(&.annotation(::GraphQL::Field)) %}
         self.new(
           {% for arg in method.args %}
+            {% raise "GraphQL: #{@type.name}##{method.name} args must have type restriction" if arg.restriction.is_a? Nop %}
             {{arg.name}}: begin
               fa = input_object.arguments.find { |i| i.name == {{ arg.name.stringify.camelcase(lower: true) }} }
               if fa.nil? || fa.value.nil?

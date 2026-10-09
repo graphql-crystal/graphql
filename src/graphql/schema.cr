@@ -12,7 +12,11 @@ module GraphQL
     private def to_fvalue(any : JSON::Any) : Language::FValue
       case raw = any.raw
       when Int64
-        raw.to_i32.as(Language::FValue)
+        if Int32::MIN <= raw <= Int32::MAX
+          raw.to_i32.as(Language::FValue)
+        else
+          BigInt.new(raw).as(Language::FValue)
+        end
       when Hash
         args = raw.map do |key, value|
           Language::Argument.new(key, to_fvalue(value))

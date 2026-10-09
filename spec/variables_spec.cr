@@ -68,12 +68,15 @@ describe "variables" do
     ).to_json
   end
 
-  it "reports a value that cannot be converted once" do
+  it "rejects an integer variable outside the 32-bit range" do
     schema.execute(
       %(query ($n: Int!) { double(n: $n) }),
       {"n" => JSON::Any.new(99_999_999_999_i64)}
     ).should eq (
-      {"errors" => [{"message" => "invalid value for variable n: Arithmetic overflow", "path" => [] of String}]}
+      {
+        "data"   => nil,
+        "errors" => [{"message" => "Int cannot represent non 32-bit signed integer value: 99999999999", "path" => ["double"]}],
+      }
     ).to_json
   end
 

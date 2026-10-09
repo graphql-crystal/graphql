@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Errors inside list arguments name the argument instead of always saying
+  "argument name"
+- A single value passed where a list is expected is coerced to a one-element
+  list, as the spec requires
+- List arguments with nullable elements, such as `Array(String?)`, accept
+  `null` elements instead of failing with a type cast error
+- Integer literals and variables outside the 32-bit range reach custom
+  scalars such as `BigInt` instead of being rejected by the parser. `Int`
+  arguments still reject them, now at the argument with its path
+- `BigInt` arguments accept integer literals as well as strings
+- Input object constructors with untyped arguments fail to compile with
+  "args must have type restriction" instead of an internal macro error
+
 ## [0.7.0] - 2026-10-09
 
 ### Changed

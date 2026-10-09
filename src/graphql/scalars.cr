@@ -82,8 +82,15 @@ module GraphQL::Scalars
     def initialize(@value : ::BigInt)
     end
 
+    # Accepts both integer literals and strings, since clients commonly send
+    # values beyond 64 bits as strings.
     def self.from_json(string_or_io)
-      self.new(::BigInt.new(::String.from_json(string_or_io)))
+      pull = JSON::PullParser.new(string_or_io)
+      case pull.kind
+      when .int?    then self.new(::BigInt.new(pull.read_raw))
+      when .string? then self.new(::BigInt.new(pull.read_string))
+      else               raise ::GraphQL::TypeError.new("BigInt must be an Int or a String")
+      end
     end
 
     def to_json(builder)
