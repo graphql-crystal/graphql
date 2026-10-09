@@ -197,6 +197,12 @@ module Bench
     }
     GRAPHQL
 
+  MUTATIONS = String.build do |q|
+    q << "mutation Create($role: Role!) {\n"
+    100.times { |i| q << "  m#{i}: createUser(input: {name: \"user #{i}\", email: \"u#{i}@example.com\", role: $role}) { id name role }\n" }
+    q << "}"
+  end
+
   SCENARIOS = [
     # per-request overhead: parsing, validation, one tiny object
     Scenario.new("small", %({ user(id: "u1") { id name role } })),
@@ -218,11 +224,7 @@ module Bench
       fragment PostFields on Post { id title score published }
       GRAPHQL
     # 100 serial root fields with input objects, through variables
-    Scenario.new("mutations", String.build { |q|
-      q << "mutation Create($role: Role!) {\n"
-      100.times { |i| q << "  m#{i}: createUser(input: {name: \"user #{i}\", email: \"u#{i}@example.com\", role: $role}) { id name role }\n" }
-      q << "}"
-    }, {"role" => JSON::Any.new("Member")}),
+    Scenario.new("mutations", MUTATIONS, {"role" => JSON::Any.new("Member")}),
     # the full introspection query a client sends on connect
     Scenario.new("introspection", GraphQL::INTROSPECTION_QUERY),
   ]
